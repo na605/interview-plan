@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interview Prep Plan — Wise & Monzo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Prep Plan">
+<meta name="theme-color" content="#2C2416">
+<title>Interview Prep</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,64 +17,131 @@
   --cream: #F5F0E8; --dark: #1A1A1A; --warm-dark: #2C2416;
   --gold: #C9A84C; --sage: #7A9E7E; --indigo: #6366F1;
   --rust: #C4622D; --muted: #8A8070; --border: rgba(0,0,0,0.08);
+  --white: #FFFFFF;
 }
-body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--dark); padding: 40px 20px; }
-.wrap { max-width: 980px; margin: 0 auto; }
-.page-title { font-size: 30px; font-weight: 500; color: var(--warm-dark); margin-bottom: 4px; }
-.page-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; font-weight: 300; }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
-.stat { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
-.stat-num { font-size: 24px; font-weight: 500; color: var(--warm-dark); display: block; margin-bottom: 2px; }
-.stat-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.progress-wrap { margin-bottom: 24px; }
-.progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+html { height: 100%; }
+body {
+  background: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--dark);
+  min-height: 100%;
+  padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
+  padding-top: max(env(safe-area-inset-top, 0px), 20px);
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 40px);
+}
+.wrap { max-width: 980px; margin: 0 auto; padding: 20px 16px; }
+
+/* Header */
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.page-title { font-size: 26px; font-weight: 500; color: var(--warm-dark); margin-bottom: 2px; }
+.page-sub { font-size: 13px; color: var(--muted); font-weight: 300; }
+.install-btn {
+  background: var(--warm-dark); color: var(--gold); border: none;
+  padding: 8px 14px; border-radius: 99px; font-size: 12px; font-weight: 500;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; display: none; white-space: nowrap;
+}
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+.stat { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
+.stat-num { font-size: 22px; font-weight: 500; color: var(--warm-dark); display: block; margin-bottom: 2px; }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Progress */
+.progress-wrap { margin-bottom: 20px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
 .progress-track { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--warm-dark); border-radius: 99px; transition: width 0.4s; }
-.legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; }
-.legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+.progress-fill { height: 100%; background: var(--warm-dark); border-radius: 99px; transition: width 0.4s ease; }
+
+/* Legend */
+.legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
 .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.week-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
-.week-tab { padding: 6px 15px; border-radius: 99px; border: 1px solid var(--border); font-size: 13px; cursor: pointer; background: #fff; color: var(--muted); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+
+/* Week tabs */
+.week-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 16px; }
+.week-tab {
+  padding: 6px 13px; border-radius: 99px; border: 1px solid var(--border);
+  font-size: 12px; cursor: pointer; background: var(--white); color: var(--muted);
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
 .week-tab:hover { border-color: var(--warm-dark); color: var(--warm-dark); }
-.week-tab.active { background: var(--warm-dark); color: #fff; border-color: var(--warm-dark); }
-.week-title { font-size: 19px; font-weight: 500; color: var(--warm-dark); margin-bottom: 3px; }
-.week-focus { font-size: 13px; color: var(--muted); font-weight: 300; margin-bottom: 18px; }
-.days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 10px; margin-bottom: 18px; }
-.day-card { background: #fff; border: 1px solid var(--border); border-radius: 13px; padding: 15px; cursor: pointer; transition: border-color 0.15s; position: relative; }
+.week-tab.active { background: var(--warm-dark); color: var(--white); border-color: var(--warm-dark); }
+
+/* Week header */
+.week-title { font-size: 18px; font-weight: 500; color: var(--warm-dark); margin-bottom: 3px; }
+.week-focus { font-size: 12px; color: var(--muted); font-weight: 300; margin-bottom: 16px; line-height: 1.5; }
+
+/* Days grid */
+.days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 9px; margin-bottom: 16px; }
+@media (max-width: 500px) { .days-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 360px) { .days-grid { grid-template-columns: 1fr; } }
+
+.day-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 13px; padding: 14px; cursor: pointer;
+  transition: border-color 0.15s; position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
 .day-card:hover { border-color: rgba(0,0,0,0.18); }
 .day-card.done { border-color: var(--sage); }
-.done-badge { position: absolute; top: 11px; right: 11px; width: 17px; height: 17px; border-radius: 50%; background: var(--sage); display: none; align-items: center; justify-content: center; }
-.done-badge svg { width: 9px; height: 9px; stroke: #fff; stroke-width: 2.5; fill: none; }
+
+.done-badge {
+  position: absolute; top: 10px; right: 10px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--sage); display: none;
+  align-items: center; justify-content: center;
+}
+.done-badge svg { width: 10px; height: 10px; stroke: var(--white); stroke-width: 2.5; fill: none; }
 .day-card.done .done-badge { display: flex; }
-.day-lbl { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 7px; }
-.tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 99px; margin-bottom: 7px; font-weight: 500; }
+
+.day-lbl { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+.tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 99px; margin-bottom: 6px; font-weight: 500; }
 .tag-code { background: rgba(99,102,241,0.1); color: #4338CA; }
 .tag-design { background: rgba(201,168,76,0.15); color: #92580A; }
 .tag-behav { background: rgba(122,158,126,0.15); color: #3D6B42; }
 .tag-research { background: rgba(196,98,45,0.12); color: #9A3412; }
 .tag-rest { background: rgba(138,128,112,0.1); color: var(--muted); }
-.day-title { font-size: 13px; font-weight: 500; color: var(--warm-dark); margin-bottom: 9px; }
+
+.day-title { font-size: 13px; font-weight: 500; color: var(--warm-dark); margin-bottom: 8px; }
 .day-tasks { list-style: none; }
-.day-tasks li { font-size: 11px; color: var(--muted); padding: 3px 0; display: flex; align-items: flex-start; gap: 5px; line-height: 1.5; }
+.day-tasks li { font-size: 11px; color: var(--muted); padding: 2px 0; display: flex; align-items: flex-start; gap: 5px; line-height: 1.5; }
 .day-tasks li::before { content: '–'; color: #ccc; flex-shrink: 0; }
 .day-tasks a { color: var(--indigo); text-decoration: none; font-size: 11px; }
 .day-tasks a:hover { text-decoration: underline; }
+
+/* Nav */
 .week-nav { display: flex; justify-content: space-between; align-items: center; }
-.nav-btn { padding: 7px 16px; border-radius: 99px; border: 1px solid var(--border); font-size: 13px; cursor: pointer; background: #fff; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+.nav-btn {
+  padding: 8px 16px; border-radius: 99px; border: 1px solid var(--border);
+  font-size: 12px; cursor: pointer; background: var(--white); color: var(--muted);
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
 .nav-btn:hover:not(:disabled) { border-color: var(--warm-dark); color: var(--warm-dark); }
 .nav-btn:disabled { opacity: 0.3; cursor: default; }
-.reset-btn { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; font-family: 'DM Sans', sans-serif; }
+.reset-btn { font-size: 11px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; font-family: 'DM Sans', sans-serif; }
+
+/* Loading state */
+.loading { text-align: center; padding: 60px 0; color: var(--muted); font-size: 14px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1 class="page-title">Interview prep plan</h1>
-  <p class="page-sub">6 weeks · Wise & Monzo · Click any day to mark as done · All links open directly</p>
-  <div class="stats" id="statsRow"></div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Interview prep plan</h1>
+      <p class="page-sub">6 weeks · Tap a day to mark done · Saves to your device</p>
+    </div>
+    <button class="install-btn" id="installBtn">＋ Install app</button>
+  </div>
+
+  <div class="stats" id="statsRow"><div class="loading">Loading...</div></div>
+
   <div class="progress-wrap">
     <div class="progress-label"><span>Overall progress</span><span id="progressPct">0%</span></div>
     <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   </div>
+
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background:#6366F1"></div>Coding</div>
     <div class="legend-item"><div class="legend-dot" style="background:#C9A84C"></div>System design</div>
@@ -76,355 +149,403 @@ body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(
     <div class="legend-item"><div class="legend-dot" style="background:#C4622D"></div>Research</div>
     <div class="legend-item"><div class="legend-dot" style="background:#ccc"></div>Rest</div>
   </div>
+
   <div class="week-tabs" id="weekTabs"></div>
   <p class="week-title" id="weekTitle"></p>
   <p class="week-focus" id="weekFocus"></p>
-  <div class="days-grid" id="daysGrid"></div>
+  <div class="days-grid" id="daysGrid"><div class="loading">Loading your progress...</div></div>
+
   <div class="week-nav">
-    <button class="nav-btn" id="prevBtn" onclick="changeWeek(-1)">← Previous week</button>
+    <button class="nav-btn" id="prevBtn" onclick="changeWeek(-1)">← Prev week</button>
     <button class="reset-btn" onclick="resetAll()">Reset progress</button>
     <button class="nav-btn" id="nextBtn" onclick="changeWeek(1)">Next week →</button>
   </div>
 </div>
+
 <script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
 const L = {
-  lc: 'https://leetcode.com/problemset/all/?difficulty=MEDIUM',
-  lc_easy: 'https://leetcode.com/problemset/all/?difficulty=EASY',
-  lc_arrays: 'https://leetcode.com/tag/array/',
-  lc_hash: 'https://leetcode.com/tag/hash-table/',
-  lc_trees: 'https://leetcode.com/tag/binary-tree/',
-  lc_graphs: 'https://leetcode.com/tag/graph/',
-  lc_dp: 'https://leetcode.com/tag/dynamic-programming/',
-  lc_search: 'https://leetcode.com/tag/binary-search/',
-  lc_sliding: 'https://leetcode.com/tag/sliding-window/',
-  lc_two: 'https://leetcode.com/tag/two-pointers/',
-  ddia: 'https://github.com/ajaydubey777/SystemDesignArchitecture/blob/main/Designing%20Data%20Intensive%20Applications.pdf',
-  sd_primer: 'https://github.com/donnemartin/system-design-primer',
-  sd_resources: 'https://github.com/ashishps1/awesome-system-design-resources',
-  rate_limiter: 'https://github.com/donnemartin/system-design-primer#design-a-rate-limiter',
-  url_short: 'https://github.com/donnemartin/system-design-primer#design-pastebin-dot-com-or-bit-dot-ly',
-  sd_payments: 'https://github.com/ashishps1/awesome-system-design-resources#design-payment-system',
-  sd_notifs: 'https://github.com/ashishps1/awesome-system-design-resources#design-notification-service',
-  sd_fraud: 'https://www.youtube.com/results?search_query=design+fraud+detection+system+interview',
-  sd_cache: 'https://github.com/donnemartin/system-design-primer#cache',
-  sd_db: 'https://github.com/donnemartin/system-design-primer#relational-database-management-system-rdbms',
-  cap: 'https://github.com/donnemartin/system-design-primer#cap-theorem',
-  kafka_intro: 'https://medium.com/@alvarofps/fundamentals-of-apache-kafka-simply-explained-db9fc5578f30',
-  kafka_deep: 'https://medium.com/@FKosa/apache-kafka-a-complete-introduction-3f765ce01426',
-  kafka_vs_rabbit: 'https://www.cloudamqp.com/blog/when-to-use-rabbitmq-or-apache-kafka.html',
-  wise_tech: 'https://medium.com/wise-engineering/wise-tech-stack-2025-update-d0e63fe718c7',
-  wise_blog: 'https://medium.com/wise-engineering',
-  wise_platform: 'https://medium.com/wise-engineering/introduction-to-the-wise-platform-team-b4dffe9d7390',
-  wise_observability: 'https://medium.com/wise-engineering/grafana-mimir-compaction-from-bottleneck-to-savings-b26c6b0125a6',
-  monzo_blog: 'https://monzo.com/blog/topic/technology',
-  monzo_interview: 'https://monzo.com/blog/demystifying-the-backend-engineering-interview-process',
-  monzo_principles: 'https://monzo.com/blog/we-have-updated-our-engineering-principles',
-  monzo_newjoin: 'https://monzo.com/blog/starting-from-scratch-as-a-new-engineer-at-monzo',
-  monzo_fraud: 'https://monzo.com/blog/topic/technology',
-  star_guide: 'https://www.indeed.com/career-advice/interviewing/how-to-use-the-star-interview-response-technique',
-  redis_guide: 'https://redis.io/docs/latest/develop/get-started/',
-  java_collections: 'https://www.baeldung.com/java-collections',
-  java_clean: 'https://www.baeldung.com/java-clean-code',
-  big_o: 'https://www.bigocheatsheet.com/',
-  dfs_bfs: 'https://www.geeksforgeeks.org/difference-between-bfs-and-dfs/',
-  api_design: 'https://swagger.io/resources/articles/best-practices-in-api-design/',
-  sd_framework: 'https://www.youtube.com/watch?v=i7twT3x5yv8',
-  monzo_progression: 'https://progression.monzo.com/',
-  wise_jobs: 'https://wise.jobs/engineering',
+  lc:'https://leetcode.com/problemset/all/?difficulty=MEDIUM',
+  lc_easy:'https://leetcode.com/problemset/all/?difficulty=EASY',
+  lc_arrays:'https://leetcode.com/tag/array/',
+  lc_hash:'https://leetcode.com/tag/hash-table/',
+  lc_trees:'https://leetcode.com/tag/binary-tree/',
+  lc_graphs:'https://leetcode.com/tag/graph/',
+  lc_dp:'https://leetcode.com/tag/dynamic-programming/',
+  lc_search:'https://leetcode.com/tag/binary-search/',
+  lc_sliding:'https://leetcode.com/tag/sliding-window/',
+  lc_two:'https://leetcode.com/tag/two-pointers/',
+  lc_subs:'https://leetcode.com/submissions/',
+  ddia:'https://github.com/ajaydubey777/SystemDesignArchitecture/blob/main/Designing%20Data%20Intensive%20Applications.pdf',
+  sd_primer:'https://github.com/donnemartin/system-design-primer',
+  sd_resources:'https://github.com/ashishps1/awesome-system-design-resources',
+  rate_limiter:'https://github.com/donnemartin/system-design-primer#design-a-rate-limiter',
+  url_short:'https://github.com/donnemartin/system-design-primer#design-pastebin-dot-com-or-bit-dot-ly',
+  sd_payments:'https://github.com/ashishps1/awesome-system-design-resources#design-payment-system',
+  sd_notifs:'https://github.com/ashishps1/awesome-system-design-resources#design-notification-service',
+  sd_fraud:'https://www.youtube.com/results?search_query=design+fraud+detection+system+interview',
+  sd_cache:'https://github.com/donnemartin/system-design-primer#cache',
+  sd_db:'https://github.com/donnemartin/system-design-primer#relational-database-management-system-rdbms',
+  cap:'https://github.com/donnemartin/system-design-primer#cap-theorem',
+  kafka_intro:'https://medium.com/@alvarofps/fundamentals-of-apache-kafka-simply-explained-db9fc5578f30',
+  kafka_deep:'https://medium.com/@FKosa/apache-kafka-a-complete-introduction-3f765ce01426',
+  kafka_vs_rabbit:'https://www.cloudamqp.com/blog/when-to-use-rabbitmq-or-apache-kafka.html',
+  wise_tech:'https://medium.com/wise-engineering/wise-tech-stack-2025-update-d0e63fe718c7',
+  wise_blog:'https://medium.com/wise-engineering',
+  wise_platform:'https://medium.com/wise-engineering/introduction-to-the-wise-platform-team-b4dffe9d7390',
+  wise_observability:'https://medium.com/wise-engineering/grafana-mimir-compaction-from-bottleneck-to-savings-b26c6b0125a6',
+  wise_jobs:'https://wise.jobs/engineering',
+  monzo_blog:'https://monzo.com/blog/topic/technology',
+  monzo_interview:'https://monzo.com/blog/demystifying-the-backend-engineering-interview-process',
+  monzo_principles:'https://monzo.com/blog/we-have-updated-our-engineering-principles',
+  monzo_newjoin:'https://monzo.com/blog/starting-from-scratch-as-a-new-engineer-at-monzo',
+  monzo_progression:'https://progression.monzo.com/',
+  star_guide:'https://www.indeed.com/career-advice/interviewing/how-to-use-the-star-interview-response-technique',
+  redis_guide:'https://redis.io/docs/latest/develop/get-started/',
+  java_collections:'https://www.baeldung.com/java-collections',
+  java_clean:'https://www.baeldung.com/java-clean-code',
+  big_o:'https://www.bigocheatsheet.com/',
+  dfs_bfs:'https://www.geeksforgeeks.org/difference-between-bfs-and-dfs/',
+  api_design:'https://swagger.io/resources/articles/best-practices-in-api-design/',
+  sd_framework:'https://www.youtube.com/watch?v=i7twT3x5yv8',
+  sorting:'https://www.geeksforgeeks.org/sorting-algorithms/',
+  memo:'https://www.geeksforgeeks.org/memoization-1d-2d-and-3d/',
 };
 
-const weeks = [
-  {
-    title: "Week 1 — foundations",
-    focus: "Build the coding habit. Arrays, strings, hashmaps. Start reading about distributed systems.",
-    days: [
-      { label: "Mon", title: "Coding warm-up", tag: "code", tasks: [
-        {t: "5x LeetCode easy — arrays & strings", url: L.lc_arrays},
-        {t: "Revise time/space complexity", url: L.big_o},
-        {t: "Set up your LeetCode account", url: 'https://leetcode.com/'},
-      ]},
-      { label: "Tue", title: "Coding + reading", tag: "code", tasks: [
-        {t: "5x LeetCode medium — hashmaps", url: L.lc_hash},
-        {t: "Read: Designing Data-Intensive Apps ch.1 (free PDF)", url: L.ddia},
-        {t: "Note 3 key concepts from the chapter", url: null},
-      ]},
-      { label: "Wed", title: "System design intro", tag: "design", tasks: [
-        {t: "Watch: system design interview framework (25 min)", url: L.sd_framework},
-        {t: "Read: rate limiter design", url: L.rate_limiter},
-        {t: "Sketch your own rate limiter on paper", url: null},
-      ]},
-      { label: "Thu", title: "Coding + Java review", tag: "code", tasks: [
-        {t: "5x LeetCode medium — two pointers", url: L.lc_two},
-        {t: "Review Java collections (ArrayList, HashMap, Set)", url: L.java_collections},
-        {t: "Practise writing clean Java", url: L.java_clean},
-      ]},
-      { label: "Fri", title: "Research day", tag: "research", tasks: [
-        {t: "Read: Wise tech stack 2025", url: L.wise_tech},
-        {t: "Read: Monzo backend engineering interview process", url: L.monzo_interview},
-        {t: "Note one thing each company does differently", url: null},
-      ]},
-      { label: "Sat", title: "Behavioural prep", tag: "behav", tasks: [
-        {t: "Read: STAR method guide", url: L.star_guide},
-        {t: "Write out your Licence Management STAR story", url: null},
-        {t: "Write out your DSL re-architecture STAR story", url: null},
-      ]},
-      { label: "Sun", title: "Rest", tag: "rest", tasks: [
-        {t: "No prep — rest properly", url: null},
-        {t: "Reflect: what felt hardest this week?", url: null},
-        {t: "Plan your week 2 sessions", url: null},
-      ]},
-    ]
-  },
-  {
-    title: "Week 2 — coding depth",
-    focus: "Go deeper on algorithms. Trees, graphs, sorting. Introduce Kafka concepts.",
-    days: [
-      { label: "Mon", title: "Trees & recursion", tag: "code", tasks: [
-        {t: "5x LeetCode medium — binary trees", url: L.lc_trees},
-        {t: "Read: DFS vs BFS — when to use each", url: L.dfs_bfs},
-        {t: "Practise both traversals in Java", url: null},
-      ]},
-      { label: "Tue", title: "Graphs + Kafka intro", tag: "code", tasks: [
-        {t: "3x LeetCode medium — graphs", url: L.lc_graphs},
-        {t: "Read: Kafka simply explained", url: L.kafka_intro},
-        {t: "Read: Kafka vs RabbitMQ — key differences", url: L.kafka_vs_rabbit},
-      ]},
-      { label: "Wed", title: "Design — payments", tag: "design", tasks: [
-        {t: "Read: design a payment system", url: L.sd_payments},
-        {t: "Sketch a payment system (currency conversion, idempotency, failure)", url: null},
-        {t: "Aim for 45 mins as if in a real interview", url: null},
-      ]},
-      { label: "Thu", title: "Coding — sorting & search", tag: "code", tasks: [
-        {t: "5x LeetCode medium — binary search", url: L.lc_search},
-        {t: "Revise quicksort and mergesort on GeeksForGeeks", url: 'https://www.geeksforgeeks.org/sorting-algorithms/'},
-        {t: "Practise explaining your approach out loud", url: null},
-      ]},
-      { label: "Fri", title: "Mock project walkthrough", tag: "behav", tasks: [
-        {t: "Read: Monzo engineering principles (to frame your stories)", url: L.monzo_principles},
-        {t: "Do a timed walkthrough of your current role project", url: null},
-        {t: "Record yourself and listen back", url: null},
-      ]},
-      { label: "Sat", title: "Design — notifications", tag: "design", tasks: [
-        {t: "Read: design a notification service", url: L.sd_notifs},
-        {t: "Sketch the system — fan-out, delivery guarantees, retries", url: null},
-        {t: "Consider how Monzo's get-paid-early notification would work", url: null},
-      ]},
-      { label: "Sun", title: "Rest", tag: "rest", tasks: [
-        {t: "Full rest day", url: null},
-        {t: "Optional: skim one Monzo or Wise blog post", url: L.monzo_blog},
-        {t: "Prepare your week 3 focus areas", url: null},
-      ]},
-    ]
-  },
-  {
-    title: "Week 3 — system design focus",
-    focus: "Build a mental framework you can apply to any system design question.",
-    days: [
-      { label: "Mon", title: "Design framework deep dive", tag: "design", tasks: [
-        {t: "Read: system design primer — start here", url: L.sd_primer},
-        {t: "Design: URL shortener — apply the 5-step framework", url: L.url_short},
-        {t: "Time yourself to 45 mins", url: null},
-      ]},
-      { label: "Tue", title: "Dynamic programming basics", tag: "code", tasks: [
-        {t: "3x LeetCode medium — DP (start easy)", url: L.lc_dp},
-        {t: "Read: memoisation vs tabulation explained", url: 'https://www.geeksforgeeks.org/memoization-1d-2d-and-3d/'},
-        {t: "DP rarely comes up but good to know the basics", url: null},
-      ]},
-      { label: "Wed", title: "Design — fraud detection", tag: "design", tasks: [
-        {t: "Watch: design a fraud detection system (YouTube)", url: L.sd_fraud},
-        {t: "Read: how Monzo rebuilt its fraud prevention platform", url: L.monzo_fraud},
-        {t: "Sketch your own design — rule engines, signals, false positives", url: null},
-      ]},
-      { label: "Thu", title: "Behavioural deep dive", tag: "behav", tasks: [
-        {t: "Read: STAR method — refresh", url: L.star_guide},
-        {t: "Write STAR stories: Data Lineage, contribution workflow, mentoring", url: null},
-        {t: "Aim for 7 strong stories total by end of this week", url: null},
-      ]},
-      { label: "Fri", title: "Design — databases & CAP theorem", tag: "design", tasks: [
-        {t: "Read: CAP theorem explained", url: L.cap},
-        {t: "Read: relational vs NoSQL trade-offs", url: L.sd_db},
-        {t: "Sketch a database layer for a payment system", url: null},
-      ]},
-      { label: "Sat", title: "Full mock interview", tag: "behav", tasks: [
-        {t: "1 hour mock: project walkthrough + system design + 2 STAR questions", url: null},
-        {t: "Read Monzo progression framework to frame your seniority", url: L.monzo_progression},
-        {t: "Give yourself honest feedback afterwards", url: null},
-      ]},
-      { label: "Sun", title: "Rest", tag: "rest", tasks: [
-        {t: "Rest — you've done a lot this week", url: null},
-        {t: "Optional: review your mock notes", url: null},
-        {t: "Prep your week 4 focus areas", url: null},
-      ]},
-    ]
-  },
-  {
-    title: "Week 4 — pair coding & APIs",
-    focus: "Simulate the pair coding round. Write clean, communicative code under time pressure.",
-    days: [
-      { label: "Mon", title: "Pair coding simulation", tag: "code", tasks: [
-        {t: "Set a 30-min timer — solve 2x LeetCode medium", url: L.lc},
-        {t: "Talk out loud as you code — explain every decision", url: null},
-        {t: "Review: what would you do differently?", url: null},
-      ]},
-      { label: "Tue", title: "API design", tag: "design", tasks: [
-        {t: "Read: REST API best practices", url: L.api_design},
-        {t: "Design a payment API from scratch — endpoints, auth, errors, pagination", url: null},
-        {t: "Write the OpenAPI spec for it in a doc", url: null},
-      ]},
-      { label: "Wed", title: "Sliding window problems", tag: "code", tasks: [
-        {t: "5x LeetCode medium — sliding window", url: L.lc_sliding},
-        {t: "These appear frequently in fintech coding rounds", url: null},
-        {t: "Practise explaining the pattern before coding", url: null},
-      ]},
-      { label: "Thu", title: "Research & company prep", tag: "research", tasks: [
-        {t: "Re-read: Wise engineering blog — all posts", url: L.wise_blog},
-        {t: "Re-read: Monzo engineering blog — technology posts", url: L.monzo_blog},
-        {t: "Prepare 3 smart questions for each company", url: null},
-      ]},
-      { label: "Fri", title: "Design — caching with Redis", tag: "design", tasks: [
-        {t: "Read: Redis caching patterns", url: L.redis_guide},
-        {t: "Read: caching design in system design primer", url: L.sd_cache},
-        {t: "Design a caching layer for a financial data API", url: null},
-      ]},
-      { label: "Sat", title: "Behavioural polish", tag: "behav", tasks: [
-        {t: "Review all 7 STAR stories — tighten each to 2 mins", url: null},
-        {t: "Practise: 'Tell me about a time you failed'", url: null},
-        {t: "Practise: 'Tell me about a disagreement at work'", url: null},
-      ]},
-      { label: "Sun", title: "Rest", tag: "rest", tasks: [
-        {t: "Full rest day", url: null},
-        {t: "You are more prepared than you think", url: null},
-        {t: "Plan your week 5 company-specific sessions", url: null},
-      ]},
-    ]
-  },
-  {
-    title: "Week 5 — company-specific prep",
-    focus: "Tailor everything to Wise and Monzo. Know their culture, values, and engineering decisions.",
-    days: [
-      { label: "Mon", title: "Wise deep dive", tag: "research", tasks: [
-        {t: "Read: Wise tech stack 2025", url: L.wise_tech},
-        {t: "Read: Wise Platform team — how squads work", url: L.wise_platform},
-        {t: "Browse: all Wise engineering roles", url: L.wise_jobs},
-      ]},
-      { label: "Tue", title: "Monzo deep dive", tag: "research", tasks: [
-        {t: "Read: starting from scratch at Monzo (new engineer's perspective)", url: L.monzo_newjoin},
-        {t: "Read: Monzo engineering principles", url: L.monzo_principles},
-        {t: "Read: demystifying Monzo's backend interview process", url: L.monzo_interview},
-      ]},
-      { label: "Wed", title: "Full mock — Wise style", tag: "behav", tasks: [
-        {t: "1 hour: project walkthrough + system design + behavioural", url: null},
-        {t: "Frame everything through Wise's product mindset and squad ownership", url: L.wise_tech},
-        {t: "Note what to improve after", url: null},
-      ]},
-      { label: "Thu", title: "Full mock — Monzo style", tag: "behav", tasks: [
-        {t: "1 hour: pair coding + system design + behavioural", url: null},
-        {t: "Frame everything through Monzo's customer-first lens", url: L.monzo_principles},
-        {t: "Use STAR strictly — time each answer to 2 mins", url: L.star_guide},
-      ]},
-      { label: "Fri", title: "Edge cases in coding", tag: "code", tasks: [
-        {t: "3x LeetCode medium — focus on edge cases", url: L.lc},
-        {t: "Practise: null checks, empty arrays, negative numbers, overflow", url: null},
-        {t: "Write tests for each solution you submit", url: null},
-      ]},
-      { label: "Sat", title: "Kafka deep dive", tag: "research", tasks: [
-        {t: "Read: Kafka complete introduction — topics, consumer groups, partitions", url: L.kafka_deep},
-        {t: "Read: Wise observability engineering (see how real teams work)", url: L.wise_observability},
-        {t: "Note: 3 things you'd say about Kafka in an interview", url: null},
-      ]},
-      { label: "Sun", title: "Rest", tag: "rest", tasks: [
-        {t: "Full rest — you're in the final stretch", url: null},
-        {t: "Get consistent, good sleep this week", url: null},
-        {t: "You're better prepared than most candidates", url: null},
-      ]},
-    ]
-  },
-  {
-    title: "Week 6 — final prep & interviews",
-    focus: "Light revision only. Trust your preparation. Focus on sleep, confidence, and clear communication.",
-    days: [
-      { label: "Mon", title: "Light revision", tag: "code", tasks: [
-        {t: "Review your top 10 LeetCode solutions", url: 'https://leetcode.com/submissions/'},
-        {t: "Re-read your 7 STAR stories once", url: null},
-        {t: "Do not cram new material this week", url: null},
-      ]},
-      { label: "Tue", title: "Design review", tag: "design", tasks: [
-        {t: "Re-sketch 3 system designs from memory", url: null},
-        {t: "Practise articulating trade-offs in 2 sentences each", url: null},
-        {t: "Browse awesome system design resources — refresh only", url: L.sd_resources},
-      ]},
-      { label: "Wed", title: "Final behavioural run", tag: "behav", tasks: [
-        {t: "Run through all STAR stories out loud one final time", url: null},
-        {t: "Practise your opening: walk me through your background", url: null},
-        {t: "Practise your closing questions for interviewers", url: null},
-      ]},
-      { label: "Thu", title: "Day before interview", tag: "rest", tasks: [
-        {t: "No new material — rest your brain", url: null},
-        {t: "Prepare setup: good lighting, quiet room, water ready", url: null},
-        {t: "Sleep early", url: null},
-      ]},
-      { label: "Fri", title: "Interview day", tag: "rest", tasks: [
-        {t: "Eat well before the interview", url: null},
-        {t: "Log in 5 mins early — test your connection", url: null},
-        {t: "You have prepared well. Trust yourself.", url: null},
-      ]},
-      { label: "Sat", title: "Reflect & rest", tag: "rest", tasks: [
-        {t: "Write down everything you remember from the interview", url: null},
-        {t: "Note what went well and what to improve next time", url: null},
-        {t: "Rest — you earned it", url: null},
-      ]},
-      { label: "Sun", title: "Reset", tag: "rest", tasks: [
-        {t: "If waiting for feedback — keep applying elsewhere", url: null},
-        {t: "Stay in motion — don't fixate on one outcome", url: null},
-        {t: "You are better prepared than most candidates", url: null},
-      ]},
-    ]
-  },
+const weeks=[
+  {title:"Week 1 — foundations",focus:"Build the coding habit. Arrays, strings, hashmaps. Start reading about distributed systems.",days:[
+    {label:"Mon",title:"Coding warm-up",tag:"code",tasks:[
+      {t:"5x LeetCode easy — arrays & strings",url:L.lc_arrays},
+      {t:"Revise time/space complexity",url:L.big_o},
+      {t:"Set up your LeetCode account",url:'https://leetcode.com/'},
+    ]},
+    {label:"Tue",title:"Coding + reading",tag:"code",tasks:[
+      {t:"5x LeetCode medium — hashmaps",url:L.lc_hash},
+      {t:"Read: Designing Data-Intensive Apps ch.1 (free PDF)",url:L.ddia},
+      {t:"Note 3 key concepts from the chapter",url:null},
+    ]},
+    {label:"Wed",title:"System design intro",tag:"design",tasks:[
+      {t:"Watch: system design interview framework (25 min)",url:L.sd_framework},
+      {t:"Read: rate limiter design",url:L.rate_limiter},
+      {t:"Sketch your own rate limiter on paper",url:null},
+    ]},
+    {label:"Thu",title:"Coding + Java review",tag:"code",tasks:[
+      {t:"5x LeetCode medium — two pointers",url:L.lc_two},
+      {t:"Review Java collections (ArrayList, HashMap, Set)",url:L.java_collections},
+      {t:"Practise writing clean Java",url:L.java_clean},
+    ]},
+    {label:"Fri",title:"Research day",tag:"research",tasks:[
+      {t:"Read: Wise tech stack 2025",url:L.wise_tech},
+      {t:"Read: Monzo backend interview process",url:L.monzo_interview},
+      {t:"Note one thing each company does differently",url:null},
+    ]},
+    {label:"Sat",title:"Behavioural prep",tag:"behav",tasks:[
+      {t:"Read: STAR method guide",url:L.star_guide},
+      {t:"Write out your Licence Management STAR story",url:null},
+      {t:"Write out your DSL re-architecture STAR story",url:null},
+    ]},
+    {label:"Sun",title:"Rest",tag:"rest",tasks:[
+      {t:"No prep — rest properly",url:null},
+      {t:"Reflect: what felt hardest this week?",url:null},
+      {t:"Plan your week 2 sessions",url:null},
+    ]},
+  ]},
+  {title:"Week 2 — coding depth",focus:"Go deeper on algorithms. Trees, graphs, sorting. Introduce Kafka concepts.",days:[
+    {label:"Mon",title:"Trees & recursion",tag:"code",tasks:[
+      {t:"5x LeetCode medium — binary trees",url:L.lc_trees},
+      {t:"Read: DFS vs BFS — when to use each",url:L.dfs_bfs},
+      {t:"Practise both traversals in Java",url:null},
+    ]},
+    {label:"Tue",title:"Graphs + Kafka intro",tag:"code",tasks:[
+      {t:"3x LeetCode medium — graphs",url:L.lc_graphs},
+      {t:"Read: Kafka simply explained",url:L.kafka_intro},
+      {t:"Read: Kafka vs RabbitMQ — key differences",url:L.kafka_vs_rabbit},
+    ]},
+    {label:"Wed",title:"Design — payments",tag:"design",tasks:[
+      {t:"Read: design a payment system",url:L.sd_payments},
+      {t:"Sketch: currency conversion, idempotency, failure handling",url:null},
+      {t:"Aim for 45 mins as if in a real interview",url:null},
+    ]},
+    {label:"Thu",title:"Coding — sorting & search",tag:"code",tasks:[
+      {t:"5x LeetCode medium — binary search",url:L.lc_search},
+      {t:"Revise quicksort and mergesort",url:L.sorting},
+      {t:"Practise explaining your approach out loud",url:null},
+    ]},
+    {label:"Fri",title:"Mock project walkthrough",tag:"behav",tasks:[
+      {t:"Read: Monzo engineering principles (to frame your stories)",url:L.monzo_principles},
+      {t:"Do a timed walkthrough of your current role project",url:null},
+      {t:"Record yourself and listen back",url:null},
+    ]},
+    {label:"Sat",title:"Design — notifications",tag:"design",tasks:[
+      {t:"Read: design a notification service",url:L.sd_notifs},
+      {t:"Sketch: fan-out, delivery guarantees, retries",url:null},
+      {t:"Consider how Monzo's get-paid-early notification would work",url:null},
+    ]},
+    {label:"Sun",title:"Rest",tag:"rest",tasks:[
+      {t:"Full rest day",url:null},
+      {t:"Optional: skim one Monzo or Wise blog post",url:L.monzo_blog},
+      {t:"Prepare your week 3 focus areas",url:null},
+    ]},
+  ]},
+  {title:"Week 3 — system design focus",focus:"Build a mental framework you can apply to any system design question.",days:[
+    {label:"Mon",title:"Design framework deep dive",tag:"design",tasks:[
+      {t:"Read: system design primer — start here",url:L.sd_primer},
+      {t:"Design: URL shortener — apply the 5-step framework",url:L.url_short},
+      {t:"Time yourself to 45 mins",url:null},
+    ]},
+    {label:"Tue",title:"Dynamic programming basics",tag:"code",tasks:[
+      {t:"3x LeetCode medium — DP (start easy)",url:L.lc_dp},
+      {t:"Read: memoisation vs tabulation explained",url:L.memo},
+      {t:"DP rarely comes up but good to know basics",url:null},
+    ]},
+    {label:"Wed",title:"Design — fraud detection",tag:"design",tasks:[
+      {t:"Watch: design a fraud detection system",url:L.sd_fraud},
+      {t:"Read: Monzo engineering blog — technology",url:L.monzo_blog},
+      {t:"Sketch your own design — rule engines, signals, false positives",url:null},
+    ]},
+    {label:"Thu",title:"Behavioural deep dive",tag:"behav",tasks:[
+      {t:"Read: STAR method — refresh",url:L.star_guide},
+      {t:"Write STAR stories: Data Lineage, contribution workflow, mentoring",url:null},
+      {t:"Aim for 7 strong stories total by end of this week",url:null},
+    ]},
+    {label:"Fri",title:"Design — databases & CAP",tag:"design",tasks:[
+      {t:"Read: CAP theorem explained",url:L.cap},
+      {t:"Read: relational vs NoSQL trade-offs",url:L.sd_db},
+      {t:"Sketch a database layer for a payment system",url:null},
+    ]},
+    {label:"Sat",title:"Full mock interview",tag:"behav",tasks:[
+      {t:"1 hour mock: project walkthrough + system design + 2 STAR questions",url:null},
+      {t:"Read Monzo progression framework — frame your seniority",url:L.monzo_progression},
+      {t:"Give yourself honest feedback afterwards",url:null},
+    ]},
+    {label:"Sun",title:"Rest",tag:"rest",tasks:[
+      {t:"Rest — you've done a lot this week",url:null},
+      {t:"Optional: review your mock notes",url:null},
+      {t:"Prep your week 4 focus areas",url:null},
+    ]},
+  ]},
+  {title:"Week 4 — pair coding & APIs",focus:"Simulate the pair coding round. Write clean, communicative code under time pressure.",days:[
+    {label:"Mon",title:"Pair coding simulation",tag:"code",tasks:[
+      {t:"Set a 30-min timer — solve 2x LeetCode medium",url:L.lc},
+      {t:"Talk out loud as you code — explain every decision",url:null},
+      {t:"Review: what would you do differently?",url:null},
+    ]},
+    {label:"Tue",title:"API design",tag:"design",tasks:[
+      {t:"Read: REST API best practices",url:L.api_design},
+      {t:"Design a payment API — endpoints, auth, errors, pagination",url:null},
+      {t:"Write the OpenAPI spec for it in a doc",url:null},
+    ]},
+    {label:"Wed",title:"Sliding window problems",tag:"code",tasks:[
+      {t:"5x LeetCode medium — sliding window",url:L.lc_sliding},
+      {t:"These appear frequently in fintech coding rounds",url:null},
+      {t:"Practise explaining the pattern before coding",url:null},
+    ]},
+    {label:"Thu",title:"Research & company prep",tag:"research",tasks:[
+      {t:"Browse: Wise engineering blog — read 2 posts",url:L.wise_blog},
+      {t:"Browse: Monzo engineering blog — read 2 posts",url:L.monzo_blog},
+      {t:"Prepare 3 smart questions for each company",url:null},
+    ]},
+    {label:"Fri",title:"Design — caching with Redis",tag:"design",tasks:[
+      {t:"Read: Redis caching patterns",url:L.redis_guide},
+      {t:"Read: caching design primer",url:L.sd_cache},
+      {t:"Design a caching layer for a financial data API",url:null},
+    ]},
+    {label:"Sat",title:"Behavioural polish",tag:"behav",tasks:[
+      {t:"Review all 7 STAR stories — tighten each to 2 mins",url:null},
+      {t:"Practise: 'Tell me about a time you failed'",url:null},
+      {t:"Practise: 'Tell me about a disagreement at work'",url:null},
+    ]},
+    {label:"Sun",title:"Rest",tag:"rest",tasks:[
+      {t:"Full rest day",url:null},
+      {t:"You are more prepared than you think",url:null},
+      {t:"Plan your week 5 company-specific sessions",url:null},
+    ]},
+  ]},
+  {title:"Week 5 — company-specific prep",focus:"Tailor everything to Wise and Monzo. Know their culture, values, and engineering decisions.",days:[
+    {label:"Mon",title:"Wise deep dive",tag:"research",tasks:[
+      {t:"Read: Wise tech stack 2025",url:L.wise_tech},
+      {t:"Read: Wise Platform team — how squads work",url:L.wise_platform},
+      {t:"Browse: all Wise engineering roles",url:L.wise_jobs},
+    ]},
+    {label:"Tue",title:"Monzo deep dive",tag:"research",tasks:[
+      {t:"Read: starting from scratch at Monzo",url:L.monzo_newjoin},
+      {t:"Read: Monzo engineering principles",url:L.monzo_principles},
+      {t:"Read: demystifying Monzo's backend interview process",url:L.monzo_interview},
+    ]},
+    {label:"Wed",title:"Full mock — Wise style",tag:"behav",tasks:[
+      {t:"1 hour: project walkthrough + system design + behavioural",url:null},
+      {t:"Frame everything through Wise's squad ownership lens",url:L.wise_tech},
+      {t:"Note what to improve after",url:null},
+    ]},
+    {label:"Thu",title:"Full mock — Monzo style",tag:"behav",tasks:[
+      {t:"1 hour: pair coding + system design + behavioural",url:null},
+      {t:"Frame everything through Monzo's customer-first lens",url:L.monzo_principles},
+      {t:"Use STAR strictly — time each answer to 2 mins",url:L.star_guide},
+    ]},
+    {label:"Fri",title:"Edge cases in coding",tag:"code",tasks:[
+      {t:"3x LeetCode medium — focus on edge cases",url:L.lc},
+      {t:"Practise: null checks, empty arrays, negative numbers, overflow",url:null},
+      {t:"Write tests for each solution you submit",url:null},
+    ]},
+    {label:"Sat",title:"Kafka deep dive",tag:"research",tasks:[
+      {t:"Read: Kafka complete introduction — topics, consumer groups, partitions",url:L.kafka_deep},
+      {t:"Read: Wise observability engineering",url:L.wise_observability},
+      {t:"Note 3 things you'd say about Kafka in an interview",url:null},
+    ]},
+    {label:"Sun",title:"Rest",tag:"rest",tasks:[
+      {t:"Full rest — you're in the final stretch",url:null},
+      {t:"Get consistent, good sleep this week",url:null},
+      {t:"You're better prepared than most candidates",url:null},
+    ]},
+  ]},
+  {title:"Week 6 — final prep & interviews",focus:"Light revision only. Trust your preparation. Focus on sleep, confidence, and clear communication.",days:[
+    {label:"Mon",title:"Light revision",tag:"code",tasks:[
+      {t:"Review your top 10 LeetCode solutions",url:L.lc_subs},
+      {t:"Re-read your 7 STAR stories once",url:null},
+      {t:"Do not cram new material this week",url:null},
+    ]},
+    {label:"Tue",title:"Design review",tag:"design",tasks:[
+      {t:"Re-sketch 3 system designs from memory",url:null},
+      {t:"Practise articulating trade-offs in 2 sentences each",url:null},
+      {t:"Browse awesome system design resources — refresh only",url:L.sd_resources},
+    ]},
+    {label:"Wed",title:"Final behavioural run",tag:"behav",tasks:[
+      {t:"Run through all STAR stories out loud one final time",url:null},
+      {t:"Practise your opening: walk me through your background",url:null},
+      {t:"Practise your closing questions for interviewers",url:null},
+    ]},
+    {label:"Thu",title:"Day before interview",tag:"rest",tasks:[
+      {t:"No new material — rest your brain",url:null},
+      {t:"Prepare setup: good lighting, quiet room, water",url:null},
+      {t:"Sleep early",url:null},
+    ]},
+    {label:"Fri",title:"Interview day",tag:"rest",tasks:[
+      {t:"Eat well before the interview",url:null},
+      {t:"Log in 5 mins early — test your connection",url:null},
+      {t:"You have prepared well. Trust yourself.",url:null},
+    ]},
+    {label:"Sat",title:"Reflect & rest",tag:"rest",tasks:[
+      {t:"Write down everything you remember from the interview",url:null},
+      {t:"Note what went well and what to improve",url:null},
+      {t:"Rest — you earned it",url:null},
+    ]},
+    {label:"Sun",title:"Reset",tag:"rest",tasks:[
+      {t:"Keep applying elsewhere — don't fixate on one outcome",url:null},
+      {t:"Stay in motion",url:null},
+      {t:"You are better prepared than most candidates",url:null},
+    ]},
+  ]},
 ];
 
+// ── INDEXEDDB ────────────────────────────────────────────────────────────────
+const DB_NAME = 'PrepPlanDB';
+const DB_VERSION = 1;
+const STORE = 'progress';
+let db = null;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains(STORE)) {
+        d.createObjectStore(STORE, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(db); };
+    req.onerror = e => reject(e);
+  });
+}
+
+function dbGet(id) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).get(id);
+    req.onsuccess = e => resolve(e.target.result ? e.target.result.value : null);
+    req.onerror = e => reject(e);
+  });
+}
+
+function dbPut(id, value) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const req = tx.objectStore(STORE).put({ id, value });
+    req.onsuccess = () => resolve();
+    req.onerror = e => reject(e);
+  });
+}
+
+function dbClear() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const req = tx.objectStore(STORE).clear();
+    req.onsuccess = () => resolve();
+    req.onerror = e => reject(e);
+  });
+}
+
+// ── APP STATE ────────────────────────────────────────────────────────────────
 const tagClasses = { code:'tag-code', design:'tag-design', behav:'tag-behav', research:'tag-research', rest:'tag-rest' };
-const tagLabels = { code:'Coding', design:'System design', behav:'Behavioural', research:'Research', rest:'Rest' };
+const tagLabels  = { code:'Coding', design:'System design', behav:'Behavioural', research:'Research', rest:'Rest' };
 
 let currentWeek = 0;
 let done = {};
-try { done = JSON.parse(localStorage.getItem('prepDone2') || '{}'); } catch(e) {}
 
-function save() { try { localStorage.setItem('prepDone2', JSON.stringify(done)); } catch(e) {} }
-function key(w,d) { return w+'-'+d; }
-function totalDays() { return weeks.reduce((a,w)=>a+w.days.length,0); }
+function key(w, d) { return `${w}-${d}`; }
+function totalDays() { return weeks.reduce((a, w) => a + w.days.length, 0); }
 function doneDays() { return Object.values(done).filter(Boolean).length; }
+
 function streak() {
-  let s=0;
-  for(let w=0;w<weeks.length;w++) for(let d=0;d<weeks[w].days.length;d++) { if(done[key(w,d)]) s++; else return s; }
+  let s = 0;
+  for (let w = 0; w < weeks.length; w++)
+    for (let d = 0; d < weeks[w].days.length; d++)
+      if (done[key(w, d)]) s++; else return s;
   return s;
 }
-function renderStats() {
-  const total=totalDays(), d=doneDays(), pct=total?Math.round(d/total*100):0;
-  document.getElementById('statsRow').innerHTML=[
-    ['📅',d+' / '+total,'days completed'],
-    ['🏆',pct+'%','overall progress'],
-    ['🔥',streak(),'day streak'],
-  ].map(([i,n,l])=>`<div class="stat"><span class="stat-num">${i} ${n}</span><span class="stat-lbl">${l}</span></div>`).join('');
-  document.getElementById('progressFill').style.width=pct+'%';
-  document.getElementById('progressPct').textContent=pct+'%';
+
+async function saveState() {
+  await dbPut('done', done);
+  await dbPut('currentWeek', currentWeek);
 }
+
+async function loadState() {
+  const savedDone = await dbGet('done');
+  const savedWeek = await dbGet('currentWeek');
+  if (savedDone) done = savedDone;
+  if (savedWeek !== null) currentWeek = savedWeek;
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function renderStats() {
+  const total = totalDays(), d = doneDays();
+  const pct = total ? Math.round(d / total * 100) : 0;
+  document.getElementById('statsRow').innerHTML = [
+    ['📅', `${d} / ${total}`, 'days completed'],
+    ['🏆', `${pct}%`, 'overall progress'],
+    ['🔥', streak(), 'day streak'],
+  ].map(([i, n, l]) => `<div class="stat"><span class="stat-num">${i} ${n}</span><span class="stat-lbl">${l}</span></div>`).join('');
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
 function renderTabs() {
-  document.getElementById('weekTabs').innerHTML=weeks.map((w,i)=>
-    `<button class="week-tab${i===currentWeek?' active':''}" onclick="setWeek(${i})">Week ${i+1}</button>`
+  document.getElementById('weekTabs').innerHTML = weeks.map((w, i) =>
+    `<button class="week-tab${i === currentWeek ? ' active' : ''}" onclick="setWeek(${i})">Week ${i + 1}</button>`
   ).join('');
 }
+
 function renderWeek() {
-  const w=weeks[currentWeek];
-  document.getElementById('weekTitle').textContent=w.title;
-  document.getElementById('weekFocus').textContent=w.focus;
-  document.getElementById('daysGrid').innerHTML=w.days.map((d,i)=>{
-    const k=key(currentWeek,i), isDone=done[k];
-    const tasks=d.tasks.map(t=>
+  const w = weeks[currentWeek];
+  document.getElementById('weekTitle').textContent = w.title;
+  document.getElementById('weekFocus').textContent = w.focus;
+  document.getElementById('daysGrid').innerHTML = w.days.map((d, i) => {
+    const k = key(currentWeek, i), isDone = done[k];
+    const tasks = d.tasks.map(t =>
       t.url
         ? `<li><a href="${t.url}" target="_blank" rel="noopener">${t.t} ↗</a></li>`
         : `<li>${t.t}</li>`
     ).join('');
-    return `<div class="day-card${isDone?' done':''}" onclick="handleCardClick(event,${i})">
+    return `<div class="day-card${isDone ? ' done' : ''}" onclick="handleCardClick(event,${i})">
       <div class="done-badge"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
       <p class="day-lbl">${d.label}</p>
       <div class="tag ${tagClasses[d.tag]}">${tagLabels[d.tag]}</div>
@@ -432,18 +553,72 @@ function renderWeek() {
       <ul class="day-tasks">${tasks}</ul>
     </div>`;
   }).join('');
-  document.getElementById('prevBtn').disabled=currentWeek===0;
-  document.getElementById('nextBtn').disabled=currentWeek===weeks.length-1;
+  document.getElementById('prevBtn').disabled = currentWeek === 0;
+  document.getElementById('nextBtn').disabled = currentWeek === weeks.length - 1;
 }
-function handleCardClick(e,i) {
-  if(e.target.tagName==='A') return;
-  const k=key(currentWeek,i); done[k]=!done[k]; save(); renderWeek(); renderStats();
-}
-function setWeek(i) { currentWeek=i; renderTabs(); renderWeek(); }
-function changeWeek(dir) { currentWeek=Math.max(0,Math.min(weeks.length-1,currentWeek+dir)); renderTabs(); renderWeek(); }
-function resetAll() { if(confirm('Reset all progress?')) { done={}; save(); renderWeek(); renderStats(); } }
 
-renderTabs(); renderWeek(); renderStats();
+function render() { renderStats(); renderTabs(); renderWeek(); }
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────────
+function handleCardClick(e, i) {
+  if (e.target.tagName === 'A') return;
+  const k = key(currentWeek, i);
+  done[k] = !done[k];
+  saveState();
+  renderWeek();
+  renderStats();
+}
+
+function setWeek(i) {
+  currentWeek = i;
+  saveState();
+  renderTabs();
+  renderWeek();
+}
+
+function changeWeek(dir) {
+  currentWeek = Math.max(0, Math.min(weeks.length - 1, currentWeek + dir));
+  saveState();
+  renderTabs();
+  renderWeek();
+}
+
+async function resetAll() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+  done = {};
+  currentWeek = 0;
+  await dbClear();
+  render();
+}
+
+// ── PWA INSTALL ───────────────────────────────────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBtn').style.display = 'block';
+});
+
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') document.getElementById('installBtn').style.display = 'none';
+  deferredPrompt = null;
+});
+
+// ── SERVICE WORKER ────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+openDB().then(loadState).then(render).catch(err => {
+  console.warn('IndexedDB failed, falling back to in-memory:', err);
+  render();
+});
 </script>
 </body>
 </html>
