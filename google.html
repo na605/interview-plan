@@ -2,955 +2,290 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Google SWE Interview Prep</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4ade80">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Google Prep">
+<link rel="manifest" href="./manifest.json">
+<title>Google Interview Prep</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');
+:root{
+  --bg:#0a0a0a;--surface:#111;--border:#1e1e1e;--text:#e5e5e5;--muted:#555;
+  --accent:#4ade80;--accent-dark:#16a34a;
+  --blue:#60a5fa;--blue-bg:#0d1a2e;
+  --pink:#f472b6;--pink-bg:#2e0d1a;
+  --yellow:#facc15;--yellow-bg:#2e2800;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100dvh;padding:calc(1.25rem + var(--sat)) 1rem calc(1.25rem + var(--sab))}
+.container{max-width:680px;margin:0 auto}
 
-  :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --border: #1e1e1e;
-    --accent: #4ade80;
-    --accent2: #facc15;
-    --accent3: #60a5fa;
-    --accent4: #f472b6;
-    --text: #e5e5e5;
-    --muted: #555;
-    --phase1: #4ade80;
-    --phase2: #60a5fa;
-    --phase3: #f472b6;
-    --phase4: #facc15;
-  }
+#install-banner{display:none;background:#1a2e1a;border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:.7rem 1rem;margin-bottom:1rem;font-size:.68rem;align-items:center;gap:.65rem}
+#install-banner.show{display:flex}
+#install-banner span{flex:1;line-height:1.4}
+#install-btn{background:var(--accent);color:#000;border:none;border-radius:3px;padding:.32rem .65rem;font-family:'DM Mono',monospace;font-size:.62rem;font-weight:500;cursor:pointer;flex-shrink:0}
+#dismiss-install{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;flex-shrink:0}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+.hdr{margin-bottom:1.1rem;border-bottom:1px solid var(--border);padding-bottom:1.25rem}
+.eyebrow{font-size:.57rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+h1{font-family:'Syne',sans-serif;font-size:clamp(1.5rem,5vw,2.2rem);font-weight:800;line-height:1.1;color:#fff;margin-bottom:.65rem}
+h1 span{color:var(--accent)}
+.meta{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.6rem;color:var(--muted)}
+.meta strong{color:var(--text)}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
-    padding: 2rem 1rem;
-  }
+.prog-wrap{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1rem 1.2rem;margin-bottom:.9rem;display:flex;align-items:center;gap:1.1rem}
+.prog-pct{font-family:'Syne',sans-serif;font-size:1.75rem;font-weight:800;color:var(--accent);flex-shrink:0;min-width:3.2rem}
+.prog-right{flex:1}
+.prog-label{font-size:.57rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem}
+.bar-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease;width:0%}
 
-  .container { max-width: 900px; margin: 0 auto; }
+.sync-row{display:flex;align-items:center;gap:.35rem;font-size:.57rem;color:var(--muted);margin-bottom:.9rem}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.sync-dot.saving{background:var(--yellow);animation:pulse .6s ease infinite alternate}
+@keyframes pulse{from{opacity:1}to{opacity:.3}}
 
-  header {
-    margin-bottom: 3rem;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 2rem;
-  }
+.legend{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:.9rem;font-size:.57rem}
+.legend-item{display:flex;align-items:center;gap:.28rem;color:var(--muted)}
+.ldot{width:7px;height:7px;border-radius:2px}
 
-  .label {
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.5rem;
-  }
+.phase{margin-bottom:1rem}
+.phase-hdr{display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;cursor:pointer;user-select:none}
+.phase-num{font-family:'Syne',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.12em;padding:.18rem .45rem;border-radius:2px;text-transform:uppercase}
+.phase-title{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:#fff;flex:1}
+.phase-dur{font-size:.57rem;color:var(--muted)}
+.phase-mini{font-size:.57rem;font-weight:500}
+.chevron{color:var(--muted);font-size:.62rem;transition:transform .2s}
+.phase.collapsed .chevron{transform:rotate(-90deg)}
+.phase.collapsed .phase-body{display:none}
+.phase-body{border-left:1px solid var(--border);padding-left:1rem;margin-left:.3rem}
 
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(1.8rem, 5vw, 2.8rem);
-    font-weight: 800;
-    line-height: 1.1;
-    color: #fff;
-  }
+.week{margin-bottom:1.1rem}
+.week-label{font-size:.57rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.45rem;padding-bottom:.3rem;border-bottom:1px solid var(--border)}
 
-  h1 span { color: var(--accent); }
-
-  .meta {
-    margin-top: 1rem;
-    font-size: 0.75rem;
-    color: var(--muted);
-    display: flex;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .meta strong { color: var(--text); }
-
-  .progress-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .progress-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 0.75rem;
-  }
-
-  .progress-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-  .progress-pct { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--accent); }
-
-  .bar-track {
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .bar-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
-    transition: width 0.4s ease;
-    width: 0%;
-  }
-
-  .phase { margin-bottom: 2.5rem; }
-
-  .phase-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .phase-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    padding: 0.2rem 0.5rem;
-    border-radius: 2px;
-    text-transform: uppercase;
-  }
-
-  .phase-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #fff;
-    flex: 1;
-  }
-
-  .phase-duration { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; }
-  .phase-chevron { color: var(--muted); font-size: 0.75rem; transition: transform 0.2s; }
-  .phase.collapsed .phase-chevron { transform: rotate(-90deg); }
-  .phase.collapsed .phase-body { display: none; }
-
-  .phase-body {
-    border-left: 1px solid var(--border);
-    padding-left: 1.25rem;
-    margin-left: 0.5rem;
-  }
-
-  .week { margin-bottom: 1.5rem; }
-
-  .week-title {
-    font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.6rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* Task */
-  .task {
-    padding: 0.65rem 0.25rem;
-    border-bottom: 1px solid #151515;
-    border-radius: 2px;
-    transition: background 0.1s;
-  }
-
-  .task:hover { background: #131313; }
-  .task:last-child { border-bottom: none; }
-
-  .task-top {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    cursor: pointer;
-  }
-
-  .task-check {
-    width: 14px;
-    height: 14px;
-    border: 1px solid var(--muted);
-    border-radius: 2px;
-    flex-shrink: 0;
-    margin-top: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-  }
-
-  .task.done .task-check {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-
-  .task.done .task-check::after {
-    content: '✓';
-    font-size: 9px;
-    color: #000;
-    font-weight: 700;
-  }
-
-  .task.done .task-text { color: var(--muted); text-decoration: line-through; }
-
-  .task-text {
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: var(--text);
-    flex: 1;
-  }
-
-  .task-tag {
-    font-size: 0.6rem;
-    padding: 0.1rem 0.35rem;
-    border-radius: 2px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .tag-dsa { background: #1a2e1a; color: var(--phase1); }
-  .tag-sd  { background: #1a1a2e; color: var(--phase3); }
-  .tag-beh { background: #2e2a1a; color: var(--phase2); }
-  .tag-read { background: #2e1a24; color: var(--phase4); }
-
-  /* Links under task */
-  .task-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.55rem;
-    margin-left: 1.65rem;
-  }
-
-  .task-link {
-    font-size: 0.65rem;
-    color: var(--accent3);
-    text-decoration: none;
-    border: 1px solid #1a2535;
-    border-radius: 2px;
-    padding: 0.15rem 0.45rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    transition: border-color 0.15s, color 0.15s;
-  }
-
-  .task-link:hover { border-color: var(--accent3); color: #93c5fd; }
-  .task-link::before { content: '↗'; font-size: 0.6rem; }
-
-  /* Resources box */
-  .resources {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1.25rem 1.5rem;
-    margin-top: 2rem;
-  }
-
-  .resources h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 1rem;
-  }
-
-  .resource-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .resource-item {
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 0.75rem;
-  }
-
-  .resource-item .r-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem; }
-  .resource-item .r-name { font-size: 0.75rem; color: var(--text); }
-  .resource-item a { font-size: 0.65rem; color: var(--accent3); display: block; margin-top: 0.25rem; text-decoration: none; }
-  .resource-item a:hover { text-decoration: underline; }
-
-  .legend {
-    display: flex;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.5rem;
-    font-size: 0.65rem;
-  }
-
-  .legend-item { display: flex; align-items: center; gap: 0.35rem; color: var(--muted); }
-  .legend-dot { width: 8px; height: 8px; border-radius: 1px; }
-
-  footer {
-    margin-top: 3rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    font-size: 0.65rem;
-    color: var(--muted);
-    text-align: center;
-  }
+.task{padding:.5rem 0;border-bottom:1px solid #131313}
+.task:last-child{border-bottom:none}
+.task-top{display:flex;align-items:flex-start;gap:.55rem;cursor:pointer}
+.chk{width:15px;height:15px;border:1px solid var(--muted);border-radius:2px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.task.done .chk{background:var(--accent);border-color:var(--accent)}
+.task.done .chk::after{content:'✓';font-size:9px;color:#000;font-weight:700}
+.task.done .task-text{color:var(--muted);text-decoration:line-through}
+.task-text{font-size:.73rem;line-height:1.55;color:var(--text);flex:1}
+.tag{font-size:.52rem;padding:.1rem .32rem;border-radius:2px;text-transform:uppercase;letter-spacing:.07em;flex-shrink:0;margin-top:2px}
+.tag-dsa{background:#1a2e1a;color:var(--accent)}
+.tag-sd{background:var(--blue-bg);color:var(--blue)}
+.tag-beh{background:#2e2a1a;color:var(--yellow)}
+.tag-read{background:var(--pink-bg);color:var(--pink)}
+.task-links{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.38rem;margin-left:1.32rem}
+.tlink{font-size:.58rem;color:var(--blue);text-decoration:none;border:1px solid #1a2535;border-radius:2px;padding:.1rem .35rem;display:inline-flex;align-items:center;gap:.2rem;transition:all .15s}
+.tlink:hover,.tlink:active{border-color:var(--blue);color:#93c5fd}
+.tlink::before{content:'↗';font-size:.52rem}
+footer{margin-top:1.75rem;text-align:center;font-size:.57rem;color:var(--muted);line-height:1.7}
+.loading{text-align:center;padding:2.5rem 1rem;font-size:.73rem;color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="container">
-  <header>
-    <div class="label">Interview Prep Tracker</div>
+  <div id="install-banner">
+    <span>Install for offline access & home screen</span>
+    <button id="install-btn">Install</button>
+    <button id="dismiss-install">✕</button>
+  </div>
+
+  <div class="hdr">
+    <div class="eyebrow">Interview Prep Tracker</div>
     <h1>Google SWE<br><span>London — L5</span></h1>
     <div class="meta">
       <div><strong>Timeline</strong> — 6 months</div>
-      <div><strong>Pace</strong> — 30–60 min, 3–4x/week</div>
-      <div><strong>Target</strong> — Senior SWE (IC)</div>
+      <div><strong>Pace</strong> — 30–60 min, 3–4×/week</div>
+      <div><strong>Target</strong> — Senior IC (L5)</div>
     </div>
-  </header>
+  </div>
 
-  <div class="progress-wrap">
-    <div class="progress-header">
-      <div class="progress-label">Overall progress</div>
-      <div class="progress-pct" id="pct">0%</div>
+  <div class="prog-wrap">
+    <div class="prog-pct" id="pct">0%</div>
+    <div class="prog-right">
+      <div class="prog-label">Overall progress</div>
+      <div class="bar-track"><div class="bar-fill" id="bar"></div></div>
     </div>
-    <div class="bar-track"><div class="bar-fill" id="bar"></div></div>
+  </div>
+
+  <div class="sync-row">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-label">Progress saved on this device</span>
   </div>
 
   <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--phase1)"></div>DSA / LeetCode</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--phase3)"></div>System Design</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--phase2)"></div>Behavioural</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--phase4)"></div>Reading</div>
+    <div class="legend-item"><div class="ldot" style="background:#4ade80"></div>DSA</div>
+    <div class="legend-item"><div class="ldot" style="background:#60a5fa"></div>Sys Design</div>
+    <div class="legend-item"><div class="ldot" style="background:#facc15"></div>Behavioural</div>
+    <div class="legend-item"><div class="ldot" style="background:#f472b6"></div>Reading</div>
   </div>
 
-  <div id="phases"></div>
-
-  <div class="resources">
-    <h3>Core Resources</h3>
-    <div class="resource-grid">
-      <div class="resource-item">
-        <div class="r-label">DSA Roadmap</div>
-        <div class="r-name">Neetcode 150</div>
-        <a href="https://neetcode.io/practice/practice/neetcode150" target="_blank">neetcode.io/practice → NeetCode 150</a>
-      </div>
-      <div class="resource-item">
-        <div class="r-label">System Design Book</div>
-        <div class="r-name">DDIA — Kleppmann</div>
-        <a href="https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/" target="_blank">O'Reilly (or find on Amazon)</a>
-      </div>
-      <div class="resource-item">
-        <div class="r-label">System Design Video</div>
-        <div class="r-name">ByteByteGo YouTube</div>
-        <a href="https://www.youtube.com/@ByteByteGo/videos" target="_blank">youtube.com/@ByteByteGo</a>
-      </div>
-      <div class="resource-item">
-        <div class="r-label">Mock Interviews</div>
-        <div class="r-name">interviewing.io</div>
-        <a href="https://interviewing.io" target="_blank">interviewing.io</a>
-      </div>
-      <div class="resource-item">
-        <div class="r-label">Google-Specific</div>
-        <div class="r-name">Tech Dev Guide</div>
-        <a href="https://techdevguide.withgoogle.com/paths/interview/" target="_blank">techdevguide.withgoogle.com</a>
-      </div>
-      <div class="resource-item">
-        <div class="r-label">System Design Practice</div>
-        <div class="r-name">Hello Interview</div>
-        <a href="https://www.hellointerview.com" target="_blank">hellointerview.com</a>
-      </div>
-    </div>
-  </div>
-
-  <footer>Click the checkbox to mark complete · Links open in a new tab</footer>
+  <div id="phases"><div class="loading">Loading your progress…</div></div>
+  <footer>Stored in IndexedDB · Works offline once installed</footer>
 </div>
-
 <script>
-const phases = [
-  {
-    id: 'p1',
-    num: 'Phase 01',
-    title: 'Foundations — Re-learn DSA',
-    duration: 'Months 1–2',
-    color: 'var(--phase1)',
-    weeks: [
-      {
-        title: 'Weeks 1–2 — Arrays, Hashing, Two Pointers',
-        tasks: [
-          {
-            text: 'Start here: read the Neetcode roadmap and understand the full topic order',
-            tag: 'read',
-            links: [
-              { label: 'Neetcode Roadmap', url: 'https://neetcode.io/roadmap' },
-              { label: 'Google Tech Dev Guide', url: 'https://techdevguide.withgoogle.com/paths/interview/' }
-            ]
-          },
-          {
-            text: 'Arrays: Two Sum (LC 1), Best Time to Buy and Sell Stock (LC 121), Contains Duplicate (LC 217)',
-            tag: 'dsa',
-            links: [
-              { label: 'Two Sum', url: 'https://leetcode.com/problems/two-sum/' },
-              { label: 'Best Time to Buy Stock', url: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/' },
-              { label: 'Contains Duplicate', url: 'https://leetcode.com/problems/contains-duplicate/' },
-              { label: 'Neetcode video solutions', url: 'https://neetcode.io/practice/practice/neetcode150' }
-            ]
-          },
-          {
-            text: 'Hashing: Group Anagrams (LC 49), Top K Frequent Elements (LC 347), Product of Array Except Self (LC 238)',
-            tag: 'dsa',
-            links: [
-              { label: 'Group Anagrams', url: 'https://leetcode.com/problems/group-anagrams/' },
-              { label: 'Top K Frequent', url: 'https://leetcode.com/problems/top-k-frequent-elements/' },
-              { label: 'Product Except Self', url: 'https://leetcode.com/problems/product-of-array-except-self/' }
-            ]
-          },
-          {
-            text: 'Two Pointers: Valid Palindrome (LC 125), 3Sum (LC 15), Container With Most Water (LC 11)',
-            tag: 'dsa',
-            links: [
-              { label: 'Valid Palindrome', url: 'https://leetcode.com/problems/valid-palindrome/' },
-              { label: '3Sum', url: 'https://leetcode.com/problems/three-sum/' },
-              { label: 'Container With Most Water', url: 'https://leetcode.com/problems/container-with-most-water/' }
-            ]
-          },
-          {
-            text: 'Watch: Big-O notation refresher — Neetcode intro video',
-            tag: 'read',
-            links: [
-              { label: 'Big-O Notation (video)', url: 'https://www.youtube.com/watch?v=BgLTDT03QtU' },
-              { label: 'Neetcode Arrays & Hashing', url: 'https://neetcode.io/practice/practice/neetcode150' }
-            ]
-          }
-        ]
-      },
-      {
-        title: 'Weeks 3–4 — Sliding Window, Stack, Binary Search',
-        tasks: [
-          {
-            text: 'Sliding Window: Longest Substring Without Repeating (LC 3), Min Window Substring (LC 76)',
-            tag: 'dsa',
-            links: [
-              { label: 'Longest Substring', url: 'https://leetcode.com/problems/longest-substring-without-repeating-characters/' },
-              { label: 'Min Window Substring', url: 'https://leetcode.com/problems/minimum-window-substring/' },
-              { label: 'Longest Repeating Replacement', url: 'https://leetcode.com/problems/longest-repeating-character-replacement/' }
-            ]
-          },
-          {
-            text: 'Stack: Valid Parentheses (LC 20), Min Stack (LC 155), Daily Temperatures (LC 739)',
-            tag: 'dsa',
-            links: [
-              { label: 'Valid Parentheses', url: 'https://leetcode.com/problems/valid-parentheses/' },
-              { label: 'Min Stack', url: 'https://leetcode.com/problems/min-stack/' },
-              { label: 'Daily Temperatures', url: 'https://leetcode.com/problems/daily-temperatures/' }
-            ]
-          },
-          {
-            text: 'Binary Search: Search in Rotated Sorted Array (LC 33), Find Minimum in Rotated Array (LC 153)',
-            tag: 'dsa',
-            links: [
-              { label: 'Search Rotated Array', url: 'https://leetcode.com/problems/search-in-rotated-sorted-array/' },
-              { label: 'Find Minimum Rotated', url: 'https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/' },
-              { label: 'Binary Search (LC 704)', url: 'https://leetcode.com/problems/binary-search/' }
-            ]
-          },
-          {
-            text: 'Practice: re-solve all week 1–2 problems from scratch, no hints',
-            tag: 'dsa',
-            links: [
-              { label: 'Neetcode 150 tracker', url: 'https://neetcode.io/practice/practice/neetcode150' }
-            ]
-          }
-        ]
-      },
-      {
-        title: 'Weeks 5–6 — Linked Lists, Trees basics',
-        tasks: [
-          {
-            text: 'Linked Lists: Reverse Linked List (LC 206), Merge Two Sorted (LC 21), Linked List Cycle (LC 141)',
-            tag: 'dsa',
-            links: [
-              { label: 'Reverse Linked List', url: 'https://leetcode.com/problems/reverse-linked-list/' },
-              { label: 'Merge Two Sorted Lists', url: 'https://leetcode.com/problems/merge-two-sorted-lists/' },
-              { label: 'Linked List Cycle', url: 'https://leetcode.com/problems/linked-list-cycle/' }
-            ]
-          },
-          {
-            text: 'Trees: Invert Binary Tree (LC 226), Max Depth (LC 104), Same Tree (LC 100), Level Order Traversal (LC 102)',
-            tag: 'dsa',
-            links: [
-              { label: 'Invert Binary Tree', url: 'https://leetcode.com/problems/invert-binary-tree/' },
-              { label: 'Maximum Depth', url: 'https://leetcode.com/problems/maximum-depth-of-binary-tree/' },
-              { label: 'Same Tree', url: 'https://leetcode.com/problems/same-tree/' },
-              { label: 'Level Order Traversal', url: 'https://leetcode.com/problems/binary-tree-level-order-traversal/' }
-            ]
-          },
-          {
-            text: 'Understand BFS vs DFS — write both implementations from scratch in your language of choice',
-            tag: 'dsa',
-            links: [
-              { label: 'BFS vs DFS explained (video)', url: 'https://www.youtube.com/watch?v=pcKY4hjDrxk' }
-            ]
-          },
-          {
-            text: 'Read: DDIA Chapter 1 — Reliable, Scalable, Maintainable systems',
-            tag: 'read',
-            links: [
-              { label: 'DDIA on O\'Reilly', url: 'https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/' }
-            ]
-          }
-        ]
-      },
-      {
-        title: 'Weeks 7–8 — Tries, Heap, Backtracking',
-        tasks: [
-          {
-            text: 'Heap: Kth Largest Element (LC 215), Task Scheduler (LC 621)',
-            tag: 'dsa',
-            links: [
-              { label: 'Kth Largest Element', url: 'https://leetcode.com/problems/kth-largest-element-in-an-array/' },
-              { label: 'Task Scheduler', url: 'https://leetcode.com/problems/task-scheduler/' },
-              { label: 'Find Median from Data Stream', url: 'https://leetcode.com/problems/find-median-from-data-stream/' }
-            ]
-          },
-          {
-            text: 'Trie: Implement Trie (LC 208), Word Search II (LC 212)',
-            tag: 'dsa',
-            links: [
-              { label: 'Implement Trie', url: 'https://leetcode.com/problems/implement-trie-prefix-tree/' },
-              { label: 'Word Search II', url: 'https://leetcode.com/problems/word-search-ii/' }
-            ]
-          },
-          {
-            text: 'Backtracking: Subsets (LC 78), Combination Sum (LC 39), Permutations (LC 46)',
-            tag: 'dsa',
-            links: [
-              { label: 'Subsets', url: 'https://leetcode.com/problems/subsets/' },
-              { label: 'Combination Sum', url: 'https://leetcode.com/problems/combination-sum/' },
-              { label: 'Permutations', url: 'https://leetcode.com/problems/permutations/' }
-            ]
-          },
-          {
-            text: 'Review all Phase 1 topics — write down your weakest area',
-            tag: 'dsa',
-            links: [
-              { label: 'Neetcode 150 full list', url: 'https://neetcode.io/practice/practice/neetcode150' }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'p2',
-    num: 'Phase 02',
-    title: 'Advanced DSA + System Design Intro',
-    duration: 'Months 3–4',
-    color: 'var(--phase2)',
-    weeks: [
-      {
-        title: 'Weeks 9–10 — Graphs',
-        tasks: [
-          {
-            text: 'Graph theory basics: adjacency list, BFS, DFS — write these from scratch',
-            tag: 'dsa',
-            links: [
-              { label: 'Graph Theory intro (video)', url: 'https://www.youtube.com/watch?v=tWVWeAqZ0WU' }
-            ]
-          },
-          {
-            text: 'Number of Islands (LC 200), Clone Graph (LC 133), Course Schedule (LC 207) — topological sort',
-            tag: 'dsa',
-            links: [
-              { label: 'Number of Islands', url: 'https://leetcode.com/problems/number-of-islands/' },
-              { label: 'Clone Graph', url: 'https://leetcode.com/problems/clone-graph/' },
-              { label: 'Course Schedule', url: 'https://leetcode.com/problems/course-schedule/' }
-            ]
-          },
-          {
-            text: 'Pacific Atlantic Water Flow (LC 417), Walls and Gates (LC 286)',
-            tag: 'dsa',
-            links: [
-              { label: 'Pacific Atlantic Water Flow', url: 'https://leetcode.com/problems/pacific-atlantic-water-flow/' },
-              { label: 'Rotting Oranges (similar)', url: 'https://leetcode.com/problems/rotting-oranges/' }
-            ]
-          },
-          {
-            text: 'Read: DDIA Chapter 5 — Replication',
-            tag: 'read',
-            links: [
-              { label: 'DDIA on O\'Reilly', url: 'https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/' }
-            ]
-          }
-        ]
-      },
-      {
-        title: 'Weeks 11–12 — Dynamic Programming',
-        tasks: [
-          {
-            text: 'DP intro: Climbing Stairs (LC 70), House Robber (LC 198)',
-            tag: 'dsa',
-            links: [
-              { label: 'Climbing Stairs', url: 'https://leetcode.com/problems/climbing-stairs/' },
-              { label: 'House Robber', url: 'https://leetcode.com/problems/house-robber/' },
-              { label: 'Neetcode DP playlist', url: 'https://neetcode.io/practice/practice/neetcode150' }
-            ]
-          },
-          {
-            text: '2D DP: Unique Paths (LC 62), Longest Common Subsequence (LC 1143)',
-            tag: 'dsa',
-            links: [
-              { label: 'Unique Paths', url: 'https://leetcode.com/problems/unique-paths/' },
-              { label: 'Longest Common Subsequence', url: 'https://leetcode.com/problems/longest-common-subsequence/' }
-            ]
-          },
-          {
-            text: 'Knapsack: Coin Change (LC 322), Target Sum (LC 494)',
-            tag: 'dsa',
-            links: [
-              { label: 'Coin Change', url: 'https://leetcode.com/problems/coin-change/' },
-              { label: 'Target Sum', url: 'https://leetcode.com/problems/target-sum/' },
-              { label: 'Word Break', url: 'https://leetcode.com/problems/word-break/' }
-            ]
-          },
-          {
-            text: 'System Design: watch ByteByteGo "Design a URL Shortener"',
-            tag: 'sd',
-            links: [
-              { label: 'ByteByteGo YouTube', url: 'https://www.youtube.com/@ByteByteGo/videos' },
-              { label: 'URL Shortener written walkthrough', url: 'https://www.hellointerview.com/learn/system-design/problem-breakdowns/bitly' },
-              { label: 'URL Shortener — AlgoMaster', url: 'https://blog.algomaster.io/p/design-a-url-shortener' }
-            ]
-          }
-        ]
-      },
-      {
-        title: 'Weeks 13–14 — System Design Foundations',
-        tasks: [
-          {
-            text: 'Learn: CAP theorem, SQL vs NoSQL trade-offs',
-            tag: 'sd',
-            links: [
-              { label: 'CAP theorem explained (ByteByteGo)', url: 'https://www.youtube.com/watch?v=_RbsFXWRZ10' },
-              { label: 'SQL vs NoSQL (video)', url: 'https://www.youtube.com/watch?v=t0GlGbtMTio' }
-            ]
-          },
-          {
-            text: 'Learn: Load balancers, horizontal vs vertical scaling',
-            tag: 'sd',
-            links: [
-              { label: 'System Design basics (ByteByteGo)', url: 'https://www.youtube.com/watch?v=lX4CrbXMsNQ' }
-            ]
-          },
-          {
-            text: 'Learn: Caching strategies — Redis, CDN, write-through vs write-back',
-            tag: 'sd',
-            links: [
-              { label: 'Caching strategies (ByteByteGo video)', url: 'https://www.youtube.com/watch?v=ccemOqDrc2I' }
-            ]
-          },
-          {
-            text: 'Read: DDIA Chapter 6 — Partitioning',
-            tag: 'read',
-            links: [
-              { label: 'DDIA on O\'Reilly', url: 'https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/' }
-            ]
-          },
-          {
-            text: 'Practice: design a URL shortener end-to-end — write it out, no looking',
-            tag: 'sd',
-            links: [
-              { label: 'Reference solution (Hello Interview)', url: 'https://www.hellointerview.com/learn/system-design/problem-breakdowns/bitly' }
-            ]
-          }
-        ]
-      },
-      {
-        title: 'Weeks 15–16 — Advanced Graphs + First Mock',
-        tasks: [
-          {
-            text: 'Advanced graphs: Dijkstra\'s shortest path — understand, not memorise',
-            tag: 'dsa',
-            links: [
-              { label: 'Network Delay Time (LC 743)', url: 'https://leetcode.com/problems/network-delay-time/' },
-              { label: 'Dijkstra explained (video)', url: 'https://www.youtube.com/watch?v=XB4MIexjvY0' }
-            ]
-          },
-          {
-            text: 'Union-Find / Disjoint Set: Number of Connected Components (LC 323)',
-            tag: 'dsa',
-            links: [
-              { label: 'Redundant Connection (LC 684)', url: 'https://leetcode.com/problems/redundant-connection/' },
-              { label: 'Number of Connected Components', url: 'https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/' }
-            ]
-          },
-          {
-            text: 'System Design: design Twitter/Instagram news feed (fanout, caching, ranking)',
-            tag: 'sd',
-            links: [
-              { label: 'Design Twitter feed (Hello Interview)', url: 'https://www.hellointerview.com/learn/system-design/problem-breakdowns/twitter' },
-              { label: 'News Feed design (ByteByteGo)', url: 'https://www.youtube.com/@ByteByteGo/videos' }
-            ]
-          },
-          {
-            text: 'Do your first timed mock: 45 mins, 1 medium problem, no hints, no pausing',
-            tag: 'dsa',
-            links: [
-              { label: 'Anonymous mock interviews', url: 'https://interviewing.io' }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'p3',
-    num: 'Phase 03',
-    title: 'System Design Deep Dive + Behavioural',
-    duration: 'Month 5',
-    color: 'var(--phase3)',
-    weeks: [
-      {
-        title: 'Weeks 17–18 — System Design: Large Scale Systems',
-        tasks: [
-          {
-            text: 'Design: Google Drive / Dropbox — file storage, chunking, deduplication',
-            tag: 'sd',
-            links: [
-              { label: 'Design Dropbox (Hello Interview)', url: 'https://www.hellointerview.com/learn/system-design/problem-breakdowns/dropbox' },
-              { label: 'Google Drive design (ByteByteGo)', url: 'https://bytebytego.com/courses/system-design-interview/design-google-drive' }
-            ]
-          },
-          {
-            text: 'Design: WhatsApp / messaging system — pub-sub, websockets, message persistence',
-            tag: 'sd',
-            links: [
-              { label: 'Design WhatsApp (Hello Interview)', url: 'https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp' },
-              { label: 'Messaging system (ByteByteGo)', url: 'https://www.youtube.com/@ByteByteGo/videos' }
-            ]
-          },
-          {
-            text: 'Design: Rate limiter — token bucket vs leaky bucket, Redis implementation',
-            tag: 'sd',
-            links: [
-              { label: 'Rate limiter design (Hello Interview)', url: 'https://www.hellointerview.com/learn/system-design/problem-breakdowns/rate-limiter' },
-              { label: 'Rate limiting (ByteByteGo video)', url: 'https://www.youtube.com/watch?v=FU4WlwfS3G0' }
-            ]
-          },
-          {
-            text: 'Read: DDIA Chapter 11 — Stream Processing',
-            tag: 'read',
-            links: [
-              { label: 'DDIA on O\'Reilly', url: 'https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/' }
-            ]
-          }
-        ]
-      },
-      {
-        title: 'Weeks 19–20 — Behavioural + Googleyness',
-        tasks: [
-          {
-            text: 'Understand Google\'s 4 hiring attributes: General Cognitive Ability, Leadership, Role Knowledge, Googleyness',
-            tag: 'beh',
-            links: [
-              { label: 'Google hiring process overview', url: 'https://careers.google.com/how-we-hire/' },
-              { label: 'Google interview tips (Tech Dev Guide)', url: 'https://techdevguide.withgoogle.com/paths/interview/' }
-            ]
-          },
-          {
-            text: 'Write 6–8 STAR stories from your career — use your CV projects as source material',
-            tag: 'beh',
-            links: [
-              { label: 'STAR method explained', url: 'https://www.youtube.com/watch?v=0nN7Q7DrI6Q' }
-            ]
-          },
-          {
-            text: 'Practice: "Tell me about a time you disagreed with your team and what happened"',
-            tag: 'beh',
-            links: [
-              { label: 'Google behavioural interview (YouTube)', url: 'https://www.youtube.com/results?search_query=google+behavioral+interview+googleyness' }
-            ]
-          },
-          {
-            text: 'Practice: "Describe the most technically complex problem you\'ve solved"',
-            tag: 'beh',
-            links: []
-          },
-          {
-            text: 'Practice: "Tell me about a time you failed" — be specific and honest about what you learned',
-            tag: 'beh',
-            links: []
-          },
-          {
-            text: 'Design: Search autocomplete / typeahead system',
-            tag: 'sd',
-            links: [
-              { label: 'Typeahead design (Hello Interview)', url: 'https://www.hellointerview.com/learn/system-design/problem-breakdowns/typeahead' },
-              { label: 'Typeahead design (SystemDesignSchool)', url: 'https://systemdesignschool.io/problems/typeahead/solution' }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'p4',
-    num: 'Phase 04',
-    title: 'Full Simulation + Weak Spot Drilling',
-    duration: 'Month 6',
-    color: 'var(--phase4)',
-    weeks: [
-      {
-        title: 'Weeks 21–22 — Mock Interview Mode',
-        tasks: [
-          {
-            text: 'Do 2 full timed coding sessions: 45 min each, 1 medium + 1 hard, no hints',
-            tag: 'dsa',
-            links: [
-              { label: 'LeetCode random medium', url: 'https://leetcode.com/problemset/?difficulty=MEDIUM' },
-              { label: 'LeetCode random hard', url: 'https://leetcode.com/problemset/?difficulty=HARD' }
-            ]
-          },
-          {
-            text: 'Book an anonymous coding mock on interviewing.io',
-            tag: 'dsa',
-            links: [
-              { label: 'interviewing.io', url: 'https://interviewing.io' }
-            ]
-          },
-          {
-            text: 'System Design mock: explain a full design out loud — record yourself or present to a friend',
-            tag: 'sd',
-            links: [
-              { label: 'Hello Interview practice problems', url: 'https://www.hellointerview.com/practice' }
-            ]
-          },
-          {
-            text: 'Identify your 3 weakest DSA topics and do 5 focused problems each',
-            tag: 'dsa',
-            links: [
-              { label: 'Neetcode full problem set', url: 'https://neetcode.io/practice/practice/allNC' }
-            ]
-          }
-        ]
-      },
-      {
-        title: 'Weeks 23–24 — Final Polish',
-        tasks: [
-          {
-            text: 'Revise all STAR stories — time each answer to under 3 minutes when spoken aloud',
-            tag: 'beh',
-            links: [
-              { label: 'Google interview tips', url: 'https://careers.google.com/how-we-hire/interview/' }
-            ]
-          },
-          {
-            text: 'Re-do 10 random medium problems you haven\'t seen in 3+ weeks — cold, timed',
-            tag: 'dsa',
-            links: [
-              { label: 'LeetCode mediums', url: 'https://leetcode.com/problemset/?difficulty=MEDIUM' }
-            ]
-          },
-          {
-            text: 'Full end-to-end system design: design YouTube from scratch — video upload, streaming, recommendations',
-            tag: 'sd',
-            links: [
-              { label: 'Design YouTube (ByteByteGo)', url: 'https://bytebytego.com/courses/system-design-interview/design-youtube' },
-              { label: 'Design YouTube (Hello Interview)', url: 'https://www.hellointerview.com/learn/system-design/problem-breakdowns/youtube' }
-            ]
-          },
-          {
-            text: 'Research Google London: teams, products, recent engineering blog posts',
-            tag: 'beh',
-            links: [
-              { label: 'Google Engineering Blog', url: 'https://blog.google/technology/developers/' },
-              { label: 'Google London office & teams', url: 'https://careers.google.com/locations/london/' }
-            ]
-          },
-          {
-            text: 'Reach out to a Google engineer on LinkedIn for a referral or informal chat',
-            tag: 'beh',
-            links: [
-              { label: 'LinkedIn search: Google Software Engineer London', url: 'https://www.linkedin.com/search/results/people/?keywords=google%20software%20engineer%20london' }
-            ]
-          },
-          {
-            text: 'Apply — or hold if Winton / another opportunity is still active',
-            tag: 'beh',
-            links: [
-              { label: 'Google Careers — London SWE roles', url: 'https://careers.google.com/jobs/results/?location=London%2C%20UK&q=software%20engineer' }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+const DB_NAME='google-prep-db',DB_VER=1,STORE='progress';
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VER);r.onupgradeneeded=e=>e.target.result.createObjectStore(STORE);r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error)})}
+function dbGet(db,key){return new Promise((res,rej)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(key);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+function dbSet(db,key,val){return new Promise((res,rej)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(val,key);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+
+const PHASES=[
+  {id:'p1',num:'Phase 01',color:'#4ade80',title:'Foundations — Re-learn DSA',dur:'Months 1–2',
+   weeks:[
+    {label:'Weeks 1–2 — Arrays, Hashing, Two Pointers',tasks:[
+      {text:'Start here: read the Neetcode roadmap and understand the full topic order',tag:'read',links:[{l:'Neetcode Roadmap',u:'https://neetcode.io/roadmap'},{l:'Google Tech Dev Guide',u:'https://techdevguide.withgoogle.com/paths/interview/'}]},
+      {text:'Arrays: Two Sum (LC 1), Best Time to Buy Stock (LC 121), Contains Duplicate (LC 217)',tag:'dsa',links:[{l:'Two Sum',u:'https://leetcode.com/problems/two-sum/'},{l:'Best Time to Buy Stock',u:'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/'},{l:'Contains Duplicate',u:'https://leetcode.com/problems/contains-duplicate/'}]},
+      {text:'Hashing: Group Anagrams (LC 49), Top K Frequent (LC 347), Product Except Self (LC 238)',tag:'dsa',links:[{l:'Group Anagrams',u:'https://leetcode.com/problems/group-anagrams/'},{l:'Top K Frequent',u:'https://leetcode.com/problems/top-k-frequent-elements/'},{l:'Product Except Self',u:'https://leetcode.com/problems/product-of-array-except-self/'}]},
+      {text:'Two Pointers: Valid Palindrome (LC 125), 3Sum (LC 15), Container With Most Water (LC 11)',tag:'dsa',links:[{l:'Valid Palindrome',u:'https://leetcode.com/problems/valid-palindrome/'},{l:'3Sum',u:'https://leetcode.com/problems/three-sum/'},{l:'Container With Most Water',u:'https://leetcode.com/problems/container-with-most-water/'}]},
+      {text:'Watch: Big-O notation refresher — Neetcode intro video',tag:'read',links:[{l:'Big-O Notation (video)',u:'https://www.youtube.com/watch?v=BgLTDT03QtU'}]}
+    ]},
+    {label:'Weeks 3–4 — Sliding Window, Stack, Binary Search',tasks:[
+      {text:'Sliding Window: Longest Substring Without Repeating (LC 3), Min Window Substring (LC 76)',tag:'dsa',links:[{l:'Longest Substring',u:'https://leetcode.com/problems/longest-substring-without-repeating-characters/'},{l:'Min Window Substring',u:'https://leetcode.com/problems/minimum-window-substring/'}]},
+      {text:'Stack: Valid Parentheses (LC 20), Min Stack (LC 155), Daily Temperatures (LC 739)',tag:'dsa',links:[{l:'Valid Parentheses',u:'https://leetcode.com/problems/valid-parentheses/'},{l:'Min Stack',u:'https://leetcode.com/problems/min-stack/'},{l:'Daily Temperatures',u:'https://leetcode.com/problems/daily-temperatures/'}]},
+      {text:'Binary Search: Search Rotated Array (LC 33), Find Minimum in Rotated Array (LC 153)',tag:'dsa',links:[{l:'Search Rotated Array',u:'https://leetcode.com/problems/search-in-rotated-sorted-array/'},{l:'Find Minimum Rotated',u:'https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/'}]},
+      {text:'Practice: re-solve all week 1–2 problems from scratch, no hints',tag:'dsa',links:[{l:'Neetcode 150 tracker',u:'https://neetcode.io/practice/practice/neetcode150'}]}
+    ]},
+    {label:'Weeks 5–6 — Linked Lists, Trees',tasks:[
+      {text:'Linked Lists: Reverse (LC 206), Merge Two Sorted (LC 21), Linked List Cycle (LC 141)',tag:'dsa',links:[{l:'Reverse Linked List',u:'https://leetcode.com/problems/reverse-linked-list/'},{l:'Merge Two Sorted',u:'https://leetcode.com/problems/merge-two-sorted-lists/'},{l:'Linked List Cycle',u:'https://leetcode.com/problems/linked-list-cycle/'}]},
+      {text:'Trees: Invert BT (LC 226), Max Depth (LC 104), Same Tree (LC 100), Level Order (LC 102)',tag:'dsa',links:[{l:'Invert Binary Tree',u:'https://leetcode.com/problems/invert-binary-tree/'},{l:'Maximum Depth',u:'https://leetcode.com/problems/maximum-depth-of-binary-tree/'},{l:'Level Order Traversal',u:'https://leetcode.com/problems/binary-tree-level-order-traversal/'}]},
+      {text:'Understand BFS vs DFS — write both from scratch in Java',tag:'dsa',links:[{l:'BFS vs DFS (video)',u:'https://www.youtube.com/watch?v=pcKY4hjDrxk'}]},
+      {text:'Read: DDIA Chapter 1 — Reliable, Scalable, Maintainable systems',tag:'read',links:[{l:'DDIA on O\'Reilly',u:'https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/'}]}
+    ]},
+    {label:'Weeks 7–8 — Tries, Heap, Backtracking',tasks:[
+      {text:'Heap: Kth Largest Element (LC 215), Task Scheduler (LC 621)',tag:'dsa',links:[{l:'Kth Largest Element',u:'https://leetcode.com/problems/kth-largest-element-in-an-array/'},{l:'Task Scheduler',u:'https://leetcode.com/problems/task-scheduler/'}]},
+      {text:'Trie: Implement Trie (LC 208), Word Search II (LC 212)',tag:'dsa',links:[{l:'Implement Trie',u:'https://leetcode.com/problems/implement-trie-prefix-tree/'},{l:'Word Search II',u:'https://leetcode.com/problems/word-search-ii/'}]},
+      {text:'Backtracking: Subsets (LC 78), Combination Sum (LC 39), Permutations (LC 46)',tag:'dsa',links:[{l:'Subsets',u:'https://leetcode.com/problems/subsets/'},{l:'Combination Sum',u:'https://leetcode.com/problems/combination-sum/'},{l:'Permutations',u:'https://leetcode.com/problems/permutations/'}]},
+      {text:'Review all Phase 1 topics — write down your weakest area',tag:'dsa',links:[{l:'Neetcode 150 full list',u:'https://neetcode.io/practice/practice/neetcode150'}]}
+    ]}
+  ]},
+  {id:'p2',num:'Phase 02',color:'#60a5fa',title:'Advanced DSA + System Design Intro',dur:'Months 3–4',
+   weeks:[
+    {label:'Weeks 9–10 — Graphs',tasks:[
+      {text:'Graph basics: adjacency list, BFS, DFS — write these from scratch',tag:'dsa',links:[{l:'Graph Theory intro (video)',u:'https://www.youtube.com/watch?v=tWVWeAqZ0WU'}]},
+      {text:'Number of Islands (LC 200), Clone Graph (LC 133), Course Schedule (LC 207)',tag:'dsa',links:[{l:'Number of Islands',u:'https://leetcode.com/problems/number-of-islands/'},{l:'Clone Graph',u:'https://leetcode.com/problems/clone-graph/'},{l:'Course Schedule',u:'https://leetcode.com/problems/course-schedule/'}]},
+      {text:'Pacific Atlantic Water Flow (LC 417), Rotting Oranges (LC 994)',tag:'dsa',links:[{l:'Pacific Atlantic',u:'https://leetcode.com/problems/pacific-atlantic-water-flow/'},{l:'Rotting Oranges',u:'https://leetcode.com/problems/rotting-oranges/'}]},
+      {text:'Read: DDIA Chapter 5 — Replication',tag:'read',links:[{l:'DDIA on O\'Reilly',u:'https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/'}]}
+    ]},
+    {label:'Weeks 11–12 — Dynamic Programming',tasks:[
+      {text:'DP intro: Climbing Stairs (LC 70), House Robber (LC 198)',tag:'dsa',links:[{l:'Climbing Stairs',u:'https://leetcode.com/problems/climbing-stairs/'},{l:'House Robber',u:'https://leetcode.com/problems/house-robber/'},{l:'Neetcode DP playlist',u:'https://neetcode.io/practice/practice/neetcode150'}]},
+      {text:'2D DP: Unique Paths (LC 62), Longest Common Subsequence (LC 1143)',tag:'dsa',links:[{l:'Unique Paths',u:'https://leetcode.com/problems/unique-paths/'},{l:'LCS',u:'https://leetcode.com/problems/longest-common-subsequence/'}]},
+      {text:'Knapsack: Coin Change (LC 322), Target Sum (LC 494)',tag:'dsa',links:[{l:'Coin Change',u:'https://leetcode.com/problems/coin-change/'},{l:'Target Sum',u:'https://leetcode.com/problems/target-sum/'}]},
+      {text:'System Design: watch ByteByteGo "Design a URL Shortener"',tag:'sd',links:[{l:'ByteByteGo YouTube',u:'https://www.youtube.com/@ByteByteGo/videos'},{l:'URL Shortener (Hello Interview)',u:'https://www.hellointerview.com/learn/system-design/problem-breakdowns/bitly'}]}
+    ]},
+    {label:'Weeks 13–14 — System Design Foundations',tasks:[
+      {text:'Learn: CAP theorem, SQL vs NoSQL trade-offs',tag:'sd',links:[{l:'CAP theorem (ByteByteGo)',u:'https://www.youtube.com/watch?v=_RbsFXWRZ10'},{l:'SQL vs NoSQL (video)',u:'https://www.youtube.com/watch?v=t0GlGbtMTio'}]},
+      {text:'Learn: Load balancers, horizontal vs vertical scaling',tag:'sd',links:[{l:'System Design basics (ByteByteGo)',u:'https://www.youtube.com/watch?v=lX4CrbXMsNQ'}]},
+      {text:'Learn: Caching strategies — Redis, CDN, write-through vs write-back',tag:'sd',links:[{l:'Caching strategies (ByteByteGo)',u:'https://www.youtube.com/watch?v=ccemOqDrc2I'}]},
+      {text:'Read: DDIA Chapter 6 — Partitioning',tag:'read',links:[{l:'DDIA on O\'Reilly',u:'https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/'}]},
+      {text:'Practice: design a URL shortener end-to-end — write it out, no looking',tag:'sd',links:[{l:'Reference solution (Hello Interview)',u:'https://www.hellointerview.com/learn/system-design/problem-breakdowns/bitly'}]}
+    ]},
+    {label:'Weeks 15–16 — Advanced Graphs + First Mock',tasks:[
+      {text:"Dijkstra's shortest path — understand, don't just memorise",tag:'dsa',links:[{l:'Network Delay Time (LC 743)',u:'https://leetcode.com/problems/network-delay-time/'},{l:"Dijkstra's explained (video)",u:'https://www.youtube.com/watch?v=XB4MIexjvY0'}]},
+      {text:'Union-Find: Number of Connected Components (LC 323), Redundant Connection (LC 684)',tag:'dsa',links:[{l:'Redundant Connection',u:'https://leetcode.com/problems/redundant-connection/'}]},
+      {text:'System Design: design Twitter/Instagram news feed',tag:'sd',links:[{l:'Design Twitter (Hello Interview)',u:'https://www.hellointerview.com/learn/system-design/problem-breakdowns/twitter'}]},
+      {text:'Do your first timed mock: 45 mins, 1 medium problem, no hints, no pausing',tag:'dsa',links:[{l:'Anonymous mocks (interviewing.io)',u:'https://interviewing.io'}]}
+    ]}
+  ]},
+  {id:'p3',num:'Phase 03',color:'#f472b6',title:'System Design Deep Dive + Behavioural',dur:'Month 5',
+   weeks:[
+    {label:'Weeks 17–18 — Large Scale Systems',tasks:[
+      {text:'Design: Google Drive / Dropbox — chunking, deduplication, sync',tag:'sd',links:[{l:'Design Dropbox (Hello Interview)',u:'https://www.hellointerview.com/learn/system-design/problem-breakdowns/dropbox'},{l:'Google Drive (ByteByteGo)',u:'https://bytebytego.com/courses/system-design-interview/design-google-drive'}]},
+      {text:'Design: WhatsApp — pub-sub, websockets, message persistence',tag:'sd',links:[{l:'Design WhatsApp (Hello Interview)',u:'https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp'}]},
+      {text:'Design: Rate limiter — token bucket vs leaky bucket, Redis implementation',tag:'sd',links:[{l:'Rate limiter (Hello Interview)',u:'https://www.hellointerview.com/learn/system-design/problem-breakdowns/rate-limiter'},{l:'Rate limiting (ByteByteGo)',u:'https://www.youtube.com/watch?v=FU4WlwfS3G0'}]},
+      {text:'Read: DDIA Chapter 11 — Stream Processing',tag:'read',links:[{l:'DDIA on O\'Reilly',u:'https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/'}]}
+    ]},
+    {label:'Weeks 19–20 — Behavioural + Googleyness',tasks:[
+      {text:"Understand Google's 4 hiring attributes: General Cognitive Ability, Leadership, Role Knowledge, Googleyness",tag:'beh',links:[{l:'Google hiring process',u:'https://careers.google.com/how-we-hire/'},{l:'Tech Dev Guide',u:'https://techdevguide.withgoogle.com/paths/interview/'}]},
+      {text:'Write 6–8 STAR stories from your career — use your CV projects as source material',tag:'beh',links:[{l:'STAR method (video)',u:'https://www.youtube.com/watch?v=0nN7Q7DrI6Q'}]},
+      {text:'Practice: "Tell me about a time you disagreed with your team"',tag:'beh',links:[]},
+      {text:'Practice: "Describe the most technically complex problem you\'ve solved"',tag:'beh',links:[]},
+      {text:'Practice: "Tell me about a time you failed" — be specific and honest',tag:'beh',links:[]},
+      {text:'Design: Search autocomplete / typeahead system',tag:'sd',links:[{l:'Typeahead (Hello Interview)',u:'https://www.hellointerview.com/learn/system-design/problem-breakdowns/typeahead'}]}
+    ]}
+  ]},
+  {id:'p4',num:'Phase 04',color:'#facc15',title:'Full Simulation + Weak Spot Drilling',dur:'Month 6',
+   weeks:[
+    {label:'Weeks 21–22 — Mock Interview Mode',tasks:[
+      {text:'Do 2 full timed sessions: 45 min each, 1 medium + 1 hard, no hints',tag:'dsa',links:[{l:'LeetCode mediums',u:'https://leetcode.com/problemset/?difficulty=MEDIUM'},{l:'LeetCode hards',u:'https://leetcode.com/problemset/?difficulty=HARD'}]},
+      {text:'Book an anonymous coding mock on interviewing.io',tag:'dsa',links:[{l:'interviewing.io',u:'https://interviewing.io'}]},
+      {text:'System Design mock: explain a full design out loud — record yourself or do it live',tag:'sd',links:[{l:'Hello Interview practice',u:'https://www.hellointerview.com/practice'}]},
+      {text:'Identify your 3 weakest DSA topics and do 5 focused problems each',tag:'dsa',links:[{l:'Neetcode full set',u:'https://neetcode.io/practice/practice/allNC'}]}
+    ]},
+    {label:'Weeks 23–24 — Final Polish',tasks:[
+      {text:'Revise all STAR stories — time each answer to under 3 minutes spoken aloud',tag:'beh',links:[{l:'Google interview tips',u:'https://careers.google.com/how-we-hire/interview/'}]},
+      {text:'Re-do 10 random mediums you haven\'t seen in 3+ weeks — cold, timed',tag:'dsa',links:[{l:'LeetCode mediums',u:'https://leetcode.com/problemset/?difficulty=MEDIUM'}]},
+      {text:'Full end-to-end: design YouTube from scratch — video upload, streaming, recommendations',tag:'sd',links:[{l:'Design YouTube (ByteByteGo)',u:'https://bytebytego.com/courses/system-design-interview/design-youtube'},{l:'Design YouTube (Hello Interview)',u:'https://www.hellointerview.com/learn/system-design/problem-breakdowns/youtube'}]},
+      {text:'Research Google London: teams, products, recent engineering blog posts',tag:'beh',links:[{l:'Google Engineering Blog',u:'https://blog.google/technology/developers/'},{l:'Google London careers',u:'https://careers.google.com/locations/london/'}]},
+      {text:'Reach out to a Google engineer on LinkedIn for a referral or informal chat',tag:'beh',links:[{l:'LinkedIn: Google SWE London',u:'https://www.linkedin.com/search/results/people/?keywords=google%20software%20engineer%20london'}]},
+      {text:'Apply — Google London SWE roles',tag:'beh',links:[{l:'Google Careers London',u:'https://careers.google.com/jobs/results/?location=London%2C%20UK&q=software%20engineer'}]}
+    ]}
+  ]}
 ];
 
-function renderPhases() {
-  const container = document.getElementById('phases');
-  phases.forEach(phase => {
-    const div = document.createElement('div');
-    div.className = 'phase';
-    div.id = phase.id;
+let db,done=new Set(),saveTimer=null;
+async function load(){try{db=await openDB();const s=await dbGet(db,'done');if(s)done=new Set(s);}catch(e){console.warn('IDB load failed',e);}}
+function scheduleSave(){setSyncing(true);clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{try{if(db)await dbSet(db,'done',[...done]);}catch(e){}setSyncing(false);},400);}
+function setSyncing(s){document.getElementById('sync-dot').classList.toggle('saving',s);document.getElementById('sync-label').textContent=s?'Saving…':'Progress saved on this device';}
+function tid(pi,wi,ti){return`${pi}-${wi}-${ti}`;}
 
-    let weeksHTML = phase.weeks.map(week => `
-      <div class="week">
-        <div class="week-title">${week.title}</div>
-        ${week.tasks.map((task, ti) => {
-          const linkHTML = task.links && task.links.length
-            ? `<div class="task-links">${task.links.map(l => `<a class="task-link" href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`).join('')}</div>`
-            : '';
-          return `
-            <div class="task" data-phase="${phase.id}" data-ti="${ti}">
-              <div class="task-top" onclick="toggleTask(this.closest('.task'))">
-                <div class="task-check"></div>
-                <div class="task-text">${task.text}</div>
-                <div class="task-tag tag-${task.tag}">${task.tag}</div>
-              </div>
-              ${linkHTML}
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `).join('');
-
-    div.innerHTML = `
-      <div class="phase-header" onclick="togglePhase('${phase.id}')">
+function render(){
+  const c=document.getElementById('phases');c.innerHTML='';
+  PHASES.forEach(phase=>{
+    const total=phase.weeks.reduce((s,w)=>s+w.tasks.length,0);
+    const dc=phase.weeks.reduce((s,w,wi)=>s+w.tasks.filter((_,ti)=>done.has(tid(phase.id,wi,ti))).length,0);
+    const div=document.createElement('div');div.className='phase';div.id=phase.id;
+    div.innerHTML=`
+      <div class="phase-hdr" onclick="togglePhase('${phase.id}')">
         <div class="phase-num" style="background:${phase.color}22;color:${phase.color}">${phase.num}</div>
-        <div class="phase-title">${phase.title}</div>
-        <div class="phase-duration">${phase.duration}</div>
-        <div class="phase-chevron">▾</div>
+        <div style="flex:1"><div class="phase-title">${phase.title}</div></div>
+        <div class="phase-dur">${phase.dur}</div>
+        <div class="phase-mini" style="color:${phase.color}">${dc}/${total}</div>
+        <div class="chevron">▾</div>
       </div>
-      <div class="phase-body">${weeksHTML}</div>
-    `;
-    container.appendChild(div);
+      <div class="phase-body">${phase.weeks.map((w,wi)=>`
+        <div class="week"><div class="week-label">${w.label}</div>
+        ${w.tasks.map((t,ti)=>{
+          const id=tid(phase.id,wi,ti),isDone=done.has(id);
+          const links=t.links.length?`<div class="task-links">${t.links.map(l=>`<a class="tlink" href="${l.u}" target="_blank">${l.l}</a>`).join('')}</div>`:'';
+          return`<div class="task${isDone?' done':''}" data-id="${id}">
+            <div class="task-top" onclick="toggleTask('${id}',this.closest('.task'))">
+              <div class="chk"></div><div class="task-text">${t.text}</div>
+              <div class="tag tag-${t.tag}">${t.tag}</div>
+            </div>${links}</div>`;
+        }).join('')}</div>`).join('')}</div>`;
+    c.appendChild(div);
   });
-}
-
-function toggleTask(el) {
-  el.classList.toggle('done');
   updateProgress();
 }
 
-function togglePhase(id) {
-  document.getElementById(id).classList.toggle('collapsed');
+function toggleTask(id,el){done.has(id)?done.delete(id):done.add(id);el.classList.toggle('done',done.has(id));updateMini(el);updateProgress();scheduleSave();}
+function updateMini(el){
+  const p=el.closest('.phase');if(!p)return;
+  const phase=PHASES.find(x=>x.id===p.id);if(!phase)return;
+  const total=phase.weeks.reduce((a,w)=>a+w.tasks.length,0);
+  const dc=phase.weeks.reduce((a,w,wi)=>a+w.tasks.filter((_,ti)=>done.has(tid(phase.id,wi,ti))).length,0);
+  const m=p.querySelector('.phase-mini');if(m)m.textContent=`${dc}/${total}`;
+}
+function togglePhase(id){document.getElementById(id).classList.toggle('collapsed');}
+function updateProgress(){
+  const total=PHASES.reduce((a,p)=>a+p.weeks.reduce((b,w)=>b+w.tasks.length,0),0);
+  const pct=total?Math.round(done.size/total*100):0;
+  document.getElementById('pct').textContent=pct+'%';
+  document.getElementById('bar').style.width=pct+'%';
 }
 
-function updateProgress() {
-  const all = document.querySelectorAll('.task');
-  const done = document.querySelectorAll('.task.done');
-  const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
-  document.getElementById('pct').textContent = pct + '%';
-  document.getElementById('bar').style.width = pct + '%';
-}
-
-renderPhases();
-updateProgress();
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
+document.getElementById('install-btn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');});
+document.getElementById('dismiss-install').addEventListener('click',()=>document.getElementById('install-banner').classList.remove('show'));
+window.addEventListener('appinstalled',()=>document.getElementById('install-banner').classList.remove('show'));
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(console.warn);
+load().then(render);
 </script>
 </body>
 </html>
