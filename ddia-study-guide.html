@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DDIA — System Design Interview Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2230;
+    --border: #2a3340;
+    --accent: #58a6ff;
+    --accent2: #f0883e;
+    --accent3: #3fb950;
+    --accent4: #d29922;
+    --accent5: #bc8cff;
+    --text: #c9d1d9;
+    --text-dim: #6e7681;
+    --text-bright: #f0f6fc;
+    --danger: #f85149;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* Layout */
+  .app { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    padding: 24px 0;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+  .sidebar-logo span { color: var(--text-dim); display: block; font-weight: 400; margin-top: 2px; }
+
+  .sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 20px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .sidebar nav a:hover, .sidebar nav a.active {
+    color: var(--text-bright);
+    border-left-color: var(--accent);
+    background: rgba(88,166,255,0.07);
+  }
+  .sidebar nav .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    padding: 16px 20px 4px;
+    text-transform: uppercase;
+  }
+
+  .main {
+    margin-left: 260px;
+    flex: 1;
+    padding: 0 0 80px;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #0d1117 0%, #1a1f2e 50%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 56px 56px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(88,166,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--text-bright);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .hero h1 strong { font-weight: 600; color: var(--accent); }
+  .hero p {
+    color: var(--text-dim);
+    font-size: 14px;
+    max-width: 560px;
+    margin-top: 12px;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 28px;
+  }
+  .stat { display: flex; flex-direction: column; }
+  .stat-n { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--accent); }
+  .stat-l { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  /* Content sections */
+  .content-area { padding: 48px 56px; }
+
+  .chapter {
+    margin-bottom: 72px;
+    scroll-margin-top: 24px;
+  }
+
+  .chapter-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .chapter-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .chapter-header h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-bright);
+    line-height: 1.3;
+  }
+  .chapter-header h2 em {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    font-style: normal;
+    color: var(--accent2);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+
+  .concept-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 900px) { .concept-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card.full { grid-column: 1 / -1; }
+  .card.accent-left { border-left: 3px solid var(--accent); }
+  .card.accent-orange { border-left: 3px solid var(--accent2); }
+  .card.accent-green { border-left: 3px solid var(--accent3); }
+  .card.accent-yellow { border-left: 3px solid var(--accent4); }
+  .card.accent-purple { border-left: 3px solid var(--accent5); }
+  .card.accent-red { border-left: 3px solid var(--danger); }
+
+  .card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card p, .card li { font-size: 13.5px; color: var(--text); line-height: 1.6; }
+  .card ul { padding-left: 16px; margin-top: 6px; }
+  .card li { margin-bottom: 5px; }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .tag-blue { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .tag-orange { background: rgba(240,136,62,0.15); color: var(--accent2); }
+  .tag-green { background: rgba(63,185,80,0.15); color: var(--accent3); }
+  .tag-yellow { background: rgba(210,153,34,0.15); color: var(--accent4); }
+  .tag-purple { background: rgba(188,140,255,0.15); color: var(--accent5); }
+  .tag-red { background: rgba(248,81,73,0.15); color: var(--danger); }
+
+  /* Code / mono blocks */
+  .mono-block {
+    background: #0a0e13;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #a8d8a8;
+    margin: 12px 0;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .mono-block .comment { color: var(--text-dim); }
+  .mono-block .key { color: var(--accent); }
+  .mono-block .val { color: var(--accent3); }
+  .mono-block .err { color: var(--danger); }
+
+  /* Interview Q box */
+  .interview-qs {
+    background: rgba(88,166,255,0.05);
+    border: 1px solid rgba(88,166,255,0.2);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  .interview-qs h4 {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .interview-qs li {
+    font-size: 13.5px;
+    color: var(--text);
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+  .interview-qs li::before { content: "→ "; color: var(--accent); }
+  .interview-qs ul { list-style: none; padding: 0; }
+
+  /* Comparison table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--text-bright);
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Visual diagrams */
+  .diagram {
+    background: #0a0e13;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.9;
+    margin: 12px 0;
+    overflow-x: auto;
+  }
+  .diagram .node { color: var(--accent); }
+  .diagram .arrow { color: var(--text-dim); }
+  .diagram .label { color: var(--accent3); }
+  .diagram .warn { color: var(--accent2); }
+
+  /* Key insight callout */
+  .insight {
+    display: flex;
+    gap: 12px;
+    background: rgba(63,185,80,0.06);
+    border: 1px solid rgba(63,185,80,0.2);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 13.5px;
+    color: var(--text);
+  }
+  .insight-icon { color: var(--accent3); flex-shrink: 0; font-size: 15px; }
+
+  .warn-box {
+    display: flex;
+    gap: 12px;
+    background: rgba(240,136,62,0.06);
+    border: 1px solid rgba(240,136,62,0.2);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 13.5px;
+    color: var(--text);
+  }
+  .warn-icon { color: var(--accent2); flex-shrink: 0; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    DDIA<br>
+    <span>Interview Study Guide</span>
+  </div>
+  <nav>
+    <div class="section-label">Foundations</div>
+    <a href="#reliability">Reliability, Scalability, Maintainability</a>
+    <a href="#data-models">Data Models & Query Languages</a>
+    <a href="#storage">Storage & Retrieval</a>
+    <a href="#encoding">Encoding & Schemas</a>
+
+    <div class="section-label">Distributed Systems</div>
+    <a href="#replication">Replication</a>
+    <a href="#partitioning">Partitioning (Sharding)</a>
+    <a href="#transactions">Transactions</a>
+    <a href="#trouble">Distributed System Trouble</a>
+    <a href="#consistency">Consistency & Consensus</a>
+
+    <div class="section-label">Derived Data</div>
+    <a href="#batch">Batch Processing</a>
+    <a href="#stream">Stream Processing</a>
+    <a href="#future">The Future of Data Systems</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <div class="hero">
+    <div class="hero-tag">Designing Data-Intensive Applications · Martin Kleppmann</div>
+    <h1>The <strong>DDIA</strong> Interview<br>Reference Guide</h1>
+    <p>Every concept a mid/senior engineer needs to discuss fluently in system design interviews — with real-world examples, trade-offs, and the likely questions you'll face.</p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-n">12</span><span class="stat-l">Topic areas</span></div>
+      <div class="stat"><span class="stat-n">50+</span><span class="stat-l">Core concepts</span></div>
+      <div class="stat"><span class="stat-n">40+</span><span class="stat-l">Interview questions</span></div>
+    </div>
+  </div>
+
+  <div class="content-area">
+
+    <!-- ───────────────────────────────────────────── -->
+    <!-- 1. RELIABILITY, SCALABILITY, MAINTAINABILITY -->
+    <!-- ───────────────────────────────────────────── -->
+    <section class="chapter" id="reliability">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 01</div>
+        <h2>Reliability, Scalability &amp; Maintainability<em>The three properties every system must be designed around</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left">
+          <h3>Reliability <span class="tag tag-blue">fault-tolerant</span></h3>
+          <p>The system continues working correctly even when things go wrong. A <em>fault</em> is one component deviating; a <em>failure</em> is the whole system going down. Good systems tolerate faults before they become failures.</p>
+          <ul>
+            <li><strong>Hardware faults:</strong> disk dies, RAM flips a bit → use RAID, redundant power, multi-AZ replicas</li>
+            <li><strong>Software faults:</strong> a bug that kills every node when a particular input arrives → chaos testing, careful error handling</li>
+            <li><strong>Human error:</strong> config mistakes cause more outages than hardware → sandbox envs, gradual rollouts, fast rollback</li>
+          </ul>
+        </div>
+
+        <div class="card accent-orange">
+          <h3>Scalability <span class="tag tag-orange">load & performance</span></h3>
+          <p>As load grows, can the system cope? You must first describe load precisely with <em>load parameters</em>, then measure performance under load.</p>
+          <ul>
+            <li><strong>Twitter fan-out example:</strong> 12 writes/s for tweets but 345K reads/s for home timelines. The read/write ratio shapes the entire architecture.</li>
+            <li><strong>Throughput</strong> (batch: records/sec) vs <strong>latency</strong> (online: p99 response time)</li>
+            <li>p99 matters more than median — your slowest users drive infrastructure decisions</li>
+          </ul>
+        </div>
+
+        <div class="card accent-green full">
+          <h3>Maintainability <span class="tag tag-green">operability · simplicity · evolvability</span></h3>
+          <ul>
+            <li><strong>Operability:</strong> easy for ops teams to run — good monitoring, runbooks, config management</li>
+            <li><strong>Simplicity:</strong> reduce accidental complexity. A system with 8 implicit state machines is harder to maintain than one with 1 explicit one</li>
+            <li><strong>Evolvability:</strong> easy to change. Agile, TDD, rolling deploys. The system should accommodate new requirements without rewrites</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>How would you design a system to handle 10x traffic growth with no downtime?</li>
+          <li>What's the difference between latency percentiles — why do engineers care about p99 not mean?</li>
+          <li>Walk me through how you'd make a service fault-tolerant at the infrastructure level.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ───────────── -->
+    <!-- 2. DATA MODELS -->
+    <!-- ───────────── -->
+    <section class="chapter" id="data-models">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 02</div>
+        <h2>Data Models &amp; Query Languages<em>Relational vs. document vs. graph — and when each wins</em></h2>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Best for</th><th>Weakness</th><th>Examples</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Relational</strong></td>
+            <td>Many-to-many relationships, joins, strong schema, ACID transactions</td>
+            <td>Impedance mismatch with OOP; schema changes are painful at scale</td>
+            <td>PostgreSQL, MySQL, Oracle</td>
+          </tr>
+          <tr>
+            <td><strong>Document</strong></td>
+            <td>Self-contained documents, locality (read whole record at once), schema flexibility</td>
+            <td>Poor for joins/many-to-many; denormalization needed</td>
+            <td>MongoDB, CouchDB, DynamoDB</td>
+          </tr>
+          <tr>
+            <td><strong>Graph</strong></td>
+            <td>Highly connected data — social networks, fraud detection, routing</td>
+            <td>Not general-purpose; complex query language</td>
+            <td>Neo4j, Amazon Neptune, Dgraph</td>
+          </tr>
+          <tr>
+            <td><strong>Column-family</strong></td>
+            <td>Wide rows, time-series, sparse data at huge scale</td>
+            <td>Weak query flexibility; eventual consistency typical</td>
+            <td>Cassandra, HBase, BigTable</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="insight">
+        <span class="insight-icon">💡</span>
+        <span><strong>Key interview point:</strong> NoSQL doesn't mean "no SQL" — it means "Not Only SQL". The choice between relational and document often comes down to whether your data has a one-to-many (document wins) or many-to-many (relational/graph wins) shape.</span>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>When would you choose DynamoDB over PostgreSQL? What are the trade-offs?</li>
+          <li>Explain schema-on-read vs schema-on-write. When does each help?</li>
+          <li>You're building a social network recommendation system. What data model do you reach for?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ──────────────────── -->
+    <!-- 3. STORAGE RETRIEVAL -->
+    <!-- ──────────────────── -->
+    <section class="chapter" id="storage">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 03</div>
+        <h2>Storage &amp; Retrieval<em>How databases actually store and find data — the two fundamental structures</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left">
+          <h3>LSM-Trees (Log-Structured Merge) <span class="tag tag-blue">write-optimised</span></h3>
+          <p>Used by: <strong>Cassandra, RocksDB, LevelDB, HBase</strong></p>
+          <ul>
+            <li>Writes go to an in-memory <em>memtable</em>, then flushed to immutable <em>SSTables</em> on disk</li>
+            <li>Background <em>compaction</em> merges SSTables, reclaims space, keeps read paths short</li>
+            <li><strong>Pros:</strong> very fast sequential writes, high write throughput</li>
+            <li><strong>Cons:</strong> reads may scan multiple SSTables; compaction uses I/O bandwidth; bloom filters help</li>
+          </ul>
+          <div class="diagram">
+<span class="node">Write</span> → <span class="label">memtable</span> → flush → <span class="label">SSTable L0</span>
+                               ↓ compaction
+                         <span class="label">SSTable L1</span> → <span class="label">L2</span> → ...
+<span class="node">Read</span>  → check memtable → L0 → L1 → L2 (bloom filter skips most)
+          </div>
+        </div>
+
+        <div class="card accent-orange">
+          <h3>B-Trees <span class="tag tag-orange">read-optimised</span></h3>
+          <p>Used by: <strong>PostgreSQL, MySQL (InnoDB), SQLite, Oracle</strong></p>
+          <ul>
+            <li>Data stored in fixed-size <em>pages</em> (typically 4 KB), organised as a balanced tree</li>
+            <li>Each write updates the page in place → requires a <em>Write-Ahead Log (WAL)</em> for crash recovery</li>
+            <li><strong>Pros:</strong> predictable O(log n) reads, good for range queries, mature and well-understood</li>
+            <li><strong>Cons:</strong> random writes (expensive on spinning disks), write amplification, fragmentation over time</li>
+          </ul>
+          <div class="diagram">
+<span class="node">Root page</span>
+├── <span class="label">Internal page</span> (keys + child pointers)
+│   ├── <span class="label">Leaf page</span> [k1, v1] [k2, v2] [k3, v3]
+│   └── <span class="label">Leaf page</span> [k4, v4] [k5, v5]
+└── <span class="label">Internal page</span>
+    └── <span class="label">Leaf page</span> [k6, v6]
+          </div>
+        </div>
+
+        <div class="card accent-green full">
+          <h3>Indexes — Secondary, Clustered, Covering <span class="tag tag-green">query performance</span></h3>
+          <ul>
+            <li><strong>Clustered index:</strong> data stored in index order (InnoDB primary key). Fast range scans, only one per table</li>
+            <li><strong>Secondary index:</strong> points back to primary key or heap row. Extra lookup needed (unless covering)</li>
+            <li><strong>Covering index:</strong> index contains all columns needed by the query — no heap lookup ("index-only scan")</li>
+            <li><strong>Composite index:</strong> <code>(last_name, first_name)</code> — column order matters. Left-prefix rule applies</li>
+            <li><strong>Multi-value / inverted index:</strong> used in full-text search (Elasticsearch) — maps term → list of document IDs</li>
+          </ul>
+        </div>
+
+        <div class="card accent-yellow">
+          <h3>OLTP vs OLAP <span class="tag tag-yellow">workload type</span></h3>
+          <ul>
+            <li><strong>OLTP:</strong> many short reads/writes, user-facing, latency-sensitive → row-oriented storage</li>
+            <li><strong>OLAP:</strong> few long analytical queries over millions of rows → column-oriented storage</li>
+            <li><strong>Column storage</strong> compresses well (run-length, bitmap encoding) and only reads relevant columns</li>
+            <li>Example: Redshift, BigQuery, Snowflake all use columnar storage</li>
+          </ul>
+        </div>
+
+        <div class="card accent-purple">
+          <h3>Data Warehouses &amp; Stars <span class="tag tag-purple">analytics pattern</span></h3>
+          <ul>
+            <li><strong>Star schema:</strong> central fact table (events/transactions) + dimension tables (users, products, dates)</li>
+            <li><strong>Snowflake schema:</strong> normalised dimensions (dimensions broken into sub-tables)</li>
+            <li>Fact tables can have billions of rows; queries aggregate across time ranges</li>
+            <li>ETL pipeline moves data from OLTP → data warehouse nightly (or in real-time with CDC)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>Compare LSM-trees vs B-trees. When would you choose Cassandra over Postgres for storage?</li>
+          <li>What is write amplification and why does it matter?</li>
+          <li>How does a column-oriented database make analytical queries faster?</li>
+          <li>What's the difference between a covering index and a secondary index?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ─────────── -->
+    <!-- 4. ENCODING -->
+    <!-- ─────────── -->
+    <section class="chapter" id="encoding">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 04</div>
+        <h2>Encoding &amp; Schema Evolution<em>How data moves between processes and evolves over time</em></h2>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Format</th><th>Schema required?</th><th>Backwards/Forwards compat?</th><th>Size</th><th>Use case</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>JSON / XML</strong></td><td>No</td><td>Manual / fragile</td><td>Large</td><td>APIs, config, human-readable data</td></tr>
+          <tr><td><strong>Protocol Buffers</strong></td><td>Yes (.proto)</td><td>Yes — field numbers</td><td>Small</td><td>Internal gRPC services (Google)</td></tr>
+          <tr><td><strong>Avro</strong></td><td>Yes (writer + reader schema)</td><td>Yes — schema resolution</td><td>Smallest</td><td>Kafka messages, Hadoop</td></tr>
+          <tr><td><strong>Thrift</strong></td><td>Yes</td><td>Yes — field IDs</td><td>Small</td><td>Facebook internal services</td></tr>
+        </tbody>
+      </table>
+
+      <div class="insight">
+        <span class="insight-icon">💡</span>
+        <span><strong>Key insight:</strong> Binary formats (Protobuf, Avro) win at scale because they're smaller and faster to parse. But the critical property for long-lived systems is <em>schema evolution</em> — can old readers read new data (forward compat) and new readers read old data (backward compat)? Avro's schema resolution is particularly elegant for Kafka.</span>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>Why would you choose Avro over JSON for Kafka messages at Stripe/Wise scale?</li>
+          <li>What is schema evolution and how does Protobuf handle it?</li>
+          <li>What happens if you remove a required field from a Protobuf schema?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ─────────── -->
+    <!-- 5. REPLICATION -->
+    <!-- ─────────── -->
+    <section class="chapter" id="replication">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 05</div>
+        <h2>Replication<em>Keeping copies of data on multiple machines — one of the hardest problems in distributed systems</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left">
+          <h3>Single-Leader Replication <span class="tag tag-blue">most common</span></h3>
+          <p>All writes go to the leader. Leader sends a <em>replication log</em> to followers. Reads can go to followers (eventual consistency) or leader (linearizable).</p>
+          <ul>
+            <li><strong>Synchronous follower:</strong> leader waits for follower ack before confirming write → durable but slow</li>
+            <li><strong>Asynchronous follower:</strong> leader confirms immediately → fast but follower can lag</li>
+            <li><strong>Semi-synchronous:</strong> one synchronous follower + rest async → balance</li>
+            <li><strong>Replication lag problems:</strong> read-your-own-writes, monotonic reads, consistent prefix reads</li>
+          </ul>
+          <div class="diagram">
+<span class="warn">Client Write</span>
+     ↓
+<span class="node">[Leader]</span> → WAL/binlog →  <span class="label">[Follower 1]</span>  (sync)
+                         →  <span class="label">[Follower 2]</span>  (async, may lag)
+                         →  <span class="label">[Follower 3]</span>  (async, may lag)
+          </div>
+        </div>
+
+        <div class="card accent-orange">
+          <h3>Multi-Leader Replication <span class="tag tag-orange">multi-datacenter</span></h3>
+          <p>Multiple nodes accept writes. Used when you have multiple datacenters and need local writes in each.</p>
+          <ul>
+            <li><strong>Conflict resolution is the core problem:</strong> two leaders accept conflicting writes to the same record</li>
+            <li>Strategies: last-write-wins (LWW, loses data), merge (CRDTs), custom logic, or avoid conflicts entirely</li>
+            <li>Real example: Google Docs uses operational transformation to merge concurrent edits</li>
+            <li><strong>Beware:</strong> autopilot conflict resolution with LWW silently drops writes</li>
+          </ul>
+        </div>
+
+        <div class="card accent-green">
+          <h3>Leaderless Replication (Dynamo-style) <span class="tag tag-green">cassandra / dynamo</span></h3>
+          <p>Any replica can accept writes. Reads and writes use quorums.</p>
+          <ul>
+            <li><strong>Quorum:</strong> w + r > n ensures overlap. With n=3: w=2, r=2 guarantees reading at least one up-to-date node</li>
+            <li><strong>Read repair:</strong> reader detects stale replica and updates it</li>
+            <li><strong>Anti-entropy:</strong> background process syncs replicas</li>
+            <li>Sloppy quorum: write to available nodes even if not the home replicas (hinted handoff)</li>
+          </ul>
+        </div>
+
+        <div class="card accent-yellow">
+          <h3>Failover &amp; Replication Lag Problems</h3>
+          <ul>
+            <li><strong>Failover pitfalls:</strong> async replication means new leader may be behind → lost writes. Set old leader as follower to recapture</li>
+            <li><strong>Read-your-own-writes:</strong> user writes, then reads from lagging follower, sees old data. Fix: route reads of user's own content to leader</li>
+            <li><strong>Monotonic reads:</strong> user reads from replica A (recent), then replica B (stale) → time goes backwards. Fix: sticky sessions to same replica</li>
+            <li><strong>Consistent prefix reads:</strong> causally related writes must be read in order</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>Explain the difference between synchronous and asynchronous replication. What are the trade-offs?</li>
+          <li>What is replication lag and what problems does it cause? How would you mitigate it?</li>
+          <li>How does Cassandra handle writes with no single leader? What is a quorum?</li>
+          <li>How would you handle a leader failover to avoid split-brain or lost writes?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ────────────── -->
+    <!-- 6. PARTITIONING -->
+    <!-- ────────────── -->
+    <section class="chapter" id="partitioning">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 06</div>
+        <h2>Partitioning (Sharding)<em>Splitting data across multiple nodes to scale beyond a single machine</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left">
+          <h3>Key-Range Partitioning <span class="tag tag-blue">range queries</span></h3>
+          <ul>
+            <li>Partition by key range: A–F on shard 1, G–M on shard 2, etc.</li>
+            <li><strong>Pro:</strong> efficient range queries (scan one partition)</li>
+            <li><strong>Con: Hot spots</strong> — if everyone's writing timestamps, today's partition gets all the traffic</li>
+            <li>Used by: HBase, BigTable, MongoDB (range-based)</li>
+          </ul>
+        </div>
+
+        <div class="card accent-orange">
+          <h3>Hash Partitioning <span class="tag tag-orange">even distribution</span></h3>
+          <ul>
+            <li>Hash the key, assign to partition based on hash range. Even load distribution</li>
+            <li><strong>Con:</strong> range queries now span all partitions</li>
+            <li>Cassandra: compound key — hash on first part, range on rest (best of both)</li>
+            <li><strong>Celebrity hot-spot problem:</strong> famous user has millions of followers. Solution: add random prefix to key, then aggregate reads</li>
+          </ul>
+        </div>
+
+        <div class="card accent-green full">
+          <h3>Rebalancing Partitions <span class="tag tag-green">elasticity</span></h3>
+          <ul>
+            <li><strong>Fixed number of partitions:</strong> create 1000 partitions upfront, move whole partitions between nodes (Elasticsearch, Riak)</li>
+            <li><strong>Dynamic partitioning:</strong> split when partition exceeds threshold, merge when too small (HBase, RethinkDB)</li>
+            <li><strong>Consistent hashing:</strong> arrange nodes on a ring. Add/remove node → only adjacent partitions move. Minimises data movement</li>
+            <li><strong>Virtual nodes (vnodes):</strong> each physical node owns many small virtual partitions on the ring → smoother rebalancing (Cassandra)</li>
+          </ul>
+        </div>
+
+        <div class="card accent-yellow">
+          <h3>Secondary Indexes &amp; Partitioning <span class="tag tag-yellow">scatter-gather problem</span></h3>
+          <ul>
+            <li><strong>Local (document-based) secondary index:</strong> each partition indexes its own data. Reads must query all partitions and merge (scatter-gather). Used by MongoDB, Cassandra, Elasticsearch</li>
+            <li><strong>Global (term-based) secondary index:</strong> index itself is partitioned separately. Writes update multiple partitions; reads hit one partition. Used by DynamoDB GSIs</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>How would you shard a user table across 10 database nodes? What's the trade-off between range and hash sharding?</li>
+          <li>You notice one shard is receiving 80% of writes. What's causing this and how do you fix it?</li>
+          <li>What is consistent hashing and why do distributed systems use it?</li>
+          <li>How do secondary indexes work across partitions?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ──────────────── -->
+    <!-- 7. TRANSACTIONS  -->
+    <!-- ──────────────────-->
+    <section class="chapter" id="transactions">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 07</div>
+        <h2>Transactions<em>ACID, isolation levels, and the concurrency problems they prevent — critical for fintech interviews</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left full">
+          <h3>ACID — what each property actually means <span class="tag tag-blue">interview essential</span></h3>
+          <table>
+            <thead><tr><th>Property</th><th>What it guarantees</th><th>Real example</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Atomicity</strong></td><td>All operations in a transaction succeed, or none do. No partial writes.</td><td>Debit €100 AND credit €100 — either both happen or neither does</td></tr>
+              <tr><td><strong>Consistency</strong></td><td>Transaction brings DB from one valid state to another (application-defined invariants)</td><td>Account balance must never go negative after any transaction</td></tr>
+              <tr><td><strong>Isolation</strong></td><td>Concurrent transactions don't interfere with each other</td><td>Two users booking the last seat don't both see it available</td></tr>
+              <tr><td><strong>Durability</strong></td><td>Committed data survives crashes (WAL, fsync, replication)</td><td>Payment confirmed at 3pm is still there after server crash at 3:01pm</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card accent-orange full">
+          <h3>Isolation Levels — from weakest to strongest <span class="tag tag-orange">core concept</span></h3>
+          <table>
+            <thead><tr><th>Level</th><th>Prevents</th><th>Allows (problem)</th><th>Used by default in</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Read Uncommitted</strong></td><td>Nothing</td><td>Dirty reads, non-repeatable, phantoms</td><td>Rarely used</td></tr>
+              <tr><td><strong>Read Committed</strong></td><td>Dirty reads</td><td>Non-repeatable reads, phantoms</td><td>PostgreSQL, Oracle, SQL Server</td></tr>
+              <tr><td><strong>Repeatable Read</strong></td><td>Dirty + non-repeatable reads</td><td>Phantom reads (in strict sense)</td><td>MySQL InnoDB default</td></tr>
+              <tr><td><strong>Snapshot Isolation (SI)</strong></td><td>Dirty, non-repeatable, most phantoms</td><td>Write skew</td><td>PostgreSQL "Repeatable Read", Oracle</td></tr>
+              <tr><td><strong>Serializable</strong></td><td>All anomalies</td><td>Nothing — strongest guarantee</td><td>PostgreSQL SSI, CockroachDB</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card accent-green">
+          <h3>Concurrency Problems — be able to explain these <span class="tag tag-green">anomalies</span></h3>
+          <ul>
+            <li><strong>Dirty read:</strong> reading another transaction's uncommitted data</li>
+            <li><strong>Non-repeatable read:</strong> same row returns different values within one transaction (another tx committed in between)</li>
+            <li><strong>Phantom read:</strong> same query returns different rows (another tx inserted/deleted matching rows)</li>
+            <li><strong>Write skew:</strong> two transactions read overlapping data, each makes a decision, both write — combined result violates an invariant. Classic example: two doctors both go off-call when at least one must remain</li>
+            <li><strong>Lost update:</strong> read-modify-write cycle where one transaction's write overwrites another's</li>
+          </ul>
+        </div>
+
+        <div class="card accent-purple">
+          <h3>Implementing Serializable Isolation <span class="tag tag-purple">implementation</span></h3>
+          <ul>
+            <li><strong>Actual Serial Execution:</strong> one thread, one transaction at a time. Fast if transactions are short and data fits in memory. Used by VoltDB, Redis (single-threaded)</li>
+            <li><strong>Two-Phase Locking (2PL):</strong> readers block writers and vice versa. Pessimistic. Deadlock risk. Used by MySQL, older PostgreSQL</li>
+            <li><strong>Serializable Snapshot Isolation (SSI):</strong> optimistic — detect conflicts at commit time and abort. Used by PostgreSQL ≥9.1, CockroachDB. Better throughput than 2PL under low contention</li>
+          </ul>
+        </div>
+
+        <div class="card accent-red full">
+          <h3>Distributed Transactions — 2PC and its problems <span class="tag tag-red">distributed</span></h3>
+          <p>When a transaction spans multiple nodes or services, you need distributed coordination.</p>
+          <ul>
+            <li><strong>Two-Phase Commit (2PC):</strong> Coordinator sends "prepare" to all participants → all vote yes/no → coordinator sends "commit" or "abort"</li>
+            <li><strong>Problem:</strong> coordinator failure after "prepare" but before "commit" leaves participants in doubt — they hold locks, blocking progress indefinitely</li>
+            <li><strong>XA transactions:</strong> standard 2PC across heterogeneous systems. Widely supported but heavyweight</li>
+            <li><strong>Alternative — Saga pattern:</strong> break transaction into sequence of local transactions with compensating actions for rollback. Used widely in microservices (Stripe, Airbnb)</li>
+          </ul>
+          <div class="mono-block"><span class="comment"># Saga example: booking a flight + hotel</span>
+<span class="key">Step 1:</span> <span class="val">Book flight</span>    → success
+<span class="key">Step 2:</span> <span class="val">Book hotel</span>    → FAILS
+<span class="key">Compensate:</span> <span class="err">Cancel flight</span>  ← compensating transaction
+          </div>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>Explain ACID. What does isolation actually mean in practice?</li>
+          <li>What is write skew? Give a real example. How do you prevent it?</li>
+          <li>What is the difference between Snapshot Isolation and Serializable Isolation?</li>
+          <li>Why is 2PC problematic in distributed systems? What are the alternatives?</li>
+          <li>How would you handle a payment that needs to debit one service and credit another (across microservices)?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ──────────────────── -->
+    <!-- 8. DISTRIBUTED TROUBLE -->
+    <!-- ──────────────────── -->
+    <section class="chapter" id="trouble">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 08</div>
+        <h2>The Trouble with Distributed Systems<em>Partial failures, unreliable networks, and clocks — the reality of distributed systems</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left">
+          <h3>Partial Failures <span class="tag tag-blue">the hard part</span></h3>
+          <p>In a single computer, something either works or fails — you can tell which. In a distributed system, a node might be slow, a network packet might be lost, or a node might appear dead from one side and alive from another. You <em>cannot know</em> whether a remote operation succeeded.</p>
+          <ul>
+            <li><strong>Timeouts:</strong> the only way to detect dead nodes — but a timed-out request might have actually succeeded</li>
+            <li><strong>Idempotency:</strong> design operations that are safe to retry. Use idempotency keys (Stripe does this)</li>
+          </ul>
+        </div>
+
+        <div class="card accent-orange">
+          <h3>Unreliable Clocks <span class="tag tag-orange">dangerous assumption</span></h3>
+          <ul>
+            <li><strong>Wall clock:</strong> can jump backwards (NTP sync). Never use for ordering events across nodes</li>
+            <li><strong>Monotonic clock:</strong> only for measuring duration on a single machine — no meaning across nodes</li>
+            <li><strong>Last-write-wins with wall clocks</strong> silently drops data when clocks disagree — the default in Cassandra</li>
+            <li><strong>Google TrueTime:</strong> returns [earliest, latest] with bounded uncertainty. Spanner waits out the uncertainty before committing</li>
+            <li><strong>Logical clocks (Lamport):</strong> counters that capture causal ordering without wall time. Safe for ordering</li>
+          </ul>
+        </div>
+
+        <div class="card accent-green full">
+          <h3>Process Pauses — why distributed locks are hard <span class="tag tag-green">subtle</span></h3>
+          <p>A process can pause at any point: GC stop-the-world, VM migration, paging. This means:</p>
+          <ul>
+            <li>A process holding a lease can pause, let the lease expire, resume — and still think it holds the lock</li>
+            <li><strong>Fencing tokens:</strong> each lock grant comes with a monotonically increasing token. Storage layer rejects writes with an older token. Safe even if the lock holder pauses</li>
+          </ul>
+          <div class="mono-block"><span class="comment"># Without fencing — dangerous</span>
+<span class="key">Client 1:</span> acquires lock, pauses for 30s (GC)
+<span class="key">Client 2:</span> lock expires, acquires lock, writes data
+<span class="err">Client 1:</span> resumes, thinks it still has lock, overwrites Client 2's data ← CORRUPTION
+
+<span class="comment"># With fencing tokens — safe</span>
+<span class="key">Client 1:</span> gets lock with token=33, pauses
+<span class="key">Client 2:</span> gets lock with token=34, writes (storage records min_token=34)
+<span class="val">Client 1:</span> resumes, tries to write with token=33 → storage REJECTS (33 < 34) ✓
+          </div>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>Why can't you rely on wall clock timestamps to order events across distributed nodes?</li>
+          <li>What is a fencing token and why do you need it for distributed locks?</li>
+          <li>A network request times out. How do you know if the operation actually happened? How do you handle this?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ──────────────────────── -->
+    <!-- 9. CONSISTENCY & CONSENSUS -->
+    <!-- ──────────────────────── -->
+    <section class="chapter" id="consistency">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 09</div>
+        <h2>Consistency &amp; Consensus<em>CAP theorem, linearizability, and how distributed agreement actually works</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left full">
+          <h3>CAP Theorem <span class="tag tag-blue">often misunderstood</span></h3>
+          <p>In the presence of a network <em>Partition</em>, you must choose between <em>Consistency</em> (linearizability) and <em>Availability</em>. CP or AP — not both.</p>
+          <div class="warn-box">
+            <span class="warn-icon">⚠️</span>
+            <span><strong>Interview trap:</strong> CAP is widely misunderstood. "Consistency" in CAP means <em>linearizability</em>, not eventual consistency or ACID consistency. And network partitions are rare — most of the time systems operate in the CA region. The more useful framing is the <strong>PACELC theorem</strong>: even without partitions, there's a latency vs consistency trade-off.</span>
+          </div>
+          <table>
+            <thead><tr><th>System</th><th>Choice under partition</th></tr></thead>
+            <tbody>
+              <tr><td>Zookeeper, etcd, HBase</td><td><strong>CP</strong> — rejects writes if can't achieve quorum. Consistent but may be unavailable</td></tr>
+              <tr><td>Cassandra, DynamoDB, CouchDB</td><td><strong>AP</strong> — always accepts writes. Eventually consistent</td></tr>
+              <tr><td>PostgreSQL (single node)</td><td>Not distributed — N/A. But if using replication, depends on config</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card accent-orange">
+          <h3>Linearizability <span class="tag tag-orange">strongest guarantee</span></h3>
+          <p>The system appears to have a single, atomic register. Every read returns the most recently written value. Operations look instantaneous.</p>
+          <ul>
+            <li>Required for: leader election, distributed locks, uniqueness constraints, atomic compare-and-swap</li>
+            <li><strong>Cost:</strong> requires cross-node coordination on every operation → high latency</li>
+            <li>Multi-leader and leaderless systems are generally not linearizable</li>
+            <li>Single-leader with sync replication can be linearizable if you always read from leader</li>
+          </ul>
+        </div>
+
+        <div class="card accent-green">
+          <h3>Eventual Consistency <span class="tag tag-green">availability-first</span></h3>
+          <p>If you stop writing, all replicas will eventually converge to the same value. No timing guarantee on when.</p>
+          <ul>
+            <li>Weaker but scales better — no need for coordination on reads/writes</li>
+            <li><strong>Monotonic read consistency:</strong> you'll never see older data after seeing newer data</li>
+            <li><strong>Read-your-writes:</strong> after writing, you see your own write</li>
+            <li>These are weaker guarantees you can layer on top of eventual consistency</li>
+          </ul>
+        </div>
+
+        <div class="card accent-purple full">
+          <h3>Consensus Algorithms — Raft &amp; Paxos <span class="tag tag-purple">how it really works</span></h3>
+          <p>Consensus = getting multiple nodes to agree on a single value, despite faults. Required for: leader election, atomic broadcast, distributed lock services.</p>
+          <ul>
+            <li><strong>Paxos:</strong> the original consensus algorithm. Notoriously hard to understand. Lamport's 1998 paper</li>
+            <li><strong>Raft:</strong> designed to be understandable. Divides problem into leader election + log replication + safety. Used by etcd, Consul, CockroachDB, TiKV</li>
+            <li><strong>Raft leader election:</strong> node with highest term and most up-to-date log wins election by getting votes from majority</li>
+            <li><strong>Raft log replication:</strong> leader appends entries to log, sends to followers, commits once majority ack. Committed = durable even if leader fails</li>
+            <li><strong>Multi-Paxos / Viewstamped Replication:</strong> variations used in Spanner, Chubby</li>
+          </ul>
+          <div class="diagram">
+<span class="node">Raft Leader Election</span>
+Node 1 (follower): timeout → becomes candidate → sends RequestVote
+Node 2: votes yes (has older log)
+Node 3: votes yes → <span class="label">Node 1 wins with 2/3 majority → becomes leader</span>
+
+<span class="node">Raft Log Replication</span>
+Leader: appends entry [index=5, term=3, cmd="set x=1"] to its log
+Leader: sends AppendEntries to followers
+Followers: ack receipt
+Leader: once 2/3 ack → <span class="label">marks entry committed</span> → applies to state machine
+          </div>
+        </div>
+
+        <div class="card accent-yellow full">
+          <h3>ZooKeeper &amp; etcd — coordination services <span class="tag tag-yellow">building block</span></h3>
+          <p>These implement consensus and expose primitives that other distributed systems build on:</p>
+          <ul>
+            <li><strong>Leader election:</strong> a service creates an ephemeral node; first one to do so is the leader. Others watch for deletion</li>
+            <li><strong>Distributed locks:</strong> sequential ephemeral znodes. Lowest-numbered node holds the lock</li>
+            <li><strong>Service discovery:</strong> services register themselves; clients watch for changes</li>
+            <li><strong>Config store:</strong> store cluster config; all nodes watch for updates</li>
+            <li>Kubernetes uses etcd for all cluster state. Kafka used ZooKeeper (now moving to KRaft — Kafka's own Raft)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>Explain CAP theorem. Where does Cassandra sit vs Zookeeper?</li>
+          <li>What is linearizability? When do you need it vs when can you accept eventual consistency?</li>
+          <li>How does Raft achieve consensus? What happens when the leader fails?</li>
+          <li>How would you implement distributed leader election without Zookeeper?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ────────────────── -->
+    <!-- 10. BATCH PROCESSING -->
+    <!-- ────────────────── -->
+    <section class="chapter" id="batch">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 10</div>
+        <h2>Batch Processing<em>MapReduce, Spark, and the Unix philosophy applied to data at scale</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left full">
+          <h3>MapReduce — the conceptual foundation <span class="tag tag-blue">foundational pattern</span></h3>
+          <p>A programming model for processing large datasets in parallel across a cluster. Two phases: Map (transform each record) and Reduce (aggregate by key).</p>
+          <div class="mono-block"><span class="comment"># Word count in MapReduce</span>
+<span class="key">Map:</span>    "hello world hello" → [("hello",1), ("world",1), ("hello",1)]
+<span class="key">Shuffle:</span>                   → [("hello",[1,1]), ("world",[1])]
+<span class="key">Reduce:</span>                   → [("hello",2), ("world",1)]
+
+<span class="comment"># Key insight: map outputs are sorted by key, sent to reducers</span>
+<span class="comment"># The shuffle (sort-merge join across network) is the expensive part</span>
+          </div>
+          <ul>
+            <li>HDFS stores data in chunks across nodes. MapReduce moves computation to the data, not data to computation</li>
+            <li>Fault tolerant: if a task fails, re-run it. Output is deterministic (pure functions)</li>
+            <li>Write output to HDFS → next job reads it. Chaining jobs = data pipelines</li>
+          </ul>
+        </div>
+
+        <div class="card accent-orange">
+          <h3>Beyond MapReduce — Spark <span class="tag tag-orange">in-memory batch</span></h3>
+          <ul>
+            <li>Spark keeps intermediate results in memory (RDDs) instead of writing to HDFS between stages → 10–100x faster than MapReduce for iterative algorithms</li>
+            <li><strong>DAG of transformations:</strong> lazy evaluation — operations build a plan, executed when action triggered</li>
+            <li><strong>Spark SQL / DataFrames:</strong> declarative API on top of Spark engine</li>
+            <li>Fault tolerance via <em>lineage</em>: can recompute lost partitions by replaying transformations</li>
+            <li>Used for: ETL, ML training, large-scale analytics, nightly batch jobs</li>
+          </ul>
+        </div>
+
+        <div class="card accent-green">
+          <h3>Join Strategies at Scale <span class="tag tag-green">practical</span></h3>
+          <ul>
+            <li><strong>Sort-merge join:</strong> both sides sorted by join key, merged in one pass. Used in MapReduce reduce phase</li>
+            <li><strong>Broadcast join (map-side):</strong> small table broadcast to all workers, large table joined locally. No shuffle. Used when one table fits in memory</li>
+            <li><strong>Hash join:</strong> build hash table from smaller side, probe with larger side. Fastest when data fits in memory</li>
+            <li><strong>Skew handling:</strong> hot keys make one reducer a bottleneck. Fix: salt the key, process hot keys separately</li>
+          </ul>
+        </div>
+
+        <div class="card accent-yellow">
+          <h3>Lambda &amp; Kappa Architecture <span class="tag tag-yellow">architectural patterns</span></h3>
+          <ul>
+            <li><strong>Lambda:</strong> run batch layer (accurate, slow) + speed layer (approximate, fast) in parallel. Query layer merges results. Complex to maintain two codebases</li>
+            <li><strong>Kappa:</strong> only a stream processing layer. Replay historical data through streaming system to "reprocess". Simpler — one codebase. Used by LinkedIn, Kafka-native pipelines</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>Explain MapReduce. How would you count unique users per day across 1TB of logs?</li>
+          <li>Why is Spark faster than MapReduce? What are the trade-offs?</li>
+          <li>What is a broadcast join and when would you use it?</li>
+          <li>Compare Lambda vs Kappa architecture for a real-time + historical reporting system.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ──────────────────── -->
+    <!-- 11. STREAM PROCESSING -->
+    <!-- ──────────────────── -->
+    <section class="chapter" id="stream">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 11</div>
+        <h2>Stream Processing<em>Kafka, windowing, exactly-once semantics — processing data as it arrives</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left full">
+          <h3>Apache Kafka — the de facto event streaming platform <span class="tag tag-blue">essential knowledge</span></h3>
+          <div class="diagram">
+<span class="node">Producer</span> → <span class="label">Topic: payments</span> (partitioned across brokers)
+                  ├── <span class="label">Partition 0</span>: [offset 0][offset 1][offset 2]...
+                  ├── <span class="label">Partition 1</span>: [offset 0][offset 1]...
+                  └── <span class="label">Partition 2</span>: [offset 0][offset 1]...
+                           ↓
+<span class="node">Consumer Group A</span> (fraud detection)  — each partition consumed by one consumer
+<span class="node">Consumer Group B</span> (analytics)        — independent offset, replays from start
+          </div>
+          <ul>
+            <li><strong>Log structure:</strong> messages are appended to an immutable, ordered log. Consumers track their own offset — Kafka doesn't track per-consumer state (unlike RabbitMQ)</li>
+            <li><strong>Retention:</strong> messages retained for configurable period (days/weeks) — consumers can re-read or replay</li>
+            <li><strong>Partitions = parallelism:</strong> each partition consumed by one consumer in a group. More partitions → more parallelism</li>
+            <li><strong>Ordering guarantee:</strong> ordering guaranteed <em>within</em> a partition. Use consistent hashing on key to ensure related events land on same partition</li>
+            <li><strong>Compaction:</strong> log-compacted topic keeps only the latest value per key — useful as a changelog or source of truth</li>
+            <li><strong>Replication:</strong> each partition has leader + followers. Producer writes to leader, followers replicate. ISR (in-sync replicas) must ack for "all" durability setting</li>
+          </ul>
+        </div>
+
+        <div class="card accent-orange full">
+          <h3>Delivery Semantics — the most important trade-off in streaming <span class="tag tag-orange">interview essential</span></h3>
+          <table>
+            <thead><tr><th>Semantic</th><th>What it means</th><th>Risk</th><th>How achieved</th></tr></thead>
+            <tbody>
+              <tr><td><strong>At-most-once</strong></td><td>Message delivered 0 or 1 times</td><td>Message loss</td><td>Fire-and-forget, no retry</td></tr>
+              <tr><td><strong>At-least-once</strong></td><td>Message delivered 1 or more times</td><td>Duplicates</td><td>Retry on failure; consumer must be idempotent</td></tr>
+              <tr><td><strong>Exactly-once</strong></td><td>Message delivered exactly once</td><td>Complexity</td><td>Idempotent producer + transactional API (Kafka) or Flink checkpoints</td></tr>
+            </tbody>
+          </table>
+          <div class="insight">
+            <span class="insight-icon">💡</span>
+            <span><strong>Real talk:</strong> "exactly-once" is technically possible in Kafka (with transactions) but it's expensive and complex. Most systems accept at-least-once + idempotent consumers as the pragmatic choice. Stripe uses idempotency keys for exactly this reason.</span>
+          </div>
+        </div>
+
+        <div class="card accent-green">
+          <h3>Windowing — time in stream processing <span class="tag tag-green">key concept</span></h3>
+          <ul>
+            <li><strong>Tumbling window:</strong> fixed, non-overlapping. "Sales total every 5 minutes"</li>
+            <li><strong>Sliding window:</strong> overlapping. "Average over last 5 minutes, updated every 1 minute"</li>
+            <li><strong>Session window:</strong> grouped by user activity gap. "All events within 30min of each other"</li>
+            <li><strong>Event time vs processing time:</strong> events arrive late (network delay, mobile offline). Use <em>watermarks</em> to track how far behind processing is, and decide when to close a window</li>
+          </ul>
+        </div>
+
+        <div class="card accent-purple">
+          <h3>Stream-Table Duality &amp; Joins <span class="tag tag-purple">advanced</span></h3>
+          <ul>
+            <li><strong>A table is a stream of changes:</strong> each row update is an event. A stream is a table at each point in time. This unifies batch and stream processing</li>
+            <li><strong>Stream-stream join:</strong> join two event streams within a time window (e.g. join click stream with purchase stream within 1hr)</li>
+            <li><strong>Stream-table join:</strong> enrich events with a slowly-changing table (e.g. enrich payment events with current user tier). Table acts as a lookup</li>
+            <li><strong>Table-table join:</strong> materialise join of two tables, update incrementally. Complex — needs careful state management</li>
+          </ul>
+        </div>
+
+        <div class="card accent-yellow full">
+          <h3>Apache Flink — stateful stream processing <span class="tag tag-yellow">production streaming</span></h3>
+          <ul>
+            <li>Stateful operator: each event updates in-memory state. Flink checkpoints state to durable storage (HDFS/S3) periodically for fault tolerance</li>
+            <li><strong>Exactly-once:</strong> Chandy-Lamport algorithm — barriers flow through the DAG, state snapshot taken at barrier. On failure, replay from last checkpoint</li>
+            <li><strong>vs Spark Streaming:</strong> Flink is true streaming (event-at-a-time). Spark Structured Streaming is micro-batching. Flink has lower latency; Spark has better SQL tooling</li>
+            <li><strong>vs Kafka Streams:</strong> Kafka Streams is a library (runs in your app), no separate cluster. Simpler ops, limited to Kafka data sources. Flink has richer operator set and better windowing</li>
+          </ul>
+        </div>
+
+        <div class="card accent-red full">
+          <h3>Change Data Capture (CDC) — real-world data integration <span class="tag tag-red">practical pattern</span></h3>
+          <p>CDC captures every insert/update/delete from a database's write-ahead log and streams them as events. Used to sync data between systems without polling.</p>
+          <div class="mono-block"><span class="comment"># Example: Postgres → Kafka via Debezium (CDC tool)</span>
+<span class="key">Postgres WAL:</span>
+  INSERT INTO orders (id, amount) VALUES (123, 99.99)
+           ↓ Debezium reads WAL
+<span class="label">Kafka topic: postgres.public.orders</span>
+  { "op": "c", "after": {"id": 123, "amount": 99.99}, "ts": 1718000000 }
+           ↓ consumers
+<span class="val">Search index</span>  (Elasticsearch)
+<span class="val">Analytics DB</span>   (BigQuery)
+<span class="val">Cache</span>          (Redis)
+          </div>
+          <p style="margin-top:10px">Use CDC instead of dual-writes (writing to DB + Kafka in same request) because dual-writes create inconsistency if one fails. CDC guarantees the Kafka event is emitted if and only if the DB write committed.</p>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>How does Kafka guarantee ordering? What happens with multiple partitions?</li>
+          <li>Explain at-least-once vs exactly-once delivery. Which would you choose for a payments system and why?</li>
+          <li>What is a watermark in stream processing? Why do you need it?</li>
+          <li>How would you build a real-time fraud detection system using Kafka and Flink?</li>
+          <li>What is CDC? Why is it better than dual-writes for syncing between a database and a message queue?</li>
+          <li>Compare Kafka vs RabbitMQ. When would you choose each?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ──────────────── -->
+    <!-- 12. FUTURE -->
+    <!-- ──────────────── -->
+    <section class="chapter" id="future">
+      <div class="chapter-header">
+        <div class="chapter-num">CH 12</div>
+        <h2>The Future of Data Systems<em>Unbundling databases, dataflow systems, and correctness at scale</em></h2>
+      </div>
+
+      <div class="concept-grid">
+        <div class="card accent-left">
+          <h3>Unbundling the Database <span class="tag tag-blue">architectural insight</span></h3>
+          <p>Kleppmann's thesis: the monolithic database bundles storage, indexing, replication, query execution. Modern systems unbundle these into specialised components connected by streams.</p>
+          <ul>
+            <li>Postgres for transactions → CDC → Kafka → Elasticsearch for search, Redis for cache, BigQuery for analytics</li>
+            <li>Each component does one thing well</li>
+            <li>The event log (Kafka) becomes the system of record; derived data stores are just views</li>
+          </ul>
+        </div>
+
+        <div class="card accent-orange">
+          <h3>Derived Data &amp; Idempotence <span class="tag tag-orange">correctness</span></h3>
+          <ul>
+            <li>Any derived data (cache, search index, ML feature store) should be reproducible by replaying the source event log</li>
+            <li>Operations should be idempotent — safe to re-run on replay</li>
+            <li><strong>Immutable event log as source of truth</strong> lets you rebuild any downstream system from scratch — the ultimate debuggability</li>
+          </ul>
+        </div>
+
+        <div class="card accent-green full">
+          <h3>End-to-end Correctness <span class="tag tag-green">senior engineering mindset</span></h3>
+          <p>Low-level guarantees (Kafka exactly-once, database ACID) are not enough on their own. You must ensure correctness end-to-end across the full application.</p>
+          <ul>
+            <li>A payment idempotency key must be checked at the application layer, not just the database layer</li>
+            <li>Distributed systems will have partial failures — design for it explicitly with operation IDs, idempotency, and reconciliation</li>
+            <li>Auditing: append-only ledger of all events makes it possible to reconstruct state and detect discrepancies — the approach used by all financial systems</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interview-qs">
+        <h4>Likely interview questions</h4>
+        <ul>
+          <li>If you were designing a data platform from scratch for a fintech at scale, how would you structure the data flow?</li>
+          <li>Why is an immutable event log a powerful architectural primitive? What can you build on top of it?</li>
+          <li>How do you ensure a distributed payment system doesn't double-charge users even under partial failures?</li>
+        </ul>
+      </div>
+    </section>
+
+  </div><!-- /content-area -->
+</main>
+</div>
+
+<script>
+// Highlight active nav item on scroll
+const chapters = document.querySelectorAll('.chapter');
+const navLinks = document.querySelectorAll('.sidebar nav a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + entry.target.id) {
+          link.classList.add('active');
+        }
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+chapters.forEach(ch => observer.observe(ch));
+</script>
+</body>
+</html>
