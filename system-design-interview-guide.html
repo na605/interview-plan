@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Design Interview — Alex Xu Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #17171e;
+    --surface2: #1e1e28;
+    --border: #2c2c3a;
+    --border-light: #383848;
+
+    --blue: #7b9fff;
+    --violet: #a78bfa;
+    --teal: #2dd4bf;
+    --amber: #fbbf24;
+    --rose: #fb7185;
+    --green: #4ade80;
+    --slate: #94a3b8;
+
+    --text: #c8c8d8;
+    --text-dim: #5a5a72;
+    --text-bright: #ededf5;
+
+    --sans: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Layout ── */
+  .shell { display: flex; min-height: 100vh; }
+
+  .rail {
+    width: 252px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    inset: 0 auto 0 0;
+    overflow-y: auto;
+    padding: 20px 0 40px;
+    z-index: 50;
+  }
+
+  .rail-brand {
+    padding: 0 18px 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .rail-brand .book { font-family: var(--mono); font-size: 10px; color: var(--teal); letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px; }
+  .rail-brand .title { font-size: 13px; font-weight: 600; color: var(--text-bright); line-height: 1.3; }
+  .rail-brand .author { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+  .rail-section { font-family: var(--mono); font-size: 9.5px; color: var(--text-dim); letter-spacing:.1em; text-transform:uppercase; padding: 14px 18px 5px; }
+
+  .rail nav a {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 18px;
+    font-size: 12.5px; color: var(--text-dim);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all .12s;
+  }
+  .rail nav a .dot { width:5px; height:5px; border-radius:50%; background: currentColor; flex-shrink:0; opacity:.4; }
+  .rail nav a:hover, .rail nav a.active {
+    color: var(--text-bright);
+    border-left-color: var(--teal);
+    background: rgba(45,212,191,.06);
+  }
+  .rail nav a:hover .dot, .rail nav a.active .dot { opacity: 1; }
+
+  .page { margin-left: 252px; }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 52px 52px 44px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(160deg, #0f0f13 0%, #141420 60%, #0f0f13 100%);
+    position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content:'';
+    position:absolute; top:-60px; right:-60px;
+    width:360px; height:360px;
+    background: radial-gradient(circle, rgba(45,212,191,.06) 0%, transparent 65%);
+    pointer-events:none;
+  }
+  .hero-vol { font-family:var(--mono); font-size:10px; color:var(--teal); letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px; }
+  .hero h1 { font-size:30px; font-weight:300; color:var(--text-bright); line-height:1.2; }
+  .hero h1 b { font-weight:600; }
+  .hero-sub { font-size:13px; color:var(--text-dim); margin-top:10px; max-width:540px; }
+  .hero-pills { display:flex; gap:8px; flex-wrap:wrap; margin-top:20px; }
+  .pill { font-family:var(--mono); font-size:10px; padding:3px 9px; border-radius:12px; border:1px solid; }
+  .pill-teal  { color:var(--teal);   border-color:rgba(45,212,191,.3);  background:rgba(45,212,191,.07); }
+  .pill-violet{ color:var(--violet); border-color:rgba(167,139,250,.3); background:rgba(167,139,250,.07); }
+  .pill-amber { color:var(--amber);  border-color:rgba(251,191,36,.3);  background:rgba(251,191,36,.07); }
+  .pill-rose  { color:var(--rose);   border-color:rgba(251,113,133,.3); background:rgba(251,113,133,.07); }
+  .pill-blue  { color:var(--blue);   border-color:rgba(123,159,255,.3); background:rgba(123,159,255,.07); }
+  .pill-green { color:var(--green);  border-color:rgba(74,222,128,.3);  background:rgba(74,222,128,.07); }
+
+  .content { padding: 44px 52px 80px; }
+
+  /* ── Chapter ── */
+  .chapter { margin-bottom: 68px; scroll-margin-top: 20px; }
+
+  .ch-head {
+    display:flex; align-items:flex-start; gap:14px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .ch-vol { font-family:var(--mono); font-size:9px; padding:3px 7px; border-radius:3px; flex-shrink:0; margin-top:5px; letter-spacing:.06em; font-weight:500; }
+  .vol1 { background:rgba(45,212,191,.12); color:var(--teal); border:1px solid rgba(45,212,191,.25); }
+  .vol2 { background:rgba(167,139,250,.12); color:var(--violet); border:1px solid rgba(167,139,250,.25); }
+  .both { background:rgba(251,191,36,.12); color:var(--amber); border:1px solid rgba(251,191,36,.25); }
+  .ch-head h2 { font-size:20px; font-weight:600; color:var(--text-bright); line-height:1.3; }
+  .ch-head h2 em { display:block; font-size:12px; font-weight:400; font-style:normal; color:var(--text-dim); margin-top:3px; font-family:var(--mono); }
+
+  /* ── Grid ── */
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+  .grid.cols3 { grid-template-columns:1fr 1fr 1fr; }
+  @media(max-width:860px){ .grid,.grid.cols3 { grid-template-columns:1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius:8px;
+    padding: 18px 20px;
+  }
+  .card.span2 { grid-column: 1/-1; }
+  .card.bl-teal   { border-left:3px solid var(--teal); }
+  .card.bl-violet { border-left:3px solid var(--violet); }
+  .card.bl-amber  { border-left:3px solid var(--amber); }
+  .card.bl-rose   { border-left:3px solid var(--rose); }
+  .card.bl-blue   { border-left:3px solid var(--blue); }
+  .card.bl-green  { border-left:3px solid var(--green); }
+  .card.bl-slate  { border-left:3px solid var(--slate); }
+
+  .card h3 { font-size:13px; font-weight:600; color:var(--text-bright); margin-bottom:9px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+  .card p  { font-size:13px; color:var(--text); line-height:1.65; }
+  .card ul { padding-left:15px; margin-top:6px; }
+  .card li { font-size:13px; color:var(--text); margin-bottom:5px; line-height:1.6; }
+  .card li strong { color:var(--text-bright); }
+
+  /* ── Tags ── */
+  .tag { font-family:var(--mono); font-size:9.5px; padding:2px 6px; border-radius:3px; font-weight:500; letter-spacing:.04em; white-space:nowrap; }
+  .t-teal   { background:rgba(45,212,191,.12);  color:var(--teal); }
+  .t-violet { background:rgba(167,139,250,.12); color:var(--violet); }
+  .t-amber  { background:rgba(251,191,36,.12);  color:var(--amber); }
+  .t-rose   { background:rgba(251,113,133,.12); color:var(--rose); }
+  .t-blue   { background:rgba(123,159,255,.12); color:var(--blue); }
+  .t-green  { background:rgba(74,222,128,.12);  color:var(--green); }
+  .t-slate  { background:rgba(148,163,184,.12); color:var(--slate); }
+
+  /* ── DDIA link ── */
+  .ddia-link {
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:var(--mono); font-size:10px;
+    color:var(--violet); background:rgba(167,139,250,.08);
+    border:1px solid rgba(167,139,250,.2);
+    border-radius:4px; padding:2px 7px;
+    text-decoration:none;
+  }
+
+  /* ── Code block ── */
+  .code {
+    background:#09090f;
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:14px 16px;
+    font-family:var(--mono);
+    font-size:11.5px;
+    line-height:1.85;
+    color:#9fa8b8;
+    overflow-x:auto;
+    white-space:pre;
+    margin:10px 0;
+  }
+  .code .cm { color:var(--text-dim); }
+  .code .k  { color:var(--teal); }
+  .code .v  { color:var(--green); }
+  .code .w  { color:var(--rose); }
+  .code .h  { color:var(--amber); }
+
+  /* ── Diagram ── */
+  .diag {
+    background:#09090f;
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:16px 18px;
+    font-family:var(--mono);
+    font-size:11.5px;
+    line-height:2;
+    color:var(--text-dim);
+    overflow-x:auto;
+    white-space:pre;
+    margin:10px 0;
+  }
+  .diag .n { color:var(--teal); }
+  .diag .a { color:var(--text-dim); }
+  .diag .l { color:var(--blue); }
+  .diag .w { color:var(--amber); }
+  .diag .e { color:var(--rose); }
+
+  /* ── Callouts ── */
+  .insight {
+    display:flex; gap:10px; align-items:flex-start;
+    background:rgba(74,222,128,.05);
+    border:1px solid rgba(74,222,128,.18);
+    border-radius:6px; padding:13px 15px;
+    margin:14px 0; font-size:13px; color:var(--text);
+  }
+  .insight .ico { color:var(--green); flex-shrink:0; font-size:14px; }
+
+  .warn {
+    display:flex; gap:10px; align-items:flex-start;
+    background:rgba(251,191,36,.05);
+    border:1px solid rgba(251,191,36,.18);
+    border-radius:6px; padding:13px 15px;
+    margin:14px 0; font-size:13px; color:var(--text);
+  }
+  .warn .ico { color:var(--amber); flex-shrink:0; }
+
+  .ddia-box {
+    display:flex; gap:10px; align-items:flex-start;
+    background:rgba(167,139,250,.05);
+    border:1px solid rgba(167,139,250,.18);
+    border-left:3px solid var(--violet);
+    border-radius:6px; padding:13px 15px;
+    margin:14px 0; font-size:13px; color:var(--text);
+  }
+  .ddia-box .ico { color:var(--violet); flex-shrink:0; font-size:13px; }
+
+  /* ── Table ── */
+  table { width:100%; border-collapse:collapse; font-size:12.5px; margin:12px 0; }
+  th { background:var(--surface2); color:var(--text-bright); font-weight:600; padding:9px 13px; text-align:left; border-bottom:1px solid var(--border); font-size:11.5px; }
+  td { padding:9px 13px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,.015); }
+
+  /* ── Interview Q ── */
+  .iq {
+    background:rgba(123,159,255,.05);
+    border:1px solid rgba(123,159,255,.18);
+    border-radius:8px; padding:18px 20px;
+    margin-top:18px;
+  }
+  .iq h4 { font-family:var(--mono); font-size:10px; color:var(--blue); letter-spacing:.1em; text-transform:uppercase; margin-bottom:11px; }
+  .iq ul { list-style:none; padding:0; }
+  .iq li { font-size:13px; color:var(--text); margin-bottom:7px; padding-left:2px; }
+  .iq li::before { content:"→ "; color:var(--blue); }
+
+  /* ── Framework box ── */
+  .framework {
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:8px; padding:18px 20px;
+    margin:16px 0;
+  }
+  .framework h4 { font-size:12px; font-weight:600; color:var(--text-bright); margin-bottom:12px; }
+  .framework ol { padding-left:18px; }
+  .framework li { font-size:13px; color:var(--text); margin-bottom:6px; }
+  .framework li strong { color:var(--text-bright); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:5px; height:5px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- Rail -->
+<aside class="rail">
+  <div class="rail-brand">
+    <div class="book">Study Guide</div>
+    <div class="title">System Design Interview</div>
+    <div class="author">Alex Xu · Vol 1 &amp; 2</div>
+  </div>
+  <nav>
+    <div class="rail-section">The Framework</div>
+    <a href="#framework"><span class="dot"></span>Interview Framework</a>
+
+    <div class="rail-section">Volume 1</div>
+    <a href="#scale"><span class="dot"></span>Scale from Zero to Millions</a>
+    <a href="#estimations"><span class="dot"></span>Back-of-envelope Estimation</a>
+    <a href="#ratelimiter"><span class="dot"></span>Rate Limiter</a>
+    <a href="#consistent-hashing"><span class="dot"></span>Consistent Hashing</a>
+    <a href="#kv-store"><span class="dot"></span>Key-Value Store</a>
+    <a href="#unique-id"><span class="dot"></span>Unique ID Generator</a>
+    <a href="#url-shortener"><span class="dot"></span>URL Shortener</a>
+    <a href="#webcrawler"><span class="dot"></span>Web Crawler</a>
+    <a href="#notification"><span class="dot"></span>Notification System</a>
+    <a href="#newsfeed"><span class="dot"></span>News Feed</a>
+    <a href="#chat"><span class="dot"></span>Chat System</a>
+    <a href="#search-autocomplete"><span class="dot"></span>Search Autocomplete</a>
+    <a href="#youtube"><span class="dot"></span>YouTube / Video Upload</a>
+    <a href="#gdrive"><span class="dot"></span>Google Drive</a>
+
+    <div class="rail-section">Volume 2</div>
+    <a href="#proximity"><span class="dot"></span>Proximity Service</a>
+    <a href="#nearby-friends"><span class="dot"></span>Nearby Friends</a>
+    <a href="#google-maps"><span class="dot"></span>Google Maps</a>
+    <a href="#distributed-msg"><span class="dot"></span>Distributed Message Queue</a>
+    <a href="#metrics"><span class="dot"></span>Metrics Monitoring</a>
+    <a href="#ad-click"><span class="dot"></span>Ad Click Event Aggregation</a>
+    <a href="#hotel-reservation"><span class="dot"></span>Hotel Reservation</a>
+    <a href="#distributed-email"><span class="dot"></span>Distributed Email</a>
+    <a href="#s3"><span class="dot"></span>S3-like Object Storage</a>
+    <a href="#realtime-gaming"><span class="dot"></span>Real-time Gaming Leaderboard</a>
+    <a href="#payment"><span class="dot"></span>Payment System</a>
+    <a href="#digital-wallet"><span class="dot"></span>Digital Wallet</a>
+    <a href="#stock-exchange"><span class="dot"></span>Stock Exchange</a>
+  </nav>
+</aside>
+
+<!-- Page -->
+<main class="page">
+
+<div class="hero">
+  <div class="hero-vol">Alex Xu · System Design Interview · Vol 1 &amp; 2</div>
+  <h1>The <b>Practical</b> System Design<br>Interview Guide</h1>
+  <p class="hero-sub">Every design from both volumes — with worked examples, component trade-offs, and connections back to the DDIA concepts underneath them.</p>
+  <div class="hero-pills">
+    <span class="pill pill-teal">Vol 1 · 14 designs</span>
+    <span class="pill pill-violet">Vol 2 · 13 designs</span>
+    <span class="pill pill-amber">DDIA links throughout</span>
+    <span class="pill pill-rose">Fintech-relevant callouts</span>
+    <span class="pill pill-blue">Interview questions per design</span>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════════════════════ -->
+<!-- FRAMEWORK                          -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="framework">
+  <div class="ch-head">
+    <div class="ch-vol both">Both</div>
+    <h2>The Interview Framework<em>The 4-step process Alex Xu uses for every single design question</em></h2>
+  </div>
+
+  <div class="framework">
+    <h4>The 4-Step Framework — use this structure every time</h4>
+    <ol>
+      <li><strong>Understand the problem &amp; establish scope (3–5 min)</strong> — Ask clarifying questions. Don't jump straight to solutions. What features matter? What scale? What are the edge cases? Read/write ratio? Mobile vs web?</li>
+      <li><strong>Propose high-level design &amp; get buy-in (10–15 min)</strong> — Draw a simple box diagram. Identify the core components. Talk through the happy path. Get the interviewer to agree before diving deep.</li>
+      <li><strong>Design deep dive (15–20 min)</strong> — Pick 2–3 components to go deep on. Let the interviewer guide if possible. Cover data model, API design, concurrency, failure modes.</li>
+      <li><strong>Wrap up (3–5 min)</strong> — Identify bottlenecks, talk about monitoring, discuss future improvements. Show you think operationally.</li>
+    </ol>
+  </div>
+
+  <div class="warn">
+    <span class="ico">⚠️</span>
+    <span><strong>What kills candidates:</strong> jumping to solutions before asking clarifying questions, over-engineering from the start, not knowing back-of-envelope numbers, and going quiet instead of thinking out loud.</span>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Clarifying questions to always ask</h3>
+      <ul>
+        <li>How many daily active users (DAU)?</li>
+        <li>What's the read-to-write ratio?</li>
+        <li>Is this a global system or single region?</li>
+        <li>What's the latency requirement (p99)?</li>
+        <li>Do we need strong consistency or is eventual OK?</li>
+        <li>What's the data retention period?</li>
+        <li>Mobile, web, or both?</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Standard components to know cold</h3>
+      <ul>
+        <li><strong>DNS + CDN</strong> — edge caching, GeoDNS routing</li>
+        <li><strong>Load balancer</strong> — L4 vs L7, sticky sessions, health checks</li>
+        <li><strong>API Gateway</strong> — auth, rate limiting, routing</li>
+        <li><strong>Cache</strong> — Redis/Memcached, eviction policies, cache-aside vs write-through</li>
+        <li><strong>Message queue</strong> — Kafka, RabbitMQ, async decoupling</li>
+        <li><strong>Object storage</strong> — S3 for blobs, not for structured data</li>
+        <li><strong>Search</strong> — Elasticsearch for full-text, not your primary DB</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- SCALE FROM ZERO                    -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="scale">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Scale from Zero to Millions<em>The canonical evolution of a web system as traffic grows</em></h2>
+  </div>
+
+  <div class="diag">
+<span class="cm">── Stage 1: Single server ──────────────────────────────────</span>
+<span class="n">User</span> → <span class="l">DNS</span> → <span class="n">Web Server + DB</span> (same box)
+
+<span class="cm">── Stage 2: Separate DB ────────────────────────────────────</span>
+<span class="n">User</span> → <span class="l">DNS</span> → <span class="n">Web Server</span> → <span class="n">DB (MySQL)</span>
+
+<span class="cm">── Stage 3: Load balancer + horizontal web tier ────────────</span>
+<span class="n">User</span> → <span class="l">DNS</span> → <span class="n">Load Balancer</span> → <span class="l">[Web 1]  [Web 2]</span> → <span class="n">Primary DB</span>
+                                                    ↓ replication
+                                              <span class="l">[Replica DB]</span>  ← reads
+
+<span class="cm">── Stage 4: Add cache + CDN ────────────────────────────────</span>
+Static assets → <span class="n">CDN</span>
+Hot data      → <span class="n">Redis Cache</span>
+Reads         → Cache first, miss → DB
+
+<span class="cm">── Stage 5: Multiple data centres ──────────────────────────</span>
+<span class="n">GeoDNS</span> routes user to nearest DC
+Each DC has its own web/cache/DB tier
+  </div>
+
+  <div class="ddia-box">
+    <span class="ico">◈</span>
+    <span><strong>DDIA link — Replication (Ch 5):</strong> The primary/replica DB split here is exactly single-leader replication. Reads from replicas introduce lag. The cache-aside pattern is how you mitigate read-your-own-writes problems without hitting the leader on every read.</span>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Stateless web tier <span class="tag t-teal">key principle</span></h3>
+      <p>Web servers must be stateless — any server can handle any request. Session state lives in Redis, not in-process memory. This lets you add/remove web servers freely behind the load balancer.</p>
+    </div>
+    <div class="card bl-amber">
+      <h3>Database scaling options</h3>
+      <ul>
+        <li><strong>Vertical scaling:</strong> bigger instance. Simple but has a ceiling and is a single point of failure</li>
+        <li><strong>Read replicas:</strong> offload read traffic. Works well for read-heavy workloads</li>
+        <li><strong>Sharding:</strong> horizontal split by user_id or similar. Necessary at extreme scale</li>
+        <li><strong>CQRS:</strong> separate read and write models entirely</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- BACK OF ENVELOPE                   -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="estimations">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Back-of-Envelope Estimation<em>The numbers every engineer should know cold</em></h2>
+  </div>
+
+  <div class="grid cols3">
+    <div class="card bl-teal">
+      <h3>Powers of 2</h3>
+      <div class="code"><span class="k">1 KB</span>  = 10³  bytes  (≈ 1,000)
+<span class="k">1 MB</span>  = 10⁶  bytes  (≈ 1M)
+<span class="k">1 GB</span>  = 10⁹  bytes  (≈ 1B)
+<span class="k">1 TB</span>  = 10¹²  bytes
+<span class="k">1 PB</span>  = 10¹⁵  bytes</div>
+    </div>
+    <div class="card bl-violet">
+      <h3>Latency numbers</h3>
+      <div class="code"><span class="k">L1 cache</span>      ~0.5 ns
+<span class="k">RAM access</span>    ~100 ns
+<span class="k">SSD random</span>   ~150 µs
+<span class="k">HDD seek</span>     ~10 ms
+<span class="k">Same DC</span>      ~0.5 ms
+<span class="k">Cross-region</span>  ~150 ms</div>
+    </div>
+    <div class="card bl-amber">
+      <h3>Availability SLAs</h3>
+      <div class="code"><span class="k">99%</span>    → 3.65 days/yr down
+<span class="k">99.9%</span>  → 8.7 hrs/yr down
+<span class="k">99.99%</span> → 52 min/yr down
+<span class="k">99.999%</span>→ 5 min/yr down
+<span class="cm"># Each 9 = 10x harder to achieve</span></div>
+    </div>
+  </div>
+
+  <div class="card span2 bl-green" style="margin-top:14px">
+    <h3>Worked estimation — Twitter-scale system <span class="tag t-green">example</span></h3>
+    <div class="code"><span class="cm"># Given: 300M MAU, 50% daily active, 2 tweets/day avg, 10% with media</span>
+
+<span class="k">DAU:</span>           <span class="v">150M users</span>
+<span class="k">Tweets/day:</span>    <span class="v">150M × 2 = 300M tweets/day</span>
+<span class="k">Tweets/sec:</span>    <span class="v">300M / 86,400 ≈ 3,500 TPS</span>  <span class="cm">(peak ~3x = 10,000 TPS)</span>
+
+<span class="k">Storage/tweet:</span> <span class="v">280 chars = ~560 bytes + metadata = ~1 KB</span>
+<span class="k">Text/day:</span>      <span class="v">300M × 1 KB = 300 GB/day</span>
+<span class="k">Media/day:</span>     <span class="v">30M × 1 MB avg = 30 TB/day</span>
+<span class="k">10-yr media:</span>   <span class="v">30 TB × 365 × 10 = ~110 PB</span>  <span class="cm">← this is why Twitter uses S3</span>
+
+<span class="k">Read QPS:</span>      <span class="v">~300,000 reads/sec</span>  <span class="cm">(timeline fetches ≫ writes)</span>
+<span class="k">Cache target:</span>  <span class="v">cache top 20% of tweets that serve 80% of reads</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- RATE LIMITER                       -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="ratelimiter">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Rate Limiter<em>Controlling traffic to protect downstream services</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Token Bucket <span class="tag t-teal">most common</span></h3>
+      <p>Bucket holds max N tokens. Tokens added at fixed rate. Each request consumes 1 token. If empty, reject. Allows bursts up to bucket size.</p>
+      <p style="margin-top:8px"><strong>Used by:</strong> AWS API Gateway, Stripe API rate limiting</p>
+      <div class="code"><span class="cm"># Redis implementation</span>
+<span class="k">tokens</span> = <span class="v">GET</span> user:{id}:tokens
+<span class="k">if</span> tokens > 0:
+  <span class="v">DECR</span> user:{id}:tokens
+  allow request
+<span class="k">else</span>:
+  <span class="w">reject</span> with 429</div>
+    </div>
+    <div class="card bl-violet">
+      <h3>Other Algorithms</h3>
+      <ul>
+        <li><strong>Leaky bucket:</strong> requests queued at fixed output rate. Smooth output, no bursts. Used in network QoS</li>
+        <li><strong>Fixed window counter:</strong> count per fixed time window. Simple but burst at window boundaries</li>
+        <li><strong>Sliding window log:</strong> log of timestamps, count in window. Accurate but memory-heavy</li>
+        <li><strong>Sliding window counter:</strong> weighted average of current + previous window count. Good balance</li>
+      </ul>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>Distributed Rate Limiting <span class="tag t-amber">the hard part</span></h3>
+      <p>With multiple API gateway nodes, a per-node counter is wrong — a user could hit all N servers and bypass the limit. Solutions:</p>
+      <ul>
+        <li><strong>Centralised store (Redis):</strong> all nodes read/write to one Redis. Atomic <code>INCR + EXPIRE</code>. Simple but Redis is now a single point of failure and adds latency to every request</li>
+        <li><strong>Redis Cluster:</strong> shard counters across Redis nodes. Higher availability</li>
+        <li><strong>Approximate local + sync:</strong> each node tracks locally, syncs to central store every N seconds. Small inaccuracy is acceptable for most use cases</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a rate limiter that limits 1000 requests/minute per user across 10 API servers.</li>
+      <li>Token bucket vs sliding window — when would you choose each?</li>
+      <li>How do you handle rate limiting in a microservices architecture where each service has different limits?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- CONSISTENT HASHING                 -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="consistent-hashing">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Consistent Hashing<em>Distributing data across nodes with minimal reshuffling</em></h2>
+  </div>
+
+  <div class="ddia-box">
+    <span class="ico">◈</span>
+    <span><strong>DDIA link — Partitioning (Ch 6):</strong> This is the core of DDIA's consistent hashing section. Alex Xu provides the visual explanation; DDIA provides the trade-off analysis. Together they cover the full picture.</span>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal span2">
+      <h3>How it works</h3>
+      <div class="diag"><span class="cm">── Hash ring (0 to 2³²) ──────────────────────────</span>
+         <span class="w">0</span>
+        ↗   ↘
+  <span class="n">Server A</span>    <span class="n">Server B</span>   ← servers placed by hash(server_ip)
+       ↑           ↓
+  <span class="n">Server D</span>    <span class="n">Server C</span>
+        ↖   ↙
+        <span class="w">2³²</span>
+
+Key X → hash(X) = position → walk clockwise → first server = home server
+
+<span class="cm">Adding Server E: only keys between predecessor(E) and E move → minimal reshuffling
+Removing Server A: only keys owned by A move to next server clockwise</span></div>
+      <p style="margin-top:10px"><strong>Virtual nodes:</strong> each physical server gets 100–200 positions on the ring. This smooths out the distribution and makes rebalancing more even when servers have different capacities. Used by Cassandra and DynamoDB.</p>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Why does consistent hashing minimise data movement when nodes are added or removed?</li>
+      <li>What problem do virtual nodes solve?</li>
+      <li>Where would you use consistent hashing vs simple hash-mod-N sharding?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- KEY-VALUE STORE                    -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="kv-store">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Key-Value Store (Dynamo-style)<em>Design a distributed KV store like Redis Cluster or DynamoDB</em></h2>
+  </div>
+
+  <div class="ddia-box">
+    <span class="ico">◈</span>
+    <span><strong>DDIA links — Ch 5 (Leaderless replication), Ch 6 (Partitioning), Ch 9 (CAP/linearizability):</strong> This chapter is essentially a worked example of DynamoDB's original design. All the DDIA theory — quorums, sloppy quorums, consistent hashing, vector clocks, gossip protocol — shows up here in concrete form.</span>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Core design decisions</h3>
+      <ul>
+        <li><strong>Partitioning:</strong> consistent hashing across nodes</li>
+        <li><strong>Replication:</strong> leaderless, any node can accept writes</li>
+        <li><strong>Consistency:</strong> tunable (r + w > n = strong; r=1,w=1 = fast but eventual)</li>
+        <li><strong>Conflict resolution:</strong> vector clocks track causality; last-write-wins as fallback</li>
+        <li><strong>Failure detection:</strong> gossip protocol — each node pings random peers, propagates membership state</li>
+        <li><strong>Failure handling:</strong> sloppy quorum + hinted handoff</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Storage engine inside a node</h3>
+      <ul>
+        <li><strong>Memory cache:</strong> hot keys served from in-memory hash table</li>
+        <li><strong>WAL:</strong> write-ahead log for crash recovery</li>
+        <li><strong>SSTable + LSM-tree:</strong> persistent storage (same as Cassandra, RocksDB)</li>
+        <li><strong>Bloom filter:</strong> per-SSTable. Quickly answer "does key X exist here?" — avoids expensive disk reads for missing keys</li>
+        <li><strong>Compaction:</strong> background merge of SSTables</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a distributed key-value store that supports get/put with configurable consistency.</li>
+      <li>How does a gossip protocol detect node failures without a central coordinator?</li>
+      <li>Explain vector clocks. How do they help detect conflicting writes?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- UNIQUE ID GENERATOR                -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="unique-id">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Unique ID Generator<em>Generating globally unique, sortable IDs at scale without a central coordinator</em></h2>
+  </div>
+
+  <table>
+    <thead><tr><th>Approach</th><th>How it works</th><th>Pros</th><th>Cons</th><th>Used by</th></tr></thead>
+    <tbody>
+      <tr><td><strong>UUID v4</strong></td><td>128-bit random number</td><td>No coordination, trivial to generate</td><td>Not sortable, very long, can't embed timestamp</td><td>General purpose</td></tr>
+      <tr><td><strong>DB auto-increment</strong></td><td>Single DB sequence</td><td>Simple, sortable</td><td>Single point of failure, doesn't scale</td><td>Single-node systems</td></tr>
+      <tr><td><strong>Snowflake (Twitter)</strong></td><td>64-bit: timestamp + datacenter_id + worker_id + sequence</td><td>Sortable by time, high throughput, decentralised</td><td>Requires clock sync; clock skew = duplicate IDs</td><td>Twitter, Discord, Instagram</td></tr>
+      <tr><td><strong>Ticket server</strong></td><td>Centralised DB issues IDs in batches</td><td>Numeric, sortable</td><td>Central bottleneck, SPOF</td><td>Flickr</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card bl-teal" style="margin-top:14px">
+    <h3>Snowflake ID structure <span class="tag t-teal">know this cold</span></h3>
+    <div class="code"><span class="cm">64 bits total:</span>
+<span class="k">[1 bit sign]</span> <span class="v">[41 bits timestamp ms]</span> <span class="h">[5 bits DC]</span> <span class="h">[5 bits worker]</span> <span class="w">[12 bits sequence]</span>
+
+<span class="cm">→ 41 bits = 2^41 ms ≈ 69 years from epoch
+→ 5+5 bits = 32 DCs × 32 workers = 1,024 generators
+→ 12 bits = 4,096 IDs per ms per generator = ~4M IDs/sec per worker</span></div>
+    <div class="ddia-box" style="margin-top:12px">
+      <span class="ico">◈</span>
+      <span><strong>DDIA link — Ch 8 (Unreliable clocks):</strong> Snowflake assumes clock monotonicity within each worker. If the system clock goes backwards (NTP correction), you'd generate duplicate IDs. Fix: refuse to generate IDs until clock catches up, or use logical clocks.</span>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a unique ID generator that produces sortable IDs across 20 datacenters.</li>
+      <li>What happens to Snowflake IDs if the system clock skews backwards?</li>
+      <li>Why not just use UUIDs? What properties do you lose?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- URL SHORTENER                      -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="url-shortener">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>URL Shortener (bit.ly)<em>A classic design that covers hashing, redirects, and read-heavy caching</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Core flow</h3>
+      <div class="diag"><span class="n">POST</span> /shorten {url: "https://example.com/long"}
+  → generate short key (e.g. "aB3kL9")
+  → store: <span class="l">shortKey → longUrl</span> in DB
+  → return: "https://short.ly/aB3kL9"
+
+<span class="n">GET</span> /aB3kL9
+  → check Redis cache first
+  → miss → query DB
+  → return <span class="l">301 or 302</span> redirect</div>
+      <p style="margin-top:8px"><strong>301 vs 302:</strong> 301 (permanent) — browser caches redirect, fewer server hits. 302 (temporary) — every click hits your server, enabling analytics. Use 302 if you need click tracking.</p>
+    </div>
+    <div class="card bl-violet">
+      <h3>Generating the short key</h3>
+      <ul>
+        <li><strong>Hash + truncate:</strong> MD5/SHA256 of long URL, take first 7 chars. Problem: collisions → need collision resolution loop</li>
+        <li><strong>Base62 encode a Snowflake ID:</strong> generate unique numeric ID, encode in base62 (a-z, A-Z, 0-9). 7 chars = 62⁷ = 3.5 trillion URLs. No collision risk. Cleaner approach</li>
+      </ul>
+      <p style="margin-top:8px">With 100M URLs/day: 100M × 365 × 10 years = 365B URLs. 7-char base62 handles this comfortably.</p>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>Scale considerations</h3>
+      <ul>
+        <li><strong>Read-heavy:</strong> reads vastly outnumber writes (every share = many clicks). Cache aggressively in Redis with LRU eviction. 20% of URLs drive 80% of traffic</li>
+        <li><strong>DB:</strong> NoSQL (DynamoDB or Cassandra) works well — pure key-value lookups, no joins needed</li>
+        <li><strong>Sharding:</strong> shard by hash of short key across DB nodes</li>
+        <li><strong>Analytics:</strong> log redirect events to Kafka → stream processing for click counts, geographics</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design bit.ly. Walk through the full system for 100M new URLs/day and 10B redirects/day.</li>
+      <li>What's the trade-off between 301 and 302 redirects?</li>
+      <li>How would you handle custom short URLs (vanity URLs) — e.g. bit.ly/stripe-docs?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- WEB CRAWLER                        -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="webcrawler">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Web Crawler<em>Discovering and indexing the web — a distributed queue and dedup problem</em></h2>
+  </div>
+
+  <div class="diag"><span class="n">Seed URLs</span> → <span class="l">URL Frontier (priority queue)</span>
+                            ↓
+             <span class="n">Fetcher workers</span> (respect robots.txt, politeness delay)
+                            ↓
+                  <span class="l">HTML Parser</span> → extract links
+                            ↓
+           <span class="n">Dedup Filter</span> (Bloom filter: have we seen this URL?)
+                            ↓ (new URLs only)
+             <span class="l">URL Frontier</span>  ← loop back
+                            ↓ (content)
+            <span class="n">Content Store</span> (S3) + <span class="n">Search Index</span></div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Key design challenges</h3>
+      <ul>
+        <li><strong>Scale:</strong> web has ~5B pages. Need distributed fetchers across many machines</li>
+        <li><strong>Politeness:</strong> don't hammer a single host. Per-domain rate limits, respect robots.txt, crawl-delay headers</li>
+        <li><strong>Priority:</strong> crawl PageRank-high pages more often. URL Frontier is a priority queue</li>
+        <li><strong>Deduplication:</strong> same content at different URLs. Bloom filter for URL-level; SimHash (fuzzy hash) for near-duplicate content detection</li>
+        <li><strong>Trap avoidance:</strong> infinite URL spaces (calendars, session params). Max depth limit, URL normalisation</li>
+      </ul>
+    </div>
+    <div class="card bl-amber">
+      <h3>Bloom filter for dedup <span class="tag t-amber">important technique</span></h3>
+      <p>A probabilistic data structure: test URL membership using k hash functions over a bit array. Never false-negatives, tunable false-positive rate. Fits billions of URLs in a few GB of RAM (vs storing every URL in a set).</p>
+      <div class="ddia-box" style="margin-top:10px">
+        <span class="ico">◈</span>
+        <span><strong>DDIA link — Ch 3:</strong> LSM-tree storage engines use Bloom filters exactly this way — to avoid disk reads for keys that don't exist in an SSTable.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>How would you detect and avoid crawler traps?</li>
+      <li>How do you deduplicate 10 billion URLs efficiently without storing them all?</li>
+      <li>How would you prioritise which pages to crawl first?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- NOTIFICATION SYSTEM                -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="notification">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Notification System<em>Push, SMS, email at scale — fan-out, retry, and third-party integration</em></h2>
+  </div>
+
+  <div class="diag"><span class="n">API Server</span>
+     ↓ publish event
+<span class="l">Message Queue (Kafka)</span>
+     ↓ consumed by workers
+<span class="n">iOS Push Worker</span>  → <span class="w">APNs</span>   (Apple)
+<span class="n">Android Worker</span>   → <span class="w">FCM</span>    (Google)
+<span class="n">SMS Worker</span>       → <span class="w">Twilio / SNS</span>
+<span class="n">Email Worker</span>     → <span class="w">SendGrid / SES</span></div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Design decisions</h3>
+      <ul>
+        <li><strong>Async via queue:</strong> notifications are never in the critical path of the triggering request</li>
+        <li><strong>Retry with backoff:</strong> third-party providers fail. Dead-letter queue for repeated failures</li>
+        <li><strong>Rate limiting:</strong> protect downstream providers. Also user-level throttling (don't send 50 emails/min to one user)</li>
+        <li><strong>User preferences:</strong> DB table: user → [channels, opt-outs, quiet hours]</li>
+        <li><strong>Deduplication:</strong> idempotency key per notification event — retry-safe</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Reliability concerns</h3>
+      <ul>
+        <li>APNs and FCM are external — you can't guarantee delivery. Design for at-least-once delivery internally</li>
+        <li><strong>Event log:</strong> store every notification attempt + outcome. Enables retry, audit, and support queries</li>
+        <li><strong>Tracking:</strong> open/click tracking via pixel or link redirect → Kafka event → analytics DB</li>
+      </ul>
+      <div class="ddia-box" style="margin-top:10px">
+        <span class="ico">◈</span>
+        <span><strong>DDIA link — Ch 11 (Streams):</strong> The Kafka fan-out pattern here is exactly stream processing. Each worker is a consumer group — APNs, FCM, email workers each read the same topic independently.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a notification system for 100M users. How do you handle failures from APNs/FCM?</li>
+      <li>How do you prevent a user from receiving duplicate notifications after a retry?</li>
+      <li>A user opts out of email but still wants push. How do you model preferences?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- NEWS FEED                          -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="newsfeed">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>News Feed (Facebook/Instagram)<em>Fan-out on write vs fan-out on read — the central architectural choice</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Fan-out on write (push model)</h3>
+      <p>When user A posts, immediately push to followers' feed caches. Feed reads are instant — just read pre-computed cache.</p>
+      <ul>
+        <li><strong>Pro:</strong> reads are O(1), very fast</li>
+        <li><strong>Con:</strong> writing is O(followers). Celebrity with 50M followers = 50M cache writes per post. Unacceptable</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Fan-out on read (pull model)</h3>
+      <p>When user reads feed, pull recent posts from all followed users and merge-sort them.</p>
+      <ul>
+        <li><strong>Pro:</strong> write is cheap</li>
+        <li><strong>Con:</strong> read is expensive — N DB queries, slow for users following thousands</li>
+      </ul>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>Hybrid model — what Facebook/Instagram actually do <span class="tag t-amber">correct answer</span></h3>
+      <p>Fan-out on write for normal users. Fan-out on read for celebrities (&gt;X followers). At read time, merge the pre-computed feed cache with fresh posts from celebrities you follow.</p>
+      <div class="ddia-box" style="margin-top:12px">
+        <span class="ico">◈</span>
+        <span><strong>DDIA link — Ch 1 (Scalability):</strong> This is the exact Twitter fan-out problem Kleppmann uses in his scalability chapter. 12 writes/sec (posting) vs 300K reads/sec (timeline fetches). The hybrid model is the solution to that hotspot problem.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bl-green" style="margin-top:14px">
+    <h3>Feed ranking & storage</h3>
+    <ul>
+      <li><strong>Feed cache:</strong> Redis sorted set per user, scored by timestamp (or ML ranking score). Trimmed to last 1000 posts</li>
+      <li><strong>Post storage:</strong> posts in DB (MySQL/Cassandra), post_id → content. Feed cache only stores post IDs</li>
+      <li><strong>Media:</strong> images/videos in CDN + S3. Never in the feed DB</li>
+      <li><strong>Ranking:</strong> for chronological feeds, sorted set by timestamp. For algorithmic feeds, ML model scores stored alongside</li>
+    </ul>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design Instagram's home feed. How does fan-out work at 500M DAU?</li>
+      <li>How do you handle a celebrity with 100M followers posting? When do you fall back to pull?</li>
+      <li>How would you add algorithmic ranking without slowing down feed reads?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- CHAT SYSTEM                        -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="chat">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Chat System (WhatsApp / Slack)<em>WebSockets, message ordering, and online presence</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Connection layer</h3>
+      <ul>
+        <li><strong>WebSocket:</strong> persistent, bidirectional connection. Server can push messages to client. HTTP polling is an alternative but wasteful</li>
+        <li><strong>Chat servers:</strong> stateful — each holds open WebSocket connections. Clients connect to one chat server</li>
+        <li><strong>Service discovery (ZooKeeper):</strong> routes new clients to the least-loaded chat server</li>
+        <li><strong>Scale:</strong> 1M concurrent WebSockets needs ~10 chat servers (100K connections/server)</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Message flow</h3>
+      <div class="diag"><span class="n">User A</span> → <span class="l">Chat Server 1</span> → <span class="n">Message Queue</span>
+                                      ↓
+                              <span class="l">Chat Server 2</span> → <span class="n">User B</span> (online)
+                                      ↓ (if B offline)
+                              <span class="l">Push Notification</span> (APNs/FCM)</div>
+      <ul style="margin-top:8px">
+        <li>Chat servers don't talk to each other directly — messages route via queue</li>
+        <li>Each message gets a globally unique ID (Snowflake) for ordering</li>
+        <li>Messages stored in DB (HBase/Cassandra) — append-only, read by recency</li>
+      </ul>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>Message ordering &amp; storage</h3>
+      <ul>
+        <li><strong>1-on-1 ordering:</strong> sequence number per conversation pair. Easy</li>
+        <li><strong>Group chat ordering:</strong> harder. Each message has a Snowflake ID. At read time, merge-sort messages from all senders within the group by ID</li>
+        <li><strong>Storage:</strong> KV store (HBase) with key = (channel_id, message_id). Append-only — never update, only insert. This matches Cassandra's write-optimised LSM-tree well</li>
+        <li><strong>Online presence:</strong> heartbeat every 5 seconds from client → presence server updates Redis TTL. If key expires → user offline. Fan-out presence changes to friends via pub/sub</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Why use WebSockets over HTTP long-polling for a chat system?</li>
+      <li>How do you guarantee message ordering in a group chat with 1000 members?</li>
+      <li>How would you implement the "last seen" feature at scale?</li>
+      <li>What happens when a chat server crashes mid-conversation?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- SEARCH AUTOCOMPLETE                -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="search-autocomplete">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Search Autocomplete<em>Trie data structure, top-K results, and low-latency serving</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Trie data structure</h3>
+      <p>A tree where each node represents one character. Each prefix path leads to a node that can return suggestions. Store top-K search terms + their frequencies at each node for fast retrieval.</p>
+      <div class="code"><span class="cm"># Trie for ["apple", "app", "apply"]</span>
+<span class="k">root</span>
+ └─ <span class="v">a</span>
+     └─ <span class="v">p</span>
+         ├─ <span class="v">p</span> [freq=500, top5=["app","apple","apply"...]]
+         │   ├─ <span class="v">l</span>
+         │   │   ├─ <span class="v">e</span> [freq=300] ← "apple"
+         │   │   └─ <span class="v">y</span> [freq=100] ← "apply"
+         └─ ...</div>
+    </div>
+    <div class="card bl-violet">
+      <h3>System design</h3>
+      <ul>
+        <li><strong>Data collection:</strong> log every search query with frequency. Aggregate via batch job (MapReduce/Spark) daily</li>
+        <li><strong>Trie build:</strong> weekly/daily batch job rebuilds trie from aggregated frequencies</li>
+        <li><strong>Serving:</strong> trie serialised to Redis or in-memory store on search servers. Sub-millisecond prefix lookups</li>
+        <li><strong>Update cadence:</strong> full rebuild weekly; incremental updates more frequently for trending terms</li>
+        <li><strong>Scale:</strong> trie sharded by first character or prefix range. Each shard served independently</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design Google's search autocomplete. How do you keep suggestions fresh without rebuilding the trie constantly?</li>
+      <li>How would you handle a sudden spike in a trending topic (e.g. a breaking news event)?</li>
+      <li>How do you personalise autocomplete results per user?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- YOUTUBE                            -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="youtube">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>YouTube / Video Upload &amp; Streaming<em>Blob storage, transcoding pipelines, and CDN delivery</em></h2>
+  </div>
+
+  <div class="diag"><span class="cm">── Upload flow ─────────────────────────────────────────────</span>
+<span class="n">Client</span> → <span class="l">API Gateway</span> → <span class="n">Original Storage (S3)</span>
+                              ↓ event
+                      <span class="l">Transcoding Queue (Kafka)</span>
+                              ↓
+             <span class="n">Transcoding Workers</span> (FFmpeg) → <span class="l">Transcoded Storage (S3)</span>
+                              ↓                             ↓
+              <span class="n">Completion Event</span>            <span class="n">CDN push / lazy pull</span>
+
+<span class="cm">── Playback flow ───────────────────────────────────────────</span>
+<span class="n">Client</span> → GeoDNS → <span class="n">CDN Edge Node</span> (cache hit → stream directly)
+                              ↓ cache miss
+                      <span class="n">S3 Origin</span> → CDN → Client</div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Video transcoding</h3>
+      <ul>
+        <li>One upload → many output formats (360p, 720p, 1080p, 4K) and codecs (H.264, VP9, AV1)</li>
+        <li>Directed Acyclic Graph (DAG) of tasks: split → transcode → merge → thumbnail → DRM</li>
+        <li>Parallelism: split video into segments, transcode in parallel across workers</li>
+        <li>Output stored in S3, metadata (title, duration, formats, S3 keys) in DB</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Streaming &amp; CDN</h3>
+      <ul>
+        <li><strong>Adaptive bitrate (ABR):</strong> client requests chunks of the right quality for current bandwidth (HLS/DASH). Not one big file download</li>
+        <li><strong>CDN edge caching:</strong> popular videos cached at hundreds of PoPs globally. 95%+ cache hit rate for top content</li>
+        <li><strong>Long-tail videos:</strong> rare videos served directly from S3 origin (not worth CDN caching)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ddia-box">
+    <span class="ico">◈</span>
+    <span><strong>DDIA link — Ch 10 (Batch) &amp; Ch 11 (Stream):</strong> The transcoding pipeline is a batch DAG — same MapReduce/Spark thinking. Segment parallelism = data parallelism in batch processing. The upload completion → transcode trigger is an event-driven stream pattern.</span>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design YouTube. Focus on the upload-to-playback pipeline.</li>
+      <li>How does adaptive bitrate streaming work? Why not just serve one resolution?</li>
+      <li>How would you handle a popular video that gets 10M views in the first minute of upload?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- GOOGLE DRIVE                       -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="gdrive">
+  <div class="ch-head">
+    <div class="ch-vol vol1">Vol 1</div>
+    <h2>Google Drive / File Sync<em>Block-level sync, conflict resolution, and metadata vs blob storage</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Block-level sync</h3>
+      <p>Don't upload entire files on every change. Split file into fixed-size blocks (e.g. 4MB). Only upload changed blocks.</p>
+      <ul>
+        <li>Block identified by hash of its content — deduplication is automatic (same block stored once)</li>
+        <li>File metadata (name, size, block list, order) stored in DB</li>
+        <li>Block content stored in S3</li>
+        <li>Client maintains local block index — computes delta on every file save</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Sync flow &amp; conflicts</h3>
+      <ul>
+        <li>Client → upload new blocks → notify sync service via long-poll or WebSocket</li>
+        <li>Other clients notified → download changed blocks → reconstruct file</li>
+        <li><strong>Conflict:</strong> two clients edit same file offline. Last-writer-wins is the simple option. Dropbox: creates "conflicted copy" so neither is lost</li>
+        <li><strong>Offline support:</strong> queue local changes. Replay + merge on reconnect</li>
+      </ul>
+      <div class="ddia-box" style="margin-top:10px">
+        <span class="ico">◈</span>
+        <span><strong>DDIA link — Ch 5 (Multi-leader conflicts):</strong> Offline clients are multi-leader. Google Docs uses OT (Operational Transformation). Dropbox uses copy-on-conflict. Same fundamental problem DDIA describes for multi-leader replication.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design Google Drive. How do you minimise bandwidth for large file updates?</li>
+      <li>How do you handle two users editing the same document simultaneously?</li>
+      <li>How would you implement file versioning and restore?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════ VOL 2 ═════════════════ -->
+
+<!-- ═══════════════════════════════════ -->
+<!-- PROXIMITY SERVICE                  -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="proximity">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Proximity Service (Yelp / Find Nearby)<em>Geospatial indexing — Geohash vs Quadtree vs R-tree</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Geohash <span class="tag t-teal">most common approach</span></h3>
+      <p>Encode lat/lng as a short string by recursively dividing the world into a grid. Nearby places share a common prefix.</p>
+      <div class="code"><span class="cm"># Geohash precision levels</span>
+<span class="k">Length 4:</span> <span class="v">±20km</span>  (city-level)
+<span class="k">Length 6:</span> <span class="v">±0.6km</span> (neighbourhood)
+<span class="k">Length 8:</span> <span class="v">±19m</span>   (building-level)
+
+<span class="cm"># London example</span>
+<span class="k">gcpvh</span>  → Trafalgar Square area
+<span class="k">gcpvj</span>  → nearby (1 char diff = adjacent cell)</div>
+      <p style="margin-top:8px"><strong>Edge case:</strong> two nearby places can be in adjacent cells with different prefixes if they straddle a grid boundary. Fix: search current + 8 surrounding cells.</p>
+    </div>
+    <div class="card bl-violet">
+      <h3>Quadtree</h3>
+      <p>Recursively subdivide space into 4 quadrants until each contains ≤ N businesses. Tree nodes stored in memory. Good for dynamic data (moving objects).</p>
+      <ul>
+        <li>Adapts subdivision to density — cities get finer cells, oceans get coarse ones</li>
+        <li>In-memory tree: fast but requires rebuilding on startup; doesn't scale across servers easily</li>
+        <li>Used by: game location systems, Uber early design</li>
+      </ul>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>System design for a proximity service</h3>
+      <ul>
+        <li><strong>Write path:</strong> business owner updates location → DB write → invalidate cache → rebuild geohash index</li>
+        <li><strong>Read path:</strong> user location → compute geohash at precision 6 → look up Redis sorted set (geohash → business IDs) → fetch business details → sort by distance → return top K</li>
+        <li><strong>Redis GEO commands:</strong> Redis has native geospatial support: <code>GEOADD</code>, <code>GEORADIUS</code>, <code>GEODIST</code>. Used internally via a sorted set scored by Geohash</li>
+        <li><strong>Caching strategy:</strong> search results for a geohash cell change slowly (businesses don't move often). Cache for minutes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design Yelp's "find restaurants near me". How do you index 200M business locations?</li>
+      <li>Compare Geohash vs Quadtree — when would you choose each?</li>
+      <li>What's the boundary problem in Geohash and how do you fix it?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- NEARBY FRIENDS                     -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="nearby-friends">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Nearby Friends (Facebook)<em>Real-time location tracking with WebSockets and pub/sub</em></h2>
+  </div>
+
+  <div class="diag"><span class="n">Mobile Client</span> → (every 30s) → <span class="l">Location Update Service</span>
+                                           ↓
+                                 <span class="n">Location History DB</span> (Cassandra)
+                                           ↓ publish
+                          <span class="l">Redis Pub/Sub channel</span> per user
+                                           ↓ subscribers
+                    <span class="n">WebSocket Servers</span> → <span class="n">Friends' clients</span></div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Key design insight</h3>
+      <p>Don't compute "who is nearby" on every location update. Instead: each user subscribes to location channels of their friends. When a friend publishes a location update, clients compute distance locally. This shifts computation to the client edge.</p>
+    </div>
+    <div class="card bl-violet">
+      <h3>Scale challenges</h3>
+      <ul>
+        <li>User with 10,000 friends: 10,000 channel subscriptions. Redis pub/sub can handle this but it's expensive at Facebook-scale</li>
+        <li><strong>Optimisation:</strong> only subscribe to friends currently active in the last 10 minutes. Inactive friends pruned from subscription set</li>
+        <li>User with few nearby friends: batched update every 30s is fine. High-activity urban user: more frequent may be needed</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design Facebook's "nearby friends" feature. How do you scale to 1B users all sharing location every 30 seconds?</li>
+      <li>How would you reduce battery drain on mobile clients while still keeping location reasonably fresh?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- GOOGLE MAPS                        -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="google-maps">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Google Maps<em>Routing, map tiles, and ETA accuracy</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Map tile storage &amp; serving</h3>
+      <ul>
+        <li>World divided into tiles at each zoom level. Z=0 is one tile (whole world). Z=21 is 4 trillion tiles</li>
+        <li>Pre-rendered raster tiles (PNG) stored in S3, cached in CDN</li>
+        <li>Vector tiles (newer): raw geometry sent to client, rendered on device. Smaller, resolution-independent</li>
+        <li>Mobile: download tiles for local area in advance for offline use</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Routing (Dijkstra / A*)</h3>
+      <ul>
+        <li>Road network = weighted graph. Nodes = intersections, edges = road segments with cost (distance, time)</li>
+        <li><strong>Dijkstra:</strong> finds shortest path. Too slow for continent-scale graphs</li>
+        <li><strong>A* with heuristic:</strong> faster by prioritising paths moving toward destination</li>
+        <li><strong>Contraction Hierarchies (CH):</strong> pre-process graph by ranking node "importance". Real maps use CH or similar for sub-second routing at scale</li>
+        <li><strong>Traffic:</strong> edge weights updated from real-time GPS probe data (from all drivers). Kafka pipeline ingests → updates routing weights</li>
+      </ul>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>ETA &amp; live traffic</h3>
+      <ul>
+        <li>ETA = sum of edge weights on selected route. Weights = historical average + real-time adjustment from current GPS data</li>
+        <li>Machine learning models trained on historical traffic patterns (time of day, day of week, weather, events) → more accurate ETA than naive graph weights</li>
+        <li>Uber/Lyft publish ETA models trained on billions of completed trips</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>How does Google Maps calculate the fastest route across an entire country in under a second?</li>
+      <li>How do you incorporate real-time traffic into routing without recomputing from scratch?</li>
+      <li>How would you handle map tile serving for 1B mobile users?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- DISTRIBUTED MESSAGE QUEUE          -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="distributed-msg">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Distributed Message Queue (Kafka deep dive)<em>Design Kafka from scratch — the Vol 2 treatment</em></h2>
+  </div>
+
+  <div class="ddia-box">
+    <span class="ico">◈</span>
+    <span><strong>DDIA link — Ch 11 (Stream Processing):</strong> This chapter is essentially a first-principles design of Kafka. DDIA explains why the log-based approach is powerful; Alex Xu shows you how to design it. Study them together — DDIA for the "why", this for the "how to discuss it in an interview".</span>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal span2">
+      <h3>Core design decisions</h3>
+      <table>
+        <thead><tr><th>Decision</th><th>Choice</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Storage model</td><td>Append-only log on disk</td><td>Sequential writes are fast even on spinning disk. Immutable — no locking needed for reads</td></tr>
+          <tr><td>Consumer model</td><td>Pull-based</td><td>Consumer controls its pace. Can batch reads. No push-back pressure problem</td></tr>
+          <tr><td>Message retention</td><td>Time-based (e.g. 7 days)</td><td>Allows replay, reprocessing, multiple independent consumers</td></tr>
+          <tr><td>Durability</td><td>Replication factor 3 + ISR</td><td>Leader + 2 replicas. Producer waits for ISR ack before confirming</td></tr>
+          <tr><td>Ordering</td><td>Within partition only</td><td>Cross-partition ordering impossible without coordination — by design</td></tr>
+          <tr><td>Consumer tracking</td><td>Consumer commits offset</td><td>Kafka doesn't track per-consumer state. Decoupled — broker doesn't need to know consumer progress</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card bl-violet">
+      <h3>Producer batching &amp; compression</h3>
+      <ul>
+        <li>Producers batch messages before sending (configurable linger.ms)</li>
+        <li>Compression (Snappy, LZ4, zstd) applied to batches — significant bandwidth saving</li>
+        <li>Idempotent producer: each message has a sequence number — broker deduplicates retries</li>
+        <li>Transactional producer: write to multiple partitions atomically — basis for exactly-once</li>
+      </ul>
+    </div>
+    <div class="card bl-amber">
+      <h3>Consumer group rebalancing</h3>
+      <ul>
+        <li>Partitions distributed across consumers in a group. One partition → one consumer (within group)</li>
+        <li>Consumer joins/leaves → rebalance triggered by Group Coordinator (a broker)</li>
+        <li><strong>Eager rebalance:</strong> all consumers stop, re-assign all partitions. Causes pause</li>
+        <li><strong>Cooperative rebalance:</strong> only affected partitions reassigned. Minimal disruption. Kafka 2.4+</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a distributed message queue. What are the core trade-offs between Kafka and RabbitMQ?</li>
+      <li>How does Kafka achieve exactly-once delivery? What are the components involved?</li>
+      <li>A consumer is processing too slowly and falling behind. How do you diagnose and fix consumer lag?</li>
+      <li>Why does Kafka use pull-based consumption rather than push?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- METRICS MONITORING                 -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="metrics">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Metrics Monitoring &amp; Alerting (Datadog / Prometheus)<em>Time-series data at scale with fast aggregation queries</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Data model — time series</h3>
+      <div class="code"><span class="cm"># A metric is: name + labels + value + timestamp</span>
+<span class="k">http_requests_total</span>{
+  <span class="v">service</span>="payments",
+  <span class="v">status</span>="200",
+  <span class="v">region</span>="eu-west"
+} <span class="h">1234567</span> @ <span class="h">1718000000</span></div>
+      <p style="margin-top:8px">High cardinality labels (user_id, request_id) are a common mistake — they create millions of unique time series and overwhelm the storage layer.</p>
+    </div>
+    <div class="card bl-violet">
+      <h3>Storage — why TSDB not SQL</h3>
+      <ul>
+        <li>Write pattern: append-only, high rate (millions of data points/sec)</li>
+        <li>Read pattern: time-range scans with aggregations (avg, p99, sum)</li>
+        <li>Column-oriented storage per metric: all timestamps together, all values together → excellent compression (delta encoding + run-length)</li>
+        <li><strong>Prometheus:</strong> custom TSDB. Chunks of 2-hour blocks. Old chunks compacted</li>
+        <li><strong>InfluxDB, TimescaleDB, ClickHouse:</strong> alternatives with SQL-like query</li>
+      </ul>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>Collection &amp; alerting pipeline</h3>
+      <div class="diag"><span class="n">Services / hosts</span>
+       ↓ scrape (Prometheus) or push (StatsD/Telegraf)
+<span class="l">Metrics Collector</span> → <span class="n">Kafka</span> (buffer, decouple at scale)
+                          ↓
+                  <span class="l">Time-Series DB</span>  (Prometheus / InfluxDB)
+                          ↓                    ↓
+                  <span class="n">Query Layer</span>      <span class="n">Alert Evaluator</span>
+                  (Grafana)          (check rules every N sec)
+                                           ↓ threshold breach
+                                  <span class="w">PagerDuty / Slack</span></div>
+    </div>
+  </div>
+
+  <div class="ddia-box">
+    <span class="ico">◈</span>
+    <span><strong>DDIA link — Ch 3 (OLAP) &amp; Ch 10 (Batch):</strong> TSDB is a specialised columnar store — same columnar compression principles DDIA describes for OLAP. The metrics pipeline is also a mini Lambda architecture: real-time stream for alerting, batch rollup for long-term storage.</span>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a metrics and alerting system like Datadog. How do you handle 10M time series at 1M writes/sec?</li>
+      <li>What is high cardinality and why is it a problem for metrics systems?</li>
+      <li>How do you downsample old metrics without losing insight?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- AD CLICK                           -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="ad-click">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Ad Click Event Aggregation<em>High-volume stream aggregation, exactly-once counting, and fault tolerance</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal span2">
+      <h3>Pipeline design</h3>
+      <div class="diag"><span class="n">Ad clicks</span> (billions/day)
+       ↓
+<span class="l">Kafka topic: ad-clicks</span>  (partitioned by ad_id)
+       ↓
+<span class="n">Flink aggregation job</span>
+  - tumbling window: count clicks per ad per minute
+  - watermark handles late-arriving events (up to 5 min late)
+  - checkpoint state to S3 for fault tolerance
+       ↓
+<span class="l">Result store</span>: ClickHouse / Cassandra
+  key=(ad_id, minute_bucket), value=click_count
+       ↓
+<span class="n">Query API</span> → Advertisers dashboard</div>
+    </div>
+    <div class="card bl-violet">
+      <h3>Exactly-once counting</h3>
+      <ul>
+        <li>Clicks are money — double-counting or losing counts has direct financial impact</li>
+        <li><strong>Dedup at ingest:</strong> each click event has a unique ID. Dedup via Redis set with TTL before inserting to Kafka</li>
+        <li><strong>Flink exactly-once:</strong> two-phase commit from Flink to sink. Flink checkpoints Kafka offsets atomically with output state</li>
+        <li><strong>Reconciliation job:</strong> daily batch recount from raw log (source of truth) vs streaming aggregate. Reconcile discrepancies</li>
+      </ul>
+    </div>
+    <div class="card bl-amber">
+      <h3>Late data handling</h3>
+      <ul>
+        <li>Mobile clicks arrive late (app was offline). Can't just drop them</li>
+        <li>Watermark: Flink tracks "how far behind is the slowest event stream"</li>
+        <li>Hold windows open for N minutes past their end time before closing</li>
+        <li>After window closes: late events trigger result correction. Advertiser sees updated counts</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ddia-box">
+    <span class="ico">◈</span>
+    <span><strong>DDIA link — Ch 11 (Streaming):</strong> This is the worked example for everything DDIA says about windowing, watermarks, and exactly-once stream processing. If you understand this design, you understand Ch 11 applied in practice.</span>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design an ad click aggregation system that handles 1 trillion clicks/day. How do you ensure counts are accurate?</li>
+      <li>A mobile user goes offline for 2 hours then syncs clicks. How does your system handle this?</li>
+      <li>How do you reconcile real-time aggregations with the raw event log?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- HOTEL RESERVATION                  -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="hotel-reservation">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Hotel Reservation (Booking.com)<em>Inventory management, double-booking prevention, concurrency</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>The double-booking problem</h3>
+      <p>Two users book the last room simultaneously. Both see "available". Both complete checkout. One booking must fail — but which one and when?</p>
+      <ul>
+        <li><strong>Optimistic locking:</strong> <code>UPDATE rooms SET booked=true WHERE room_id=X AND booked=false</code>. Check rows affected = 1. If 0, someone else got it — show error to user</li>
+        <li><strong>Pessimistic locking:</strong> <code>SELECT ... FOR UPDATE</code>. Serialises access. Safe but slow under high concurrency</li>
+        <li><strong>Database constraint:</strong> unique constraint on (room_id, date) in bookings table. DB enforces — double-insert fails with constraint violation</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Inventory model</h3>
+      <div class="code"><span class="cm"># Approach: track remaining inventory per room per date</span>
+<span class="k">room_inventory</span> table:
+  hotel_id | room_type | date       | total | reserved
+  101      | double    | 2025-08-15 |  10   |  9
+
+<span class="cm"># Booking = decrement reserved count atomically</span>
+<span class="k">UPDATE</span> room_inventory
+<span class="v">SET</span> reserved = reserved + 1
+<span class="k">WHERE</span> hotel_id=101 AND room_type='double'
+  AND date='2025-08-15'
+  AND reserved &lt; total  <span class="cm">← prevents overbooking</span></div>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>Distributed concurrency at scale</h3>
+      <ul>
+        <li><strong>Caching inventory:</strong> cache available count in Redis for fast display. But cache can lag — always do final authoritative check against DB at booking time</li>
+        <li><strong>Idempotency key:</strong> client sends a booking_token with each attempt. DB unique constraint on booking_token prevents double-charge if user retries</li>
+        <li><strong>Distributed lock (Redlock):</strong> lock on (room_id, date) in Redis for the duration of the booking transaction. Prevents concurrent bookings for same room. Risk: Redlock has known correctness issues under clock skew</li>
+      </ul>
+      <div class="ddia-box" style="margin-top:12px">
+        <span class="ico">◈</span>
+        <span><strong>DDIA link — Ch 7 (Transactions):</strong> This is write skew in practice. Two transactions both read "room available", both decide to book, both write — result violates the invariant "room can't be booked twice". Solutions: serializable isolation, SELECT FOR UPDATE, or DB unique constraint (the most practical).</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a hotel reservation system. How do you prevent two users booking the same room?</li>
+      <li>Optimistic vs pessimistic locking — when would you choose each for an inventory system?</li>
+      <li>A user's payment succeeds but the booking DB write fails. How do you handle this?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- S3                                 -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="s3">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>S3-like Object Storage<em>Petabyte-scale blob storage — data plane vs control plane</em></h2>
+  </div>
+
+  <div class="diag"><span class="cm">── Control plane ──────────────────────────────────────────────</span>
+<span class="n">IAM</span>  (auth)
+<span class="n">Metadata Service</span> → <span class="l">RocksDB / strong consistent store</span>
+  bucket → [object_key → {size, checksum, location, version}]
+
+<span class="cm">── Data plane ─────────────────────────────────────────────────</span>
+<span class="n">API Gateway</span>
+  ↓ PUT /bucket/key
+<span class="n">Data Service</span> → split into chunks → write to <span class="l">3 data nodes</span> (erasure coding)
+  ↓ on success → update metadata
+<span class="n">Metadata</span>: key=object_id, location=[node1, node2, node3]
+
+<span class="cm">── Durability ─────────────────────────────────────────────────</span>
+<span class="l">Erasure coding</span> (e.g. 8+4 Reed-Solomon): 12 chunks, any 8 can reconstruct
+  Cheaper than 3x replication (~1.5x overhead vs 3x)</span></div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Key design decisions</h3>
+      <ul>
+        <li><strong>Flat namespace:</strong> S3 has no real directories — "folders" are just key prefixes. Simplifies metadata</li>
+        <li><strong>Multipart upload:</strong> large files split and uploaded in parallel chunks. Each part individually checksummed. Enables resumable uploads</li>
+        <li><strong>Versioning:</strong> each PUT creates a new version. Delete is a "delete marker" — old versions still retrievable</li>
+        <li><strong>Checksums:</strong> SHA-256 per chunk, verified on write and periodically during scrubbing to detect bit rot</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Metadata storage</h3>
+      <ul>
+        <li>Bucket listing requires scanning all keys with a prefix — expensive at scale</li>
+        <li>Metadata must be strongly consistent (S3 is strongly consistent since 2020)</li>
+        <li>RocksDB or a distributed KV store on SSDs. Each key = object path, value = metadata JSON</li>
+        <li>Separate from data plane — can scale independently. Metadata is tiny compared to data</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design S3. How do you store a 10TB file reliably across multiple nodes?</li>
+      <li>What is erasure coding and why is it better than 3x replication for large files?</li>
+      <li>How does S3 achieve 11 nines of durability?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- PAYMENT SYSTEM                     -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="payment">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Payment System<em>Exactly-once money movement, idempotency, and reconciliation — most relevant for you</em></h2>
+  </div>
+
+  <div class="warn">
+    <span class="ico">⚠️</span>
+    <span><strong>This is the most directly relevant design for Stripe, Wise, and Monzo interviews.</strong> Master every component here. They will probe your understanding of consistency, idempotency, and failure handling in a financial context.</span>
+  </div>
+
+  <div class="diag"><span class="n">Client</span>
+  ↓ POST /payments {amount, currency, idempotency_key}
+<span class="l">API Gateway</span> (auth, rate limit)
+  ↓
+<span class="n">Payment Service</span>
+  1. Check idempotency_key → already exists? Return cached response
+  2. Validate: funds available? limits OK?
+  3. Write payment record (PENDING) to DB
+  4. Call PSP (Stripe/Adyen) → <span class="w">external network call — may fail</span>
+  5. PSP responds SUCCESS/FAIL
+  6. Update payment record → COMPLETED / FAILED
+  7. Publish event to <span class="l">Kafka</span> → downstream systems (ledger, notifications)
+  ↓
+<span class="n">Client</span> ← response</div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Idempotency — the central pattern <span class="tag t-teal">interview essential</span></h3>
+      <ul>
+        <li>Client sends a unique <code>idempotency_key</code> with every payment request (UUID)</li>
+        <li>Server stores (idempotency_key → response) in DB before calling PSP</li>
+        <li>On retry: check DB first → if found, return stored response without re-processing</li>
+        <li>This makes payment creation safe to retry unconditionally</li>
+        <li><strong>Stripe does exactly this</strong> — their API docs require idempotency keys for all POST requests</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Handling PSP failures</h3>
+      <ul>
+        <li>PSP call times out — you don't know if it succeeded</li>
+        <li><strong>Query PSP for status</strong> (poll or webhook callback) before making any retry decision</li>
+        <li>Don't retry blindly — PSP may have already charged the card</li>
+        <li>Store payment in PENDING state. Background job reconciles PENDING payments older than X minutes against PSP</li>
+        <li>This is the fundamental exactly-once problem in payments</li>
+      </ul>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>Double-entry ledger</h3>
+      <ul>
+        <li>Every payment creates two ledger entries: debit (money out) + credit (money in). They must always balance</li>
+        <li>Append-only immutable ledger — never update or delete rows. Corrections made by new entries</li>
+        <li>Balance = sum of all credits - sum of all debits for an account. Computed from ledger, not stored as a field (avoids inconsistency)</li>
+        <li><strong>Reconciliation:</strong> nightly batch job sums ledger, compares with PSP settlement reports. Any discrepancy triggers investigation</li>
+        <li>This is how all banks and fintechs (Monzo, Wise, Stripe) structure their accounting data</li>
+      </ul>
+      <div class="ddia-box" style="margin-top:12px">
+        <span class="ico">◈</span>
+        <span><strong>DDIA link — Ch 12 (Future of Data Systems):</strong> The immutable append-only event log Kleppmann advocates is exactly this ledger pattern. Financial systems figured this out decades ago. Kleppmann argues all data systems should work this way.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a payment system for Stripe. How do you ensure a payment is processed exactly once?</li>
+      <li>A payment request times out. The client retries. How do you prevent double-charging?</li>
+      <li>What is a double-entry ledger and why do payment systems use it?</li>
+      <li>How would you design the reconciliation process between your internal ledger and PSP settlement reports?</li>
+      <li>How do you handle currency conversion for a cross-border transfer at Wise?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- DIGITAL WALLET                     -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="digital-wallet">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Digital Wallet<em>Balance accuracy at scale — distributed transactions without 2PC</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal span2">
+      <h3>The core challenge: transferring funds across two accounts</h3>
+      <div class="code"><span class="cm"># Naive approach — WRONG under distributed failures</span>
+<span class="w">UPDATE accounts SET balance = balance - 100 WHERE id = 'alice';</span>
+<span class="w">UPDATE accounts SET balance = balance + 100 WHERE id = 'bob';</span>
+<span class="cm"># If second UPDATE fails: alice loses $100, bob gets nothing → money disappears</span>
+
+<span class="cm"># Correct: wrap in a transaction (single DB)</span>
+<span class="k">BEGIN;</span>
+<span class="v">UPDATE accounts SET balance = balance - 100 WHERE id = 'alice' AND balance >= 100;</span>
+<span class="v">UPDATE accounts SET balance = balance + 100 WHERE id = 'bob';</span>
+<span class="k">COMMIT;</span></div>
+    </div>
+    <div class="card bl-violet">
+      <h3>When accounts are on different shards</h3>
+      <ul>
+        <li>Alice on Shard 1, Bob on Shard 2 — can't use a local transaction</li>
+        <li><strong>Option 1 — 2PC:</strong> works but coordinator failure risk. Viable for low-throughput financial systems where correctness trumps everything</li>
+        <li><strong>Option 2 — Saga:</strong> debit Alice (local tx) → event → credit Bob (local tx). If credit fails: compensate by crediting Alice back. Eventual consistency</li>
+        <li><strong>Option 3 — Colocate:</strong> shard accounts so payer + payee are on the same shard. Only works if you can predict pairs (hard for P2P wallets)</li>
+      </ul>
+    </div>
+    <div class="card bl-amber">
+      <h3>Balance read consistency</h3>
+      <ul>
+        <li>Reading balance from a replica can return stale data — user sees wrong available balance</li>
+        <li>For balance reads: <strong>always read from leader</strong> (or use linearizable read protocol)</li>
+        <li>Balance check before debit must be in the same transaction as the debit — never check then act in separate steps</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ddia-box">
+    <span class="ico">◈</span>
+    <span><strong>DDIA link — Ch 7 (Transactions) &amp; Ch 9 (Consistency):</strong> The cross-shard transfer is the distributed transaction problem from Ch 7 (2PC, Sagas). The balance read requirement is the linearizability requirement from Ch 9.</span>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a digital wallet supporting P2P transfers. How do you handle the case where sender and receiver are on different database shards?</li>
+      <li>Why can't you read balance from a replica before authorising a spend?</li>
+      <li>A Saga's compensating transaction also fails. What now?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- STOCK EXCHANGE                     -->
+<!-- ═══════════════════════════════════ -->
+<section class="chapter" id="stock-exchange">
+  <div class="ch-head">
+    <div class="ch-vol vol2">Vol 2</div>
+    <h2>Stock Exchange<em>Matching engine, order book, and microsecond latency</em></h2>
+  </div>
+
+  <div class="grid">
+    <div class="card bl-teal">
+      <h3>Order book &amp; matching engine</h3>
+      <ul>
+        <li>Order book: two sorted lists — bids (buy orders, price DESC) + asks (sell orders, price ASC)</li>
+        <li>Match: top bid ≥ lowest ask → trade executes at the ask price</li>
+        <li><strong>In-memory:</strong> matching engine runs entirely in RAM for speed. Single-threaded to avoid locking (like Redis). Deterministic</li>
+        <li>Data structure: price-level doubly linked list. O(1) best bid/ask. O(1) order add/cancel</li>
+      </ul>
+    </div>
+    <div class="card bl-violet">
+      <h3>Latency requirements</h3>
+      <ul>
+        <li>Co-location: trading firms pay to physically place servers next to exchange servers. Speed of light is the bottleneck</li>
+        <li>Kernel bypass (DPDK): avoid OS network stack overhead</li>
+        <li>Lock-free data structures: avoid mutex contention</li>
+        <li>No GC: Java GC pauses are fatal. C++ or GC-tuned Java with off-heap storage</li>
+        <li>Target: nanosecond to microsecond order processing</li>
+      </ul>
+    </div>
+    <div class="card bl-amber span2">
+      <h3>Sequencer &amp; fault tolerance</h3>
+      <ul>
+        <li><strong>Sequencer:</strong> assigns a monotonically increasing sequence number to every order. This is the global order of events. All replicas must process events in sequence order → deterministic matching</li>
+        <li><strong>Event sourcing:</strong> order book state is derived from replaying the sequence of order events. Crash recovery = replay from checkpoint + recent events (same as Flink checkpointing)</li>
+        <li><strong>Hot standby:</strong> primary matching engine + hot standby replays same events. On failure: standby takes over from its last processed sequence number</li>
+      </ul>
+      <div class="ddia-box" style="margin-top:12px">
+        <span class="ico">◈</span>
+        <span><strong>DDIA link — Ch 11 (Streams) &amp; Ch 9 (Consensus):</strong> The sequencer is a total order broadcast — the same primitive underlying Raft log replication. The event-sourced order book is the DDIA concept of deriving state from an immutable event log.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="iq">
+    <h4>Interview questions</h4>
+    <ul>
+      <li>Design a stock exchange matching engine. How do you process 1M orders/sec with microsecond latency?</li>
+      <li>Why must the matching engine be single-threaded?</li>
+      <li>How do you recover the order book state after a matching engine crash?</li>
+      <li>Two orders arrive simultaneously at microsecond resolution — how do you determine priority?</li>
+    </ul>
+  </div>
+</section>
+
+</div><!-- /content -->
+</main>
+</div><!-- /shell -->
+
+<script>
+const chapters = document.querySelectorAll('.chapter');
+const links = document.querySelectorAll('.rail nav a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => {
+        l.classList.remove('active');
+        if (l.getAttribute('href') === '#' + e.target.id) l.classList.add('active');
+      });
+    }
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+chapters.forEach(c => io.observe(c));
+</script>
+</body>
+</html>
