@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon OA — 5 Day Prep Plan</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c26;
+    --surface2: #1e2333;
+    --border: #2a2f42;
+    --accent: #f0a500;
+    --accent2: #e06c3a;
+    --text: #d4d8e8;
+    --muted: #7a7f99;
+    --green: #4caf7d;
+    --red: #e05c5c;
+    --blue: #5b8dee;
+    --purple: #9b72cf;
+    --font: 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+  header { padding: 20px 20px 14px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .amazon-badge { background: var(--accent); color: #0f1117; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+  h1 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+  .header-meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .progress-bar { display: flex; gap: 4px; margin-top: 14px; }
+  .progress-segment { height: 4px; flex: 1; border-radius: 2px; background: var(--border); transition: background 0.3s; cursor: pointer; }
+  .progress-segment.done { background: var(--green); }
+  .progress-segment.active { background: var(--accent); }
+
+  .stats { display: flex; gap: 14px; padding: 9px 16px; border-bottom: 1px solid var(--border); background: var(--surface); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .stat { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 12px; color: var(--muted); }
+  .stat-val { font-weight: 700; color: var(--text); font-size: 13px; }
+
+  .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; }
+  .nav-overlay.open { display: block; }
+
+  .layout { display: flex; min-height: calc(100vh - 120px); }
+
+  .day-nav { width: 210px; min-width: 210px; background: var(--surface); border-right: 1px solid var(--border); padding: 14px 0; position: sticky; top: 0; height: calc(100vh - 120px); overflow-y: auto; }
+  .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 0 14px 8px; }
+  .day-btn { width: 100%; text-align: left; background: none; border: none; padding: 10px 14px; cursor: pointer; color: var(--muted); font-size: 13px; font-family: var(--font); transition: all 0.15s; border-left: 2px solid transparent; display: flex; align-items: center; gap: 10px; }
+  .day-btn:hover { background: var(--surface2); color: var(--text); }
+  .day-btn.active { background: var(--surface2); color: var(--text); border-left-color: var(--accent); font-weight: 600; }
+  .day-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .day-btn.done .day-dot { background: var(--green); }
+  .day-btn.active .day-dot { background: var(--accent); }
+
+  .mobile-menu-btn { display: none; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 18px; padding: 5px 9px; border-radius: 6px; cursor: pointer; line-height: 1; }
+
+  .mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 30; padding: 6px 0 env(safe-area-inset-bottom, 6px); }
+  .mobile-bottom-nav-inner { display: flex; justify-content: space-around; align-items: center; }
+  .mobile-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; color: var(--muted); font-family: var(--font); font-size: 10px; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: color 0.15s; min-width: 44px; }
+  .mobile-nav-btn.active { color: var(--accent); }
+  .mobile-nav-btn.done { color: var(--green); }
+  .mobile-nav-icon { font-size: 17px; line-height: 1; }
+
+  .main { flex: 1; padding: 20px 18px 24px; overflow-y: auto; max-width: 800px; }
+
+  .day-panel { display: none; }
+  .day-panel.active { display: block; }
+
+  .day-header { margin-bottom: 18px; }
+  .day-number { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .day-title { font-size: 18px; font-weight: 700; color: #fff; line-height: 1.3; }
+  .day-subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  .time-blocks { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .time-block { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 7px 11px; font-size: 12px; }
+  .time-block-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .time-block-val { color: #fff; font-weight: 700; font-size: 13px; }
+
+  .section { margin-bottom: 20px; }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Study accordion */
+  .study-block { margin-bottom: 10px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .study-toggle { width: 100%; text-align: left; background: var(--surface); border: none; padding: 12px 14px; cursor: pointer; font-family: var(--font); font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: background 0.15s; }
+  .study-toggle:hover { background: var(--surface2); }
+  .study-toggle-left { display: flex; align-items: center; gap: 10px; }
+  .study-icon { font-size: 15px; }
+  .study-chevron { color: var(--muted); font-size: 11px; transition: transform 0.2s; flex-shrink: 0; }
+  .study-block.open .study-chevron { transform: rotate(180deg); }
+  .study-content { display: none; padding: 0 14px 14px; background: var(--surface); border-top: 1px solid var(--border); }
+  .study-block.open .study-content { display: block; }
+
+  .study-content p { font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 10px; }
+  .study-content p:last-child { margin-bottom: 0; }
+  .study-content h4 { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin: 14px 0 6px; }
+  .study-content h4:first-child { margin-top: 10px; }
+  .study-content ul { padding-left: 18px; margin-bottom: 10px; }
+  .study-content ul li { font-size: 13px; color: var(--text); line-height: 1.65; margin-bottom: 4px; }
+  .study-content strong { color: #fff; font-weight: 600; }
+
+  pre {
+    background: #0a0d14;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    margin: 10px 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: #c9d1d9;
+    -webkit-overflow-scrolling: touch;
+  }
+  .kw { color: #ff7b72; }
+  .fn { color: #79c0ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .st { color: #a5d6ff; }
+  .nm { color: #f2cc60; }
+  .tp { color: #ffa657; }
+
+  .signal-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  .signal-table th { background: var(--surface2); color: var(--muted); font-weight: 600; text-align: left; padding: 7px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .signal-table td { padding: 7px 10px; border-top: 1px solid var(--border); color: var(--text); vertical-align: top; line-height: 1.5; }
+  .signal-table td:first-child { color: var(--accent); font-weight: 600; font-size: 11px; white-space: nowrap; }
+
+  .mock-qa { margin: 10px 0; }
+  .mock-q { background: var(--surface2); border-left: 3px solid var(--blue); border-radius: 0 6px 6px 0; padding: 10px 12px; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #fff; }
+  .mock-q-label { font-size: 10px; color: var(--blue); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .mock-a { background: var(--surface2); border-left: 3px solid var(--green); border-radius: 0 6px 6px 0; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; color: var(--text); line-height: 1.65; }
+  .mock-a-label { font-size: 10px; color: var(--green); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+
+  .lp-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+  .lp-card-name { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  .lp-card-desc { font-size: 12px; color: var(--text); line-height: 1.6; margin-bottom: 8px; }
+  .lp-card-signal { font-size: 11px; color: var(--muted); }
+  .lp-card-signal strong { color: var(--green); }
+
+  .edge-case { background: #1a1530; border: 1px solid #3a2a5a; border-radius: 6px; padding: 10px 12px; margin: 6px 0; font-size: 12px; color: var(--text); }
+  .edge-case strong { color: var(--purple); }
+
+  /* Info card */
+  .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 13px 15px; margin-bottom: 10px; font-size: 13px; color: var(--text); line-height: 1.65; }
+  .info-card.warning { border-color: #a0670040; background: #1c180f; }
+  .info-card.tip { border-color: #2a4a3a; background: #0f1a14; }
+  .card-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px; }
+  .card-tag.warn { color: var(--accent); }
+  .card-tag.tip { color: var(--green); }
+  .card-tag.info { color: var(--blue); }
+
+  /* Resources */
+  .resource-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .resource-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; display: flex; align-items: flex-start; gap: 11px; transition: border-color 0.15s; }
+  .resource-item:hover { border-color: var(--accent); }
+  .resource-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .resource-content { flex: 1; }
+  .resource-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+  .resource-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .resource-link { display: inline-block; margin-top: 5px; font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 600; }
+  .resource-link:hover { text-decoration: underline; }
+
+  /* Exercises */
+  .exercise-list { display: flex; flex-direction: column; gap: 8px; }
+  .exercise-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; display: flex; align-items: flex-start; gap: 11px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .exercise-item:hover { background: var(--surface2); }
+  .exercise-item.done { border-color: #2a4a3a; background: #0f1a14; }
+  .exercise-checkbox { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.15s; font-size: 11px; color: transparent; }
+  .exercise-item.done .exercise-checkbox { background: var(--green); border-color: var(--green); color: #fff; }
+  .exercise-content { flex: 1; min-width: 0; }
+  .exercise-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 3px; word-break: break-word; }
+  .exercise-item.done .exercise-title { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--green); }
+  .exercise-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .exercise-tag { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .tag-easy { background: #1a3a2a; color: var(--green); }
+  .tag-medium { background: #2a2a0f; color: #d4a017; }
+  .tag-hard { background: #2a1515; color: var(--red); }
+  .tag-reading { background: #1a2040; color: var(--blue); }
+  .tag-scenario { background: #251a35; color: var(--purple); }
+  .tag-pattern { background: #2a1f10; color: #e09940; }
+  .exercise-hint { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+  .exercise-link { font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 600; margin-left: 4px; }
+  .exercise-link:hover { text-decoration: underline; }
+
+  /* Scenarios */
+  .scenario-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--purple); border-radius: 0 8px 8px 0; padding: 11px 13px; margin-bottom: 8px; font-size: 13px; color: var(--text); line-height: 1.6; cursor: pointer; transition: background 0.15s; }
+  .scenario-box:hover { background: var(--surface2); }
+  .scenario-box.done { border-left-color: var(--green); opacity: 0.6; }
+  .scenario-num { font-size: 10px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .scenario-box.done .scenario-num { color: var(--green); }
+  .scenario-answer { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text); line-height: 1.65; }
+  .scenario-box.reveal .scenario-answer { display: block; }
+  .answer-tag { font-size: 10px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+
+  .lp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .lp-item { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 11px; display: flex; align-items: center; gap: 6px; }
+  .lp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .lp-item.highlight { border-color: #a0670040; }
+  .lp-item.highlight .lp-dot { background: var(--accent2); }
+
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  .day-actions { display: flex; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .btn { padding: 9px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; font-family: var(--font); cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: var(--accent); color: #0f1117; }
+  .btn-primary:hover { background: #d4920a; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: #fff; }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 640px) {
+    header { padding: 14px 14px 12px; }
+    h1 { font-size: 17px; }
+    .header-meta { font-size: 11px; }
+    .mobile-menu-btn { display: block; }
+    .stats { padding: 8px 12px; gap: 10px; }
+    .day-nav { position: fixed; top: 0; left: -240px; height: 100vh; width: 240px; min-width: 240px; z-index: 50; transition: left 0.25s ease; padding-top: 52px; }
+    .day-nav.open { left: 0; }
+    .layout { min-height: auto; }
+    .main { padding: 14px 12px 88px; width: 100%; }
+    .mobile-bottom-nav { display: block; }
+    .day-title { font-size: 16px; }
+    .time-blocks { gap: 6px; }
+    .lp-grid { grid-template-columns: 1fr; }
+    .day-actions { flex-direction: column; }
+    .btn { width: 100%; text-align: center; padding: 10px; }
+    .resource-item { flex-direction: column; gap: 6px; }
+    .resource-icon { display: none; }
+    pre { font-size: 11px; }
+    .signal-table { font-size: 11px; }
+  }
+  @media (min-width: 641px) {
+    .mobile-bottom-nav { display: none !important; }
+    .nav-overlay { display: none !important; }
+    .day-nav { left: 0 !important; position: sticky; height: calc(100vh - 120px); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <button class="mobile-menu-btn" onclick="toggleDrawer()" aria-label="Open menu">☰</button>
+    <span class="amazon-badge">Amazon OA</span>
+    <h1>5-Day Prep Plan</h1>
+  </div>
+  <p class="header-meta">Evenings only · ~2hrs/night · 9–6 job · Tap any exercise to mark done</p>
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-segment" data-day="1" onclick="goToDay(1)"></div>
+    <div class="progress-segment" data-day="2" onclick="goToDay(2)"></div>
+    <div class="progress-segment" data-day="3" onclick="goToDay(3)"></div>
+    <div class="progress-segment" data-day="4" onclick="goToDay(4)"></div>
+    <div class="progress-segment" data-day="5" onclick="goToDay(5)"></div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><span class="stat-val" id="doneTasks">0</span> / <span class="stat-val" id="totalTasks">0</span> done</div>
+  <div class="stat"><span class="stat-val" id="doneExercises">0</span> exercises</div>
+  <div class="stat"><span class="stat-val">~9 hrs</span> total</div>
+  <div class="stat"><span class="stat-val">3</span> sections</div>
+</div>
+
+<div class="nav-overlay" id="navOverlay" onclick="toggleDrawer()"></div>
+
+<div class="layout">
+  <nav class="day-nav" id="dayNav">
+    <div class="nav-label">Days</div>
+    <button class="day-btn active" id="nav-1" onclick="goToDay(1)"><span class="day-dot"></span>Day 1 — Arrays</button>
+    <button class="day-btn" id="nav-2" onclick="goToDay(2)"><span class="day-dot"></span>Day 2 — Trees &amp; Graphs</button>
+    <button class="day-btn" id="nav-3" onclick="goToDay(3)"><span class="day-dot"></span>Day 3 — Code Repo</button>
+    <button class="day-btn" id="nav-4" onclick="goToDay(4)"><span class="day-dot"></span>Day 4 — Simulation</button>
+    <button class="day-btn" id="nav-5" onclick="goToDay(5)"><span class="day-dot"></span>Day 5 — Mock OA</button>
+    <div class="nav-label" style="margin-top:16px">Reference</div>
+    <button class="day-btn" id="nav-lp" onclick="goToDay('lp')"><span class="day-dot"></span>LP Quick Ref</button>
+  </nav>
+
+  <main class="main">
+
+    <!-- ═══════════════════════════════════════ DAY 1 ═══════════════════════════════════════ -->
+    <div class="day-panel active" id="panel-1">
+      <div class="day-header">
+        <div class="day-number">Day 1 · Evening · ~2hrs</div>
+        <div class="day-title">Arrays, Hashmaps &amp; Sliding Window</div>
+        <div class="day-subtitle">The most common Amazon OA pattern — if you do one day, do this one</div>
+      </div>
+
+      <div class="time-blocks">
+        <div class="time-block"><div class="time-block-label">Problems</div><div class="time-block-val">5</div></div>
+        <div class="time-block"><div class="time-block-label">Per problem</div><div class="time-block-val">30 min max</div></div>
+        <div class="time-block"><div class="time-block-label">If stuck</div><div class="time-block-val">Read + recode</div></div>
+      </div>
+
+      <!-- STUDY: Hashmaps -->
+      <div class="section">
+        <div class="section-label">Study material — read before coding</div>
+
+        <div class="study-block" id="sb-hashmap">
+          <button class="study-toggle" onclick="toggleStudy('sb-hashmap')">
+            <span class="study-toggle-left"><span class="study-icon">🗂</span> Hashmaps — the O(n) Swiss army knife</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>What it is</h4>
+            <p>A hashmap stores key→value pairs with O(1) average lookup and insert. In Java it's <strong>HashMap&lt;K,V&gt;</strong>. In Python it's a <strong>dict</strong>. The core trick: instead of searching for something, pre-store it and check existence in O(1).</p>
+
+            <h4>The pattern signal</h4>
+            <p>If the problem asks "does X exist", "have I seen this before", "how many times does Y appear", or "find a pair that satisfies condition Z" — it's almost always a hashmap problem.</p>
+
+            <h4>Two Sum — the canonical example</h4>
+            <p>Problem: given an array, find two indices whose values sum to target.</p>
+            <p>Brute force: O(n²) — check every pair. Too slow.</p>
+            <p>Hashmap approach: as you scan, store <strong>complement → index</strong>. For each number, check if its complement already exists in the map.</p>
+<pre><span class="cm">// Java — Two Sum O(n)</span>
+<span class="kw">public</span> <span class="tp">int[]</span> twoSum(<span class="tp">int[]</span> nums, <span class="tp">int</span> target) {
+    Map&lt;<span class="tp">Integer</span>, <span class="tp">Integer</span>&gt; map = <span class="kw">new</span> <span class="fn">HashMap</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">0</span>; i &lt; nums.length; i++) {
+        <span class="tp">int</span> complement = target - nums[i];
+        <span class="kw">if</span> (map.<span class="fn">containsKey</span>(complement)) {
+            <span class="kw">return new</span> <span class="tp">int[]</span>{map.<span class="fn">get</span>(complement), i};
+        }
+        map.<span class="fn">put</span>(nums[i], i); <span class="cm">// store AFTER check to avoid using same element twice</span>
+    }
+    <span class="kw">return new</span> <span class="tp">int[]</span>{};
+}</pre>
+
+            <h4>Prefix Sum + Hashmap — Subarray Sum = K</h4>
+            <p>Problem: count subarrays with sum equal to k.</p>
+            <p>Key insight: if prefix[j] - prefix[i] = k, then there's a subarray from i+1 to j with sum k. So we check: has (currentSum - k) appeared before?</p>
+<pre><span class="cm">// Java — Subarray Sum Equals K O(n)</span>
+<span class="kw">public</span> <span class="tp">int</span> subarraySum(<span class="tp">int[]</span> nums, <span class="tp">int</span> k) {
+    Map&lt;<span class="tp">Integer</span>, <span class="tp">Integer</span>&gt; map = <span class="kw">new</span> <span class="fn">HashMap</span>&lt;&gt;();
+    map.<span class="fn">put</span>(<span class="nm">0</span>, <span class="nm">1</span>); <span class="cm">// empty prefix has sum 0</span>
+    <span class="tp">int</span> count = <span class="nm">0</span>, sum = <span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="tp">int</span> num : nums) {
+        sum += num;
+        count += map.<span class="fn">getOrDefault</span>(sum - k, <span class="nm">0</span>);
+        map.<span class="fn">put</span>(sum, map.<span class="fn">getOrDefault</span>(sum, <span class="nm">0</span>) + <span class="nm">1</span>);
+    }
+    <span class="kw">return</span> count;
+}</pre>
+
+            <h4>Edge cases to always check</h4>
+            <div class="edge-case"><strong>Empty array</strong> → return 0 or [] immediately</div>
+            <div class="edge-case"><strong>Single element</strong> → does it equal target on its own?</div>
+            <div class="edge-case"><strong>Negative numbers</strong> → prefix sum still works, but k=0 may find unexpected matches</div>
+            <div class="edge-case"><strong>Duplicates</strong> → don't overwrite the map entry on second occurrence (Two Sum: store first index only)</div>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-sliding">
+          <button class="study-toggle" onclick="toggleStudy('sb-sliding')">
+            <span class="study-toggle-left"><span class="study-icon">🪟</span> Sliding Window — contiguous segment problems</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>When to use it</h4>
+            <p>Signal words: <strong>"contiguous subarray"</strong>, <strong>"substring"</strong>, <strong>"window of size k"</strong>, <strong>"longest/shortest segment that satisfies..."</strong>. If a brute force would check every subarray in O(n²), sliding window gives you O(n).</p>
+
+            <h4>Two types</h4>
+            <ul>
+              <li><strong>Fixed window:</strong> window size is given (e.g. "maximum average subarray of length k"). Slide by adding the new element and removing the old one.</li>
+              <li><strong>Variable window:</strong> window size changes based on a condition (e.g. "longest substring without repeating chars"). Expand right pointer, shrink left when condition breaks.</li>
+            </ul>
+
+            <h4>Variable window template</h4>
+<pre><span class="cm">// Generic variable sliding window — Java</span>
+<span class="tp">int</span> left = <span class="nm">0</span>, result = <span class="nm">0</span>;
+Map&lt;<span class="tp">Character</span>, <span class="tp">Integer</span>&gt; window = <span class="kw">new</span> <span class="fn">HashMap</span>&lt;&gt;();
+
+<span class="kw">for</span> (<span class="tp">int</span> right = <span class="nm">0</span>; right &lt; s.<span class="fn">length</span>(); right++) {
+    <span class="tp">char</span> c = s.<span class="fn">charAt</span>(right);
+    window.<span class="fn">put</span>(c, window.<span class="fn">getOrDefault</span>(c, <span class="nm">0</span>) + <span class="nm">1</span>);
+
+    <span class="cm">// shrink from left while condition is violated</span>
+    <span class="kw">while</span> (window.<span class="fn">get</span>(c) > <span class="nm">1</span>) {
+        <span class="tp">char</span> leftChar = s.<span class="fn">charAt</span>(left);
+        window.<span class="fn">put</span>(leftChar, window.<span class="fn">get</span>(leftChar) - <span class="nm">1</span>);
+        left++;
+    }
+
+    result = <span class="fn">Math</span>.<span class="fn">max</span>(result, right - left + <span class="nm">1</span>);
+}
+<span class="kw">return</span> result;</pre>
+
+            <h4>Product of Array Except Self — no division trick</h4>
+            <p>Can't use division (what if there's a zero?). Instead, compute prefix products left-to-right, then suffix products right-to-left, multiply them together.</p>
+<pre><span class="cm">// O(n) time, O(1) extra space (output array doesn't count)</span>
+<span class="kw">public</span> <span class="tp">int[]</span> productExceptSelf(<span class="tp">int[]</span> nums) {
+    <span class="tp">int</span> n = nums.length;
+    <span class="tp">int[]</span> result = <span class="kw">new</span> <span class="tp">int</span>[n];
+
+    <span class="cm">// left pass: result[i] = product of everything to the left</span>
+    result[<span class="nm">0</span>] = <span class="nm">1</span>;
+    <span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">1</span>; i &lt; n; i++)
+        result[i] = result[i-<span class="nm">1</span>] * nums[i-<span class="nm">1</span>];
+
+    <span class="cm">// right pass: multiply in suffix product on the fly</span>
+    <span class="tp">int</span> suffix = <span class="nm">1</span>;
+    <span class="kw">for</span> (<span class="tp">int</span> i = n-<span class="nm">1</span>; i >= <span class="nm">0</span>; i--) {
+        result[i] *= suffix;
+        suffix *= nums[i];
+    }
+    <span class="kw">return</span> result;
+}</pre>
+
+            <h4>Edge cases</h4>
+            <div class="edge-case"><strong>All zeros in array</strong> → every product except self is 0</div>
+            <div class="edge-case"><strong>One zero</strong> → only the position of the zero gets a non-zero result</div>
+            <div class="edge-case"><strong>Negative numbers</strong> → sign flips, algorithm still works</div>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-pattern-signals">
+          <button class="study-toggle" onclick="toggleStudy('sb-pattern-signals')">
+            <span class="study-toggle-left"><span class="study-icon">🎯</span> Pattern signal cheatsheet — Day 1</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <table class="signal-table">
+              <tr><th>Signal in problem</th><th>Pattern</th></tr>
+              <tr><td>Two numbers sum to target</td><td>Hashmap (complement lookup)</td></tr>
+              <tr><td>Count subarrays with sum = k</td><td>Prefix sum + hashmap</td></tr>
+              <tr><td>Longest/shortest contiguous substring</td><td>Variable sliding window</td></tr>
+              <tr><td>Fixed-size window, max/min/avg</td><td>Fixed sliding window</td></tr>
+              <tr><td>Group strings by anagram</td><td>Hashmap with sorted key</td></tr>
+              <tr><td>Product except self, no division</td><td>Prefix × suffix arrays</td></tr>
+              <tr><td>"Find pair that satisfies X"</td><td>Hashmap or two pointers (if sorted)</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXERCISES -->
+      <div class="section">
+        <div class="section-label">Exercises — do in order</div>
+        <div class="exercise-list">
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#1 Two Sum<a class="exercise-link" href="https://leetcode.com/problems/two-sum/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-easy">Easy</span><span class="exercise-tag tag-pattern">Hashmap</span></div>
+              <div class="exercise-hint">Warm-up. Don't do the O(n²) brute force — go straight to hashmap. Store complement → index.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#560 Subarray Sum Equals K<a class="exercise-link" href="https://leetcode.com/problems/subarray-sum-equals-k/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">Medium</span><span class="exercise-tag tag-pattern">Prefix Sum + Hashmap</span></div>
+              <div class="exercise-hint">Classic combo. Seed map with {0:1}. For each element: check if (currentSum - k) exists in map, then add currentSum to map.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#3 Longest Substring Without Repeating Characters<a class="exercise-link" href="https://leetcode.com/problems/longest-substring-without-repeating-characters/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">Medium</span><span class="exercise-tag tag-pattern">Variable Sliding Window</span></div>
+              <div class="exercise-hint">Use the variable window template above. Track char → last seen index. Shrink left when duplicate found.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#238 Product of Array Except Self<a class="exercise-link" href="https://leetcode.com/problems/product-of-array-except-self/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">Medium</span><span class="exercise-tag tag-pattern">Prefix / Suffix</span></div>
+              <div class="exercise-hint">No division allowed. Left pass then right pass — see code above. Confirmed Amazon OA pattern.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#49 Group Anagrams<a class="exercise-link" href="https://leetcode.com/problems/group-anagrams/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">Medium</span><span class="exercise-tag tag-pattern">Hashmap key trick</span></div>
+              <div class="exercise-hint">Sort each string to get the canonical key. Group strings sharing the same key. map.computeIfAbsent(key, k -&gt; new ArrayList&lt;&gt;()).add(str)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card tip">
+        <div class="card-tag tip">After each problem</div>
+        Write one sentence: what signal in the problem text told you which pattern to use? This is the skill Amazon actually tests — recognising patterns from novel problem descriptions.
+      </div>
+
+      <div class="day-actions">
+        <button class="btn btn-primary" onclick="markDayDone(1)">Mark Day 1 Done</button>
+        <button class="btn btn-secondary" onclick="goToDay(2)">Day 2 →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ DAY 2 ═══════════════════════════════════════ -->
+    <div class="day-panel" id="panel-2">
+      <div class="day-header">
+        <div class="day-number">Day 2 · Evening · ~2hrs</div>
+        <div class="day-title">Trees, Graphs &amp; BFS / DFS</div>
+        <div class="day-subtitle">Amazon's harder Q2 territory — grid traversal, shortest paths, interval merging</div>
+      </div>
+
+      <div class="time-blocks">
+        <div class="time-block"><div class="time-block-label">Problems</div><div class="time-block-val">5</div></div>
+        <div class="time-block"><div class="time-block-label">Per problem</div><div class="time-block-val">25 min</div></div>
+        <div class="time-block"><div class="time-block-label">Pattern first</div><div class="time-block-val">Then code</div></div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Study material</div>
+
+        <div class="study-block" id="sb-bfsdfs">
+          <button class="study-toggle" onclick="toggleStudy('sb-bfsdfs')">
+            <span class="study-toggle-left"><span class="study-icon">🌳</span> BFS vs DFS — when to use which</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>BFS (Breadth-First Search)</h4>
+            <p>Explores level by level using a <strong>queue</strong>. Use when you need the <strong>shortest path</strong>, <strong>minimum steps</strong>, or need to process nodes level by level.</p>
+            <p>Signal words: "minimum distance", "shortest path", "nearest", "level order", "fewest moves".</p>
+<pre><span class="cm">// BFS template — Java</span>
+<span class="fn">Queue</span>&lt;<span class="tp">int[]</span>&gt; queue = <span class="kw">new</span> <span class="fn">LinkedList</span>&lt;&gt;();
+<span class="tp">boolean[][]</span> visited = <span class="kw">new</span> <span class="tp">boolean</span>[rows][cols];
+queue.<span class="fn">offer</span>(<span class="kw">new</span> <span class="tp">int[]</span>{startRow, startCol});
+visited[startRow][startCol] = <span class="kw">true</span>;
+<span class="tp">int</span> steps = <span class="nm">0</span>;
+
+<span class="tp">int[][]</span> dirs = {{<span class="nm">0</span>,<span class="nm">1</span>},{<span class="nm">0</span>,-<span class="nm">1</span>},{<span class="nm">1</span>,<span class="nm">0</span>},{-<span class="nm">1</span>,<span class="nm">0</span>}};
+
+<span class="kw">while</span> (!queue.<span class="fn">isEmpty</span>()) {
+    <span class="tp">int</span> size = queue.<span class="fn">size</span>(); <span class="cm">// process one level at a time</span>
+    <span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">0</span>; i &lt; size; i++) {
+        <span class="tp">int[]</span> cell = queue.<span class="fn">poll</span>();
+        <span class="kw">if</span> (cell[<span class="nm">0</span>] == endRow &amp;&amp; cell[<span class="nm">1</span>] == endCol) <span class="kw">return</span> steps;
+        <span class="kw">for</span> (<span class="tp">int[]</span> d : dirs) {
+            <span class="tp">int</span> r = cell[<span class="nm">0</span>] + d[<span class="nm">0</span>], c = cell[<span class="nm">1</span>] + d[<span class="nm">1</span>];
+            <span class="kw">if</span> (r >= <span class="nm">0</span> &amp;&amp; r &lt; rows &amp;&amp; c >= <span class="nm">0</span> &amp;&amp; c &lt; cols &amp;&amp; !visited[r][c]) {
+                visited[r][c] = <span class="kw">true</span>;
+                queue.<span class="fn">offer</span>(<span class="kw">new</span> <span class="tp">int[]</span>{r, c});
+            }
+        }
+    }
+    steps++;
+}</pre>
+
+            <h4>DFS (Depth-First Search)</h4>
+            <p>Explores as deep as possible before backtracking — using <strong>recursion</strong> (or an explicit stack). Use when you need to explore all paths, count connected components, or check if a path exists.</p>
+            <p>Signal words: "number of islands", "connected components", "all paths", "exists a path".</p>
+<pre><span class="cm">// DFS on a grid — Java (recursive)</span>
+<span class="kw">private void</span> <span class="fn">dfs</span>(<span class="tp">char[][]</span> grid, <span class="tp">int</span> r, <span class="tp">int</span> c) {
+    <span class="kw">if</span> (r &lt; <span class="nm">0</span> || r >= grid.length || c &lt; <span class="nm">0</span> || c >= grid[<span class="nm">0</span>].length
+        || grid[r][c] != <span class="st">'1'</span>) <span class="kw">return</span>;
+
+    grid[r][c] = <span class="st">'0'</span>; <span class="cm">// mark visited in-place</span>
+    <span class="fn">dfs</span>(grid, r+<span class="nm">1</span>, c);
+    <span class="fn">dfs</span>(grid, r-<span class="nm">1</span>, c);
+    <span class="fn">dfs</span>(grid, r, c+<span class="nm">1</span>);
+    <span class="fn">dfs</span>(grid, r, c-<span class="nm">1</span>);
+}</pre>
+
+            <h4>Tree DFS — recursion pattern</h4>
+<pre><span class="cm">// Max depth — classic base case pattern</span>
+<span class="kw">public</span> <span class="tp">int</span> <span class="fn">maxDepth</span>(<span class="tp">TreeNode</span> node) {
+    <span class="kw">if</span> (node == <span class="kw">null</span>) <span class="kw">return</span> <span class="nm">0</span>;
+    <span class="kw">return</span> <span class="nm">1</span> + <span class="fn">Math</span>.<span class="fn">max</span>(<span class="fn">maxDepth</span>(node.left), <span class="fn">maxDepth</span>(node.right));
+}</pre>
+
+            <h4>Multi-source BFS — Rotting Oranges pattern</h4>
+            <p>Seed the queue with <strong>all starting nodes at once</strong> before the BFS loop. This simulates simultaneous spread from multiple sources.</p>
+<pre><span class="cm">// Seed queue with ALL rotten oranges before BFS starts</span>
+<span class="kw">for</span> (<span class="tp">int</span> r = <span class="nm">0</span>; r &lt; rows; r++)
+    <span class="kw">for</span> (<span class="tp">int</span> c = <span class="nm">0</span>; c &lt; cols; c++)
+        <span class="kw">if</span> (grid[r][c] == <span class="nm">2</span>) queue.<span class="fn">offer</span>(<span class="kw">new</span> <span class="tp">int[]</span>{r, c});
+<span class="cm">// Then run standard BFS — time = number of levels</span></pre>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-intervals">
+          <button class="study-toggle" onclick="toggleStudy('sb-intervals')">
+            <span class="study-toggle-left"><span class="study-icon">📅</span> Merge Intervals — the scheduling pattern</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>When to use it</h4>
+            <p>Any problem involving ranges, meetings, time slots, or overlapping segments. Amazon loves logistics-themed variants: "delivery time windows", "meeting room conflicts", "server maintenance windows".</p>
+            <h4>Algorithm</h4>
+            <ul>
+              <li>Sort by start time</li>
+              <li>Iterate — if current interval overlaps with last merged (current.start ≤ last.end), extend last.end</li>
+              <li>Otherwise, add current to result</li>
+            </ul>
+<pre><span class="kw">public</span> <span class="tp">int[][]</span> <span class="fn">merge</span>(<span class="tp">int[][]</span> intervals) {
+    <span class="fn">Arrays</span>.<span class="fn">sort</span>(intervals, (a, b) -&gt; a[<span class="nm">0</span>] - b[<span class="nm">0</span>]);
+    <span class="fn">List</span>&lt;<span class="tp">int[]</span>&gt; result = <span class="kw">new</span> <span class="fn">ArrayList</span>&lt;&gt;();
+
+    <span class="kw">for</span> (<span class="tp">int[]</span> interval : intervals) {
+        <span class="kw">if</span> (result.<span class="fn">isEmpty</span>() || result.<span class="fn">get</span>(result.<span class="fn">size</span>()-<span class="nm">1</span>)[<span class="nm">1</span>] &lt; interval[<span class="nm">0</span>]) {
+            result.<span class="fn">add</span>(interval); <span class="cm">// no overlap</span>
+        } <span class="kw">else</span> {
+            result.<span class="fn">get</span>(result.<span class="fn">size</span>()-<span class="nm">1</span>)[<span class="nm">1</span>] = <span class="fn">Math</span>.<span class="fn">max</span>(
+                result.<span class="fn">get</span>(result.<span class="fn">size</span>()-<span class="nm">1</span>)[<span class="nm">1</span>], interval[<span class="nm">1</span>]); <span class="cm">// merge</span>
+        }
+    }
+    <span class="kw">return</span> result.<span class="fn">toArray</span>(<span class="kw">new</span> <span class="tp">int</span>[<span class="nm">0</span>][]);
+}</pre>
+            <div class="edge-case"><strong>Single interval</strong> → return it as-is</div>
+            <div class="edge-case"><strong>All intervals overlap</strong> → result has one entry spanning min start to max end</div>
+            <div class="edge-case"><strong>Adjacent intervals [1,2] and [2,3]</strong> → these DO overlap (end == next start)</div>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-day2signals">
+          <button class="study-toggle" onclick="toggleStudy('sb-day2signals')">
+            <span class="study-toggle-left"><span class="study-icon">🎯</span> Pattern signal cheatsheet — Day 2</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <table class="signal-table">
+              <tr><th>Signal in problem</th><th>Pattern</th></tr>
+              <tr><td>Shortest path on a grid</td><td>BFS from source(s)</td></tr>
+              <tr><td>Count connected regions</td><td>DFS, mark visited in-place</td></tr>
+              <tr><td>Simultaneous spread (rot, fire, virus)</td><td>Multi-source BFS</td></tr>
+              <tr><td>Level-by-level tree processing</td><td>BFS with queue + level size snapshot</td></tr>
+              <tr><td>Explore all paths, backtrack</td><td>DFS with recursion</td></tr>
+              <tr><td>Merge/count overlapping ranges</td><td>Sort by start + greedy merge</td></tr>
+              <tr><td>Dependency order (A must come before B)</td><td>Topological sort (BFS variant)</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Trees (do first — 40 mins)</div>
+        <div class="exercise-list">
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#104 Maximum Depth of Binary Tree<a class="exercise-link" href="https://leetcode.com/problems/maximum-depth-of-binary-tree/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-easy">Easy</span><span class="exercise-tag tag-pattern">DFS recursion</span></div>
+              <div class="exercise-hint">Warm-up. If node == null return 0. Otherwise 1 + max(left, right). Internalize the base-case pattern.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#102 Binary Tree Level Order Traversal<a class="exercise-link" href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">Medium</span><span class="exercise-tag tag-pattern">BFS with queue</span></div>
+              <div class="exercise-hint">Learn the queue-based BFS template here. Snapshot queue.size() at the start of each level to group results.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Graphs &amp; grids (50 mins)</div>
+        <div class="exercise-list">
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#200 Number of Islands<a class="exercise-link" href="https://leetcode.com/problems/number-of-islands/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">Medium</span><span class="exercise-tag tag-pattern">DFS on grid</span></div>
+              <div class="exercise-hint">High-frequency Amazon problem. When you find a '1', DFS and mark all connected '1's as '0'. Count DFS calls = number of islands.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#994 Rotting Oranges<a class="exercise-link" href="https://leetcode.com/problems/rotting-oranges/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">Medium</span><span class="exercise-tag tag-pattern">Multi-source BFS</span></div>
+              <div class="exercise-hint">Seed queue with ALL rotten (2) cells first. BFS spreads rot per minute = per level. After BFS, if any 1 remains → return -1.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">#56 Merge Intervals<a class="exercise-link" href="https://leetcode.com/problems/merge-intervals/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">Medium</span><span class="exercise-tag tag-pattern">Sort + Greedy</span></div>
+              <div class="exercise-hint">Sort by start. Merge if current.start ≤ last.end. Amazon dresses this up as scheduling, delivery windows, server downtime — same algorithm.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day-actions">
+        <button class="btn btn-primary" onclick="markDayDone(2)">Mark Day 2 Done</button>
+        <button class="btn btn-secondary" onclick="goToDay(3)">Day 3 →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ DAY 3 ═══════════════════════════════════════ -->
+    <div class="day-panel" id="panel-3">
+      <div class="day-header">
+        <div class="day-number">Day 3 · Evening · ~1.5hrs</div>
+        <div class="day-title">Code Repository Question</div>
+        <div class="day-subtitle">The unique format most people don't prep — multi-file IDE with an AI assistant</div>
+      </div>
+
+      <div class="time-blocks">
+        <div class="time-block"><div class="time-block-label">What it is</div><div class="time-block-val">Real codebase</div></div>
+        <div class="time-block"><div class="time-block-label">Tasks</div><div class="time-block-val">Bug fix + feature</div></div>
+        <div class="time-block"><div class="time-block-label">AI allowed</div><div class="time-block-val">Yes — logged</div></div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Study material</div>
+
+        <div class="study-block" id="sb-repo-format">
+          <button class="study-toggle" onclick="toggleStudy('sb-repo-format')">
+            <span class="study-toggle-left"><span class="study-icon">📁</span> What the Code Repository question actually is</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>The format</h4>
+            <p>You get a real multi-file project — a React app, Express server, or similar. It already has working code. You're given 2 tasks to complete inside it, like:</p>
+            <ul>
+              <li>Fix a bug in an existing function (null check, off-by-one, wrong comparison)</li>
+              <li>Add a new feature or endpoint (e.g. filter orders by status, add input validation)</li>
+            </ul>
+            <p>The IDE has a <strong>file explorer</strong>, <strong>editor</strong>, <strong>terminal</strong>, <strong>run/preview pane</strong>, and an <strong>AI assistant tab</strong>. You run tests by clicking "Run Tests" in the IDE.</p>
+
+            <h4>Key differences from the algorithmic question</h4>
+            <ul>
+              <li>No blank editor — you start with existing code to read and understand</li>
+              <li>No algorithm to invent — you need to navigate and modify existing logic</li>
+              <li>AI assistant is available and your prompts are logged by the evaluator</li>
+              <li>Tests are automated — pass/fail visible in the terminal</li>
+            </ul>
+
+            <h4>How you're scored</h4>
+            <p>Tests pass/fail (visible + hidden). <strong>But also</strong>: the evaluator reads your AI assistant conversation. Specific, targeted prompts show strong engineering instinct. Vague prompts like "explain this code" look weak.</p>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-ai-prompting">
+          <button class="study-toggle" onclick="toggleStudy('sb-ai-prompting')">
+            <span class="study-toggle-left"><span class="study-icon">🤖</span> How to use the AI assistant well</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>What the assistant can do</h4>
+            <ul>
+              <li>Explain what a specific function or file does</li>
+              <li>Help you navigate: "which file handles order routing?"</li>
+              <li>Give syntax help: "what's the Node.js syntax for reading a query param?"</li>
+              <li>Debug: "I'm getting TypeError: Cannot read property 'id' of undefined — what's likely wrong?"</li>
+              <li>Suggest code snippets (you paste them manually)</li>
+            </ul>
+
+            <h4>What it can't do</h4>
+            <ul>
+              <li>Generate a complete working solution end-to-end</li>
+              <li>Run code or read test output for you</li>
+              <li>Make decisions about what to implement</li>
+            </ul>
+
+            <h4>Good vs bad prompts — examples</h4>
+            <div class="mock-qa">
+              <div class="mock-q"><div class="mock-q-label">❌ Weak prompt</div>"Explain this code"</div>
+              <div class="mock-a"><div class="mock-a-label">Why it's weak</div>Vague. Shows no prior reading. The evaluator sees this and flags it as low signal.</div>
+
+              <div class="mock-q"><div class="mock-q-label">✅ Strong prompt</div>"In routes/orders.js, the getOrderById function — what does it return if the ID doesn't exist in the database?"</div>
+              <div class="mock-a"><div class="mock-a-label">Why it's strong</div>File-specific, function-specific, asking about a real edge case. Shows you've already read the code and have a specific question.</div>
+
+              <div class="mock-q"><div class="mock-q-label">✅ Strong prompt</div>"I need to add a filter by status parameter to GET /orders. In this Express app, how do I read a query param and pass it to the service layer?"</div>
+              <div class="mock-a"><div class="mock-a-label">Why it's strong</div>Shows you know the architecture (route → service layer), you've identified the right file, and you just need syntax help — not design help.</div>
+
+              <div class="mock-q"><div class="mock-q-label">✅ Strong prompt</div>"Running tests gives me AssertionError: expected 404 but got 200. The route exists but returns 200 even for missing IDs. Where should the null check go?"</div>
+              <div class="mock-a"><div class="mock-a-label">Why it's strong</div>You've run the tests, read the error, formed a hypothesis, and are asking a targeted question. That's how good engineers use tools.</div>
+            </div>
+
+            <h4>Strategy for navigating an unfamiliar codebase fast</h4>
+            <ul>
+              <li><strong>Start with the entry point</strong> — index.js, app.js, server.js, or main.java</li>
+              <li><strong>Follow the route</strong> — find where the relevant endpoint is registered, then the handler, then the service</li>
+              <li><strong>Read the test file first</strong> — it tells you exactly what behaviour is expected</li>
+              <li><strong>Don't read everything</strong> — you only need the files relevant to your task</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-repo-patterns">
+          <button class="study-toggle" onclick="toggleStudy('sb-repo-patterns')">
+            <span class="study-toggle-left"><span class="study-icon">🐛</span> Common bug patterns you'll likely see</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>Null / undefined not handled</h4>
+<pre><span class="cm">// Bug: crashes if user is null</span>
+<span class="kw">return</span> user.name;
+
+<span class="cm">// Fix</span>
+<span class="kw">if</span> (!user) <span class="kw">return</span> <span class="kw">null</span>;
+<span class="kw">return</span> user.name;</pre>
+
+            <h4>Off-by-one in pagination or array slicing</h4>
+<pre><span class="cm">// Bug: returns one too many items</span>
+<span class="kw">return</span> items.<span class="fn">slice</span>(page * size, (page + <span class="nm">1</span>) * size + <span class="nm">1</span>);
+
+<span class="cm">// Fix</span>
+<span class="kw">return</span> items.<span class="fn">slice</span>(page * size, (page + <span class="nm">1</span>) * size);</pre>
+
+            <h4>Wrong HTTP status code returned</h4>
+<pre><span class="cm">// Bug: returns 200 when item not found</span>
+<span class="kw">if</span> (!item) res.<span class="fn">json</span>({ error: <span class="st">'not found'</span> });
+
+<span class="cm">// Fix</span>
+<span class="kw">if</span> (!item) <span class="kw">return</span> res.<span class="fn">status</span>(<span class="nm">404</span>).<span class="fn">json</span>({ error: <span class="st">'not found'</span> });</pre>
+
+            <h4>Missing return — execution falls through</h4>
+<pre><span class="cm">// Bug: continues after sending error response</span>
+<span class="kw">if</span> (!user) res.<span class="fn">status</span>(<span class="nm">401</span>).<span class="fn">send</span>(<span class="st">'Unauthorized'</span>);
+doProtectedThing(); <span class="cm">// still runs!</span>
+
+<span class="cm">// Fix: add return</span>
+<span class="kw">if</span> (!user) <span class="kw">return</span> res.<span class="fn">status</span>(<span class="nm">401</span>).<span class="fn">send</span>(<span class="st">'Unauthorized'</span>);</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Exercises</div>
+        <div class="exercise-list">
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">Cold-read a real GitHub Express repo<a class="exercise-link" href="https://github.com/topics/express-api?l=javascript&o=desc&s=stars" target="_blank" onclick="e=event;e.stopPropagation()">Find repo →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-reading">Reading</span></div>
+              <div class="exercise-hint">20 mins. Without running it: find the entry point, trace one route end-to-end, find where you'd add a null check. Practice forming a mental model fast.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">Add or fix one thing in the repo</div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">Hands-on</span></div>
+              <div class="exercise-hint">Pick a task: add GET /health, add null guard to a handler, add query param filtering. Write the code in the actual files. Run any existing tests.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">Write 5 targeted AI prompts for the repo you read</div>
+              <div class="exercise-meta"><span class="exercise-tag tag-scenario">AI Prompting</span></div>
+              <div class="exercise-hint">Must include: file name, function name, and specific question. No vague prompts. Pretend you're writing them to an evaluator who will read them — because they will.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">Run HackerRank's sample test to learn the IDE<a class="exercise-link" href="https://www.hackerrank.com/test/sample" target="_blank" onclick="e=event;e.stopPropagation()">Open →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-reading">Platform</span></div>
+              <div class="exercise-hint">Amazon recommends this before the real OA. Learns the layout: file explorer, terminal, run button, preview pane. No surprises on the day.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day-actions">
+        <button class="btn btn-primary" onclick="markDayDone(3)">Mark Day 3 Done</button>
+        <button class="btn btn-secondary" onclick="goToDay(4)">Day 4 →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ DAY 4 ═══════════════════════════════════════ -->
+    <div class="day-panel" id="panel-4">
+      <div class="day-header">
+        <div class="day-number">Day 4 · Evening · ~1.5hrs</div>
+        <div class="day-title">Work Simulation &amp; Work Style Survey</div>
+        <div class="day-subtitle">The section that rejects candidates who aced the code — take it seriously</div>
+      </div>
+
+      <div class="time-blocks">
+        <div class="time-block"><div class="time-block-label">Simulation</div><div class="time-block-val">15 min real</div></div>
+        <div class="time-block"><div class="time-block-label">Work Style</div><div class="time-block-val">10 min real</div></div>
+        <div class="time-block"><div class="time-block-label">Scored on</div><div class="time-block-val">LP alignment</div></div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Study material</div>
+
+        <div class="study-block" id="sb-lps">
+          <button class="study-toggle" onclick="toggleStudy('sb-lps')">
+            <span class="study-toggle-left"><span class="study-icon">⭐</span> The 5 LPs that dominate the SDE simulation</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <p>You don't need to memorise all 16. For the SDE work simulation, these 5 are tested most heavily. Read each one, understand what Amazon means by it, and see the answer signals.</p>
+
+            <div class="lp-card">
+              <div class="lp-card-name">1. Customer Obsession</div>
+              <div class="lp-card-desc">Start with the customer and work backwards. When there's a conflict between internal convenience and user experience, the user wins. The "customer" in an SDE context can be an internal team, not just an end user.</div>
+              <div class="lp-card-signal"><strong>Answer signal:</strong> when two options look similar, pick the one that prioritises user-facing impact over internal process or engineering preference.</div>
+            </div>
+
+            <div class="lp-card">
+              <div class="lp-card-name">2. Ownership</div>
+              <div class="lp-card-desc">Act on behalf of the entire company, not just your immediate team. Don't say "that's not my problem." If you see a bug outside your scope, you flag it or fix it. If something breaks, you take responsibility even if you didn't cause it.</div>
+              <div class="lp-card-signal"><strong>Answer signal:</strong> pick the answer where YOU take action — not the one where you wait for someone else, escalate without trying first, or blame another team.</div>
+            </div>
+
+            <div class="lp-card">
+              <div class="lp-card-name">3. Bias for Action</div>
+              <div class="lp-card-desc">Speed matters. Many decisions are reversible. Make a reasonable decision with imperfect information rather than waiting for certainty. Calculated risk is valued over endless analysis.</div>
+              <div class="lp-card-signal"><strong>Answer signal:</strong> when the choice is "wait for complete info / more meetings" vs "take a reasonable action now with what you know" — pick the action. Exception: genuinely irreversible decisions with high risk.</div>
+            </div>
+
+            <div class="lp-card">
+              <div class="lp-card-name">4. Deliver Results</div>
+              <div class="lp-card-desc">Focus on key inputs and deliver on time. Don't let blockers go unaddressed. If a deadline is at risk, surface it early — going quiet is the worst option.</div>
+              <div class="lp-card-signal"><strong>Answer signal:</strong> raise blockers early, flag risks proactively, don't silently miss a deadline and hope no one notices. Communicate, don't hide.</div>
+            </div>
+
+            <div class="lp-card">
+              <div class="lp-card-name">5. Dive Deep</div>
+              <div class="lp-card-desc">Stay connected to the details. Check the data before accepting a surface-level explanation. If something seems wrong, dig into why before deciding what to do.</div>
+              <div class="lp-card-signal"><strong>Answer signal:</strong> when there's an option to check the data / investigate the root cause vs accept the first explanation — check the data.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-sim-format">
+          <button class="study-toggle" onclick="toggleStudy('sb-sim-format')">
+            <span class="study-toggle-left"><span class="study-icon">📬</span> What the simulation actually looks like</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>The format</h4>
+            <p>You get a simulated inbox with emails, instant messages, and data attachments from virtual teammates and managers. Each scenario presents 3–5 response options. You pick one (or rank them). There's no single "correct" answer displayed — you're scored against LP alignment.</p>
+
+            <h4>Question types you'll see</h4>
+            <ul>
+              <li><strong>Prioritisation:</strong> Two urgent things arrive at once. Which do you handle first?</li>
+              <li><strong>Conflict:</strong> A teammate has done something wrong. How do you respond?</li>
+              <li><strong>Ambiguity:</strong> Requirements are unclear and you can't reach anyone. What do you do?</li>
+              <li><strong>Trade-off:</strong> Ship on time with a known bug, or delay for quality?</li>
+              <li><strong>Scope:</strong> You discover a problem outside your team's ownership. What do you do?</li>
+            </ul>
+
+            <h4>The answer-picking framework</h4>
+            <p>When two options look similar, ask:</p>
+            <ul>
+              <li>Which one has <strong>me taking action</strong> rather than waiting or delegating?</li>
+              <li>Which one <strong>prioritises the customer</strong> over internal comfort?</li>
+              <li>Which one <strong>raises the problem early</strong> rather than hiding it?</li>
+              <li>Which one is backed by <strong>data or investigation</strong> rather than gut feel?</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-workstyle">
+          <button class="study-toggle" onclick="toggleStudy('sb-workstyle')">
+            <span class="study-toggle-left"><span class="study-icon">🧠</span> Work Style Survey — how to approach it</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>What it is</h4>
+            <p>~38 paired statements. For each pair, you choose which is "Most Like Me" vs "More Like Me" (or a Likert scale variant). The content covers decision-making, collaboration, risk appetite, and work preferences.</p>
+
+            <h4>The critical trap: inconsistency</h4>
+            <p>Amazon runs consistency checks across responses. If you say "I always follow established processes" early on, then "I'd rather act fast than wait for process" later, both marked "Most Like Me" — that's flagged. Don't try to answer each question in isolation as "what Amazon wants". Answer as a <strong>consistent person</strong>.</p>
+
+            <h4>The profile Amazon wants to see</h4>
+            <ul>
+              <li>Takes initiative over waiting for direction</li>
+              <li>Raises concerns and blockers early rather than staying quiet</li>
+              <li>Values data and evidence over pure intuition</li>
+              <li>Cares about long-term quality, not just short-term output</li>
+              <li>Owns mistakes rather than attributing them to circumstances</li>
+              <li>Adapts when priorities shift — doesn't rigidly follow a plan when context changes</li>
+              <li>Learns from failure rather than being discouraged by it</li>
+            </ul>
+
+            <h4>Sample questions with reasoning</h4>
+            <div class="mock-qa">
+              <div class="mock-q"><div class="mock-q-label">Question type</div>"I prefer to gather all available information before making a decision" vs "I'm comfortable making decisions before having all the information"</div>
+              <div class="mock-a"><div class="mock-a-label">Amazon answer + why</div>Lean toward the second — Bias for Action. "Most Like Me" unless the risk is genuinely catastrophic. Amazon values reasonable action with imperfect info over analysis paralysis.</div>
+
+              <div class="mock-q"><div class="mock-q-label">Question type</div>"I follow the established process even when I think there might be a better way" vs "I look for better ways to do things even if it means deviating from the established process"</div>
+              <div class="mock-a"><div class="mock-a-label">Amazon answer + why</div>The second — Invent and Simplify. Amazon explicitly values finding better ways. But don't mark it "Most Like Me" if you've also said you rigorously follow process elsewhere — pick one profile and be consistent.</div>
+
+              <div class="mock-q"><div class="mock-q-label">Question type</div>"When I make a mistake, I focus on understanding what went wrong" vs "When I make a mistake, I move on and focus on the next task"</div>
+              <div class="mock-a"><div class="mock-a-label">Amazon answer + why</div>The first — Learn and Be Curious / Dive Deep. Amazon values understanding root causes. "Move on" signals low ownership and low learning.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Scenarios — tap to reveal model answer</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Read the scenario, decide your answer, then tap to reveal. Tap again to mark done.</p>
+
+        <div class="scenario-box" onclick="toggleScenario(this)">
+          <div class="scenario-num">Scenario 1 · Ownership + Bias for Action</div>
+          A teammate merged a breaking change and went on holiday. The incident is live. You didn't cause it and don't own their service. What do you do?
+          <div class="scenario-answer">
+            <div class="answer-tag">Model answer</div>
+            You take ownership. Investigate the breaking change, understand the scope, and either roll back or patch it. Notify your manager proactively. Don't wait for the teammate to return or for someone else to take it. <strong>LP: Ownership</strong> — act on behalf of the entire company, not just your remit. <strong>Bias for Action</strong> — don't wait; the incident is live.
+          </div>
+        </div>
+
+        <div class="scenario-box" onclick="toggleScenario(this)">
+          <div class="scenario-num">Scenario 2 · Deliver Results + Earn Trust</div>
+          Your manager wants a feature shipped by Friday. You estimate it needs 2 more days of testing. Missing the deadline would affect a partner team. What do you do?
+          <div class="scenario-answer">
+            <div class="answer-tag">Model answer</div>
+            Surface it immediately — don't go quiet and hope to close the gap. Communicate the risk, your current estimate, and what you've done to try to close it. Propose options: ship with reduced scope, get help, or delay with clear reason. <strong>LP: Deliver Results</strong> — flag blockers early. <strong>Earn Trust</strong> — transparency builds it; silence destroys it. Never ship something you know is broken without disclosure.
+          </div>
+        </div>
+
+        <div class="scenario-box" onclick="toggleScenario(this)">
+          <div class="scenario-num">Scenario 3 · Ownership beyond scope</div>
+          While reviewing a teammate's PR you notice a performance issue that will affect customers but is outside your team's ownership. The teammate hasn't noticed. What do you do?
+          <div class="scenario-answer">
+            <div class="answer-tag">Model answer</div>
+            Flag it in the PR review with a clear explanation of the impact. If the teammate is unresponsive, escalate to the owning team directly. Don't merge it silently because "it's not your problem." <strong>LP: Ownership</strong> — think beyond your immediate scope. <strong>Customer Obsession</strong> — the performance issue affects customers; that's reason enough to act.
+          </div>
+        </div>
+
+        <div class="scenario-box" onclick="toggleScenario(this)">
+          <div class="scenario-num">Scenario 4 · Earn Trust + Customer Obsession</div>
+          A stakeholder emails asking why a feature is two weeks late. The delay was caused by a dependency team, not yours. How do you respond?
+          <div class="scenario-answer">
+            <div class="answer-tag">Model answer</div>
+            Don't deflect or blame the dependency team in your response. Acknowledge the delay, take responsibility for the overall outcome, explain the root cause factually, and give a clear updated timeline. <strong>LP: Earn Trust</strong> — stakeholders trust people who own outcomes, not people who point fingers. <strong>Deliver Results</strong> — you own the delivery, not just your slice of it.
+          </div>
+        </div>
+
+        <div class="scenario-box" onclick="toggleScenario(this)">
+          <div class="scenario-num">Scenario 5 · Customer Obsession vs delivery pressure</div>
+          You're asked to cut scope on a feature to hit a deadline. The cut would meaningfully hurt the end user experience. Leadership is pushing to ship. What do you do?
+          <div class="scenario-answer">
+            <div class="answer-tag">Model answer</div>
+            Raise the user experience concern explicitly with data if you have it ("this removes X from N users who rely on it"). Propose an alternative: ship the core feature now with a clear follow-up plan for the cut scope. If leadership still decides to ship, commit and execute — but your job is to make sure they're making the decision with full information. <strong>LP: Have Backbone</strong> — disagree and say so. <strong>Customer Obsession</strong> — advocate for the user. Then <strong>Disagree and Commit</strong> once the decision is made.
+          </div>
+        </div>
+
+        <div class="scenario-box" onclick="toggleScenario(this)">
+          <div class="scenario-num">Scenario 6 · Bias for Action under ambiguity</div>
+          You're mid-task and realise the requirements are ambiguous in a way that could mean two completely different implementations. Your manager is in back-to-backs for 3 hours and the deadline is today. What do you do?
+          <div class="scenario-answer">
+            <div class="answer-tag">Model answer</div>
+            Don't freeze. Make the most reasonable interpretation based on context, document your assumption explicitly, and implement it. Send your manager a concise Slack/email: "Implemented X based on assumption Y — please flag if that's wrong." This shows Bias for Action (you moved forward) and Earn Trust (you were transparent). The worst answer is to do nothing and wait 3 hours.
+          </div>
+        </div>
+      </div>
+
+      <div class="day-actions">
+        <button class="btn btn-primary" onclick="markDayDone(4)">Mark Day 4 Done</button>
+        <button class="btn btn-secondary" onclick="goToDay(5)">Day 5 →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ DAY 5 ═══════════════════════════════════════ -->
+    <div class="day-panel" id="panel-5">
+      <div class="day-header">
+        <div class="day-number">Day 5 · Evening · ~2hrs</div>
+        <div class="day-title">Timed Mock OA + Final Review</div>
+        <div class="day-subtitle">Full simulation — no pausing, no Googling, treat it exactly like the real thing</div>
+      </div>
+
+      <div class="time-blocks">
+        <div class="time-block"><div class="time-block-label">Mock time</div><div class="time-block-val">100 mins</div></div>
+        <div class="time-block"><div class="time-block-label">Per problem</div><div class="time-block-val">45 min max</div></div>
+        <div class="time-block"><div class="time-block-label">After</div><div class="time-block-val">Targeted review</div></div>
+      </div>
+
+      <div class="info-card warning">
+        <div class="card-tag warn">Schedule the real OA for morning or weekend</div>
+        Don't take it straight after work. After 5 days of evening prep, book it for a morning slot or weekend if you have the choice — the coding section requires peak focus.
+      </div>
+
+      <div class="section">
+        <div class="section-label">Study material — test day rules</div>
+
+        <div class="study-block" id="sb-testday">
+          <button class="study-toggle" onclick="toggleStudy('sb-testday')">
+            <span class="study-toggle-left"><span class="study-icon">⚠️</span> HackerRank rules — don't get disqualified</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>Browser rules (enforced automatically)</h4>
+            <ul>
+              <li><strong>Tab switching is logged</strong> — multiple tab switches may trigger warnings or disqualification</li>
+              <li><strong>Copy-paste is flagged</strong> — even your own code. Type it. Amazon expects original code written in real time</li>
+              <li><strong>Print Screen ends the test immediately</strong> — don't press it</li>
+              <li><strong>Screen capture tools</strong> — will terminate your session</li>
+            </ul>
+            <h4>Setup checklist before you start</h4>
+            <ul>
+              <li>Latest Chrome (version 94+)</li>
+              <li>Disable all browser extensions</li>
+              <li>Enable third-party cookies</li>
+              <li>Stable internet (4G minimum) — check speed beforehand</li>
+              <li>Quiet uninterrupted room for the full duration</li>
+              <li>Water, no phone in sight</li>
+            </ul>
+            <h4>During the test — time management</h4>
+            <ul>
+              <li>Read the whole problem before writing a single line</li>
+              <li>Write a brute force solution comment first — it clarifies your thinking</li>
+              <li>If stuck at 20 mins: write the brute force that passes visible test cases, then optimise. Partial credit &gt; blank.</li>
+              <li>Test edge cases before submitting: empty input, single element, negatives, large n</li>
+              <li>If you finish Q1 early, move to Q2 — don't micro-optimise</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-edgecases">
+          <button class="study-toggle" onclick="toggleStudy('sb-edgecases')">
+            <span class="study-toggle-left"><span class="study-icon">🔍</span> Edge cases checklist — before you submit</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <p>Amazon's hidden test cases heavily target edge conditions. Before submitting, run through this mentally:</p>
+            <h4>Array / string problems</h4>
+            <div class="edge-case"><strong>Empty array/string</strong> → return 0, [], or "" immediately?</div>
+            <div class="edge-case"><strong>Single element</strong> → does it satisfy the condition on its own?</div>
+            <div class="edge-case"><strong>All same elements</strong> → does your algorithm handle duplicates?</div>
+            <div class="edge-case"><strong>Negative numbers</strong> → prefix sum, product calculations still work?</div>
+            <div class="edge-case"><strong>Integer overflow</strong> → use long in Java if multiplying large numbers</div>
+            <h4>Graph / grid problems</h4>
+            <div class="edge-case"><strong>Disconnected graph</strong> → does your BFS/DFS handle multiple components?</div>
+            <div class="edge-case"><strong>1×1 grid</strong> → single cell edge case</div>
+            <div class="edge-case"><strong>All cells blocked / all open</strong> → boundary conditions</div>
+            <div class="edge-case"><strong>Already visited tracking</strong> → are you marking visited before or after adding to queue? (Add BEFORE to avoid re-adding)</div>
+            <h4>Intervals</h4>
+            <div class="edge-case"><strong>Single interval</strong> → return as-is</div>
+            <div class="edge-case"><strong>Adjacent intervals [1,2] [2,3]</strong> → these overlap (use ≤ not &lt;)</div>
+            <div class="edge-case"><strong>All overlapping</strong> → result is one merged interval</div>
+          </div>
+        </div>
+
+        <div class="study-block" id="sb-postmock">
+          <button class="study-toggle" onclick="toggleStudy('sb-postmock')">
+            <span class="study-toggle-left"><span class="study-icon">📊</span> Post-mock review — 3 questions to ask yourself</span>
+            <span class="study-chevron">▼</span>
+          </button>
+          <div class="study-content">
+            <h4>1. Where did time go?</h4>
+            <p>Reading the problem? Planning the approach? Debugging? If you spent more than 10 mins reading — practice skimming. If you spent more than 15 mins debugging — write brute force first next time.</p>
+            <h4>2. Did I check edge cases before submitting?</h4>
+            <p>If no — that's one habit to add on test day. 2 mins of edge case checking can convert partial credit to full credit.</p>
+            <h4>3. Did I write brute force first or go straight for optimal?</h4>
+            <p>Going straight for optimal when rusty causes freezing. On test day: write the brute force in comments first (even if you don't code it), then build the optimal. The act of writing it clarifies your thinking.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Exercises — full mock (100 min, no pausing)</div>
+        <div class="exercise-list">
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">Q1 — arrays/hashmap (suggested: #560)<a class="exercise-link" href="https://leetcode.com/problems/subarray-sum-equals-k/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">45 min hard stop</span></div>
+              <div class="exercise-hint">Write brute force comment first. Optimise. Test edge cases. Submit. Move on at 45 min whether done or not.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">Q2 — graph/BFS (suggested: #994)<a class="exercise-link" href="https://leetcode.com/problems/rotting-oranges/" target="_blank" onclick="e=event;e.stopPropagation()">LeetCode →</a></div>
+              <div class="exercise-meta"><span class="exercise-tag tag-medium">45 min hard stop</span></div>
+              <div class="exercise-hint">If stuck at 20 mins: write brute force that passes visible cases. Partial credit beats blank. Optimise if time allows.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">Post-mock self-review (20 mins)</div>
+              <div class="exercise-meta"><span class="exercise-tag tag-reading">Review</span></div>
+              <div class="exercise-hint">Answer the 3 questions above. One targeted fix per issue. Don't re-solve — just identify the habit to change.</div>
+            </div>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="exercise-checkbox">✓</div>
+            <div class="exercise-content">
+              <div class="exercise-title">Read the 5 key LPs one final time (10 mins)</div>
+              <div class="exercise-meta"><span class="exercise-tag tag-reading">LP</span></div>
+              <div class="exercise-hint">Ownership, Bias for Action, Customer Obsession, Deliver Results, Dive Deep. Then stop. No more cramming after 9pm — sleep is prep.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day-actions">
+        <button class="btn btn-primary" onclick="markDayDone(5)">All Done ✓</button>
+        <button class="btn btn-secondary" onclick="goToDay('lp')">LP Reference →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ LP REF ═══════════════════════════════════════ -->
+    <div class="day-panel" id="panel-lp">
+      <div class="day-header">
+        <div class="day-number">Quick Reference</div>
+        <div class="day-title">Leadership Principles</div>
+        <div class="day-subtitle">Highlighted = the 5 that dominate the SDE simulation</div>
+      </div>
+
+      <div class="lp-grid">
+        <div class="lp-item highlight"><span class="lp-dot"></span>Customer Obsession</div>
+        <div class="lp-item highlight"><span class="lp-dot"></span>Ownership</div>
+        <div class="lp-item"><span class="lp-dot"></span>Invent and Simplify</div>
+        <div class="lp-item"><span class="lp-dot"></span>Are Right, A Lot</div>
+        <div class="lp-item"><span class="lp-dot"></span>Learn and Be Curious</div>
+        <div class="lp-item"><span class="lp-dot"></span>Hire and Develop the Best</div>
+        <div class="lp-item"><span class="lp-dot"></span>Insist on the Highest Standards</div>
+        <div class="lp-item highlight"><span class="lp-dot"></span>Bias for Action</div>
+        <div class="lp-item"><span class="lp-dot"></span>Frugality</div>
+        <div class="lp-item"><span class="lp-dot"></span>Earn Trust</div>
+        <div class="lp-item highlight"><span class="lp-dot"></span>Dive Deep</div>
+        <div class="lp-item"><span class="lp-dot"></span>Have Backbone; Disagree &amp; Commit</div>
+        <div class="lp-item highlight"><span class="lp-dot"></span>Deliver Results</div>
+        <div class="lp-item"><span class="lp-dot"></span>Strive to be Earth's Best Employer</div>
+        <div class="lp-item"><span class="lp-dot"></span>Success and Scale Bring Broad Responsibility</div>
+        <div class="lp-item"><span class="lp-dot"></span>Think Big</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-label" style="margin-bottom:12px">Decision framework</div>
+      <div class="info-card">
+        <div class="card-tag info">When two simulation answers look similar — ask these</div>
+        Which has <strong style="color:#fff">me taking action</strong> vs waiting? Which prioritises <strong style="color:#fff">customer impact</strong> over internal process? Which <strong style="color:#fff">raises the problem early</strong> vs hiding it? Which is backed by <strong style="color:#fff">data</strong> vs gut feel? Which shows <strong style="color:#fff">ownership of the outcome</strong> vs "not my problem"?
+      </div>
+
+      <div class="info-card tip">
+        <div class="card-tag tip">Work Style Survey — consistency rule</div>
+        Amazon checks patterns across all responses. Answer as one consistent person: takes initiative, raises blockers early, values data, owns mistakes, adapts when context changes. Don't guess the "right answer" per question — it creates contradictions.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<nav class="mobile-bottom-nav">
+  <div class="mobile-bottom-nav-inner">
+    <button class="mobile-nav-btn active" id="mob-1" onclick="goToDay(1)"><span class="mobile-nav-icon">1️⃣</span>Arrays</button>
+    <button class="mobile-nav-btn" id="mob-2" onclick="goToDay(2)"><span class="mobile-nav-icon">2️⃣</span>Graphs</button>
+    <button class="mobile-nav-btn" id="mob-3" onclick="goToDay(3)"><span class="mobile-nav-icon">3️⃣</span>Repo</button>
+    <button class="mobile-nav-btn" id="mob-4" onclick="goToDay(4)"><span class="mobile-nav-icon">4️⃣</span>Sim</button>
+    <button class="mobile-nav-btn" id="mob-5" onclick="goToDay(5)"><span class="mobile-nav-icon">5️⃣</span>Mock</button>
+    <button class="mobile-nav-btn" id="mob-lp" onclick="goToDay('lp')"><span class="mobile-nav-icon">⭐</span>LP</button>
+  </div>
+</nav>
+
+<script>
+  const STORAGE_KEY = 'amazon_oa_prep_v2';
+  let state = { completedExercises: new Set(), completedDays: new Set(), completedScenarios: new Set(), openStudy: new Set() };
+
+  function loadState() {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const p = JSON.parse(saved);
+        state.completedExercises = new Set(p.completedExercises || []);
+        state.completedDays = new Set(p.completedDays || []);
+        state.completedScenarios = new Set(p.completedScenarios || []);
+        state.openStudy = new Set(p.openStudy || []);
+      }
+    } catch(e) {}
+  }
+
+  function saveState() {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        completedExercises: [...state.completedExercises],
+        completedDays: [...state.completedDays],
+        completedScenarios: [...state.completedScenarios],
+        openStudy: [...state.openStudy]
+      }));
+    } catch(e) {}
+  }
+
+  function toggleStudy(id) {
+    const block = document.getElementById(id);
+    if (!block) return;
+    block.classList.toggle('open');
+    if (block.classList.contains('open')) state.openStudy.add(id);
+    else state.openStudy.delete(id);
+    saveState();
+  }
+
+  function toggleDrawer() {
+    document.getElementById('dayNav').classList.toggle('open');
+    document.getElementById('navOverlay').classList.toggle('open');
+  }
+
+  function closeDrawer() {
+    document.getElementById('dayNav').classList.remove('open');
+    document.getElementById('navOverlay').classList.remove('open');
+  }
+
+  function getExerciseId(el) {
+    const t = el.querySelector('.exercise-title');
+    return t ? t.textContent.trim().substring(0, 40) : Math.random().toString();
+  }
+
+  function toggleExercise(el) {
+    const id = getExerciseId(el);
+    if (state.completedExercises.has(id)) { state.completedExercises.delete(id); el.classList.remove('done'); }
+    else { state.completedExercises.add(id); el.classList.add('done'); }
+    saveState(); updateStats();
+  }
+
+  function toggleScenario(el) {
+    const text = el.querySelector('.scenario-num').textContent;
+    // First tap: reveal answer. Second tap: mark done. Third tap: reset.
+    if (el.classList.contains('done')) {
+      el.classList.remove('done', 'reveal');
+      state.completedScenarios.delete(text);
+    } else if (el.classList.contains('reveal')) {
+      el.classList.add('done');
+      state.completedScenarios.add(text);
+    } else {
+      el.classList.add('reveal');
+    }
+    saveState(); updateStats();
+  }
+
+  function markDayDone(day) {
+    state.completedDays.add(day);
+    ['nav-', 'mob-'].forEach(p => { const b = document.getElementById(p + day); if (b) b.classList.add('done'); });
+    saveState(); updateProgress(); updateStats();
+  }
+
+  function goToDay(day) {
+    document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.day-btn, .mobile-nav-btn').forEach(b => b.classList.remove('active'));
+    const panel = document.getElementById('panel-' + day);
+    if (panel) panel.classList.add('active');
+    ['nav-', 'mob-'].forEach(p => { const b = document.getElementById(p + day); if (b) b.classList.add('active'); });
+    closeDrawer();
+    window.scrollTo(0, 0);
+  }
+
+  function updateProgress() {
+    document.querySelectorAll('.progress-segment').forEach((seg, i) => {
+      const day = i + 1;
+      seg.classList.toggle('done', state.completedDays.has(day));
+      seg.classList.toggle('active', !state.completedDays.has(day) && day === 1);
+    });
+  }
+
+  function updateStats() {
+    const total = document.querySelectorAll('.exercise-item').length + document.querySelectorAll('.scenario-box').length;
+    const done = document.querySelectorAll('.exercise-item.done').length + document.querySelectorAll('.scenario-box.done').length;
+    document.getElementById('totalTasks').textContent = total;
+    document.getElementById('doneTasks').textContent = done;
+    document.getElementById('doneExercises').textContent = document.querySelectorAll('.exercise-item.done').length;
+  }
+
+  function restoreUI() {
+    document.querySelectorAll('.exercise-item').forEach(el => { if (state.completedExercises.has(getExerciseId(el))) el.classList.add('done'); });
+    document.querySelectorAll('.scenario-box').forEach(el => {
+      const text = el.querySelector('.scenario-num').textContent;
+      if (state.completedScenarios.has(text)) el.classList.add('done', 'reveal');
+    });
+    state.completedDays.forEach(day => {
+      ['nav-', 'mob-'].forEach(p => { const b = document.getElementById(p + day); if (b) b.classList.add('done'); });
+    });
+    state.openStudy.forEach(id => {
+      const block = document.getElementById(id);
+      if (block) block.classList.add('open');
+    });
+  }
+
+  loadState(); restoreUI(); updateStats(); updateProgress();
+</script>
+</body>
+</html>
